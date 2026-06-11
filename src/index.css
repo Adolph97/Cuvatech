@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-hand: "Caveat", cursive;
+  
+  --color-cream: #ffffff;
+  --color-beige: #f3f7fc;
+  --color-sand: #e0ecfc;
+  --color-charcoal: #181d26;
+  --color-clay: #2563eb;
+  --color-moss: #3b82f6;
+  --color-terracotta: #1d4ed8;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+  }
+}
+
+/* Custom hand-drawn sketchy details and offset shadows */
+.sketch-border {
+  border: 1.5px solid var(--color-charcoal);
+  border-radius: 4px;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(0.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-reverse {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(5px) rotate(-0.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes wiggle-subtle {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+}
+
+@keyframes draw-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.anim-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.anim-float-delayed {
+  animation: float-reverse 7s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.anim-wiggle {
+  animation: wiggle-subtle 4s ease-in-out infinite;
+}
+
+.anim-pulse-draw {
+  animation: draw-pulse 3.5s ease-in-out infinite;
+}
+
+.sketch-shadow {
+  box-shadow: 4px 4px 0px 0px var(--color-charcoal);
+}
+
+.sketch-shadow-sm {
+  box-shadow: 2px 2px 0px 0px var(--color-charcoal);
+}
+
+.sketch-shadow-lg {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal);
+}
+
+.sketch-shadow-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal);
+}
+
+.sketch-shadow-active:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--color-charcoal);
+}
+
+/* Custom scrollbar layout */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-beige);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border: 1px solid var(--color-charcoal);
+}

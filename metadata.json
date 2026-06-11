@@ -1,0 +1,6 @@
+{
+  "name": "Cuva Tech",
+  "description": "An artisanal, high-end agency landing page featuring IT Cloud Solutions, custom Canva connected workspaces, and interactive step-by-step product calculators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
