@@ -1,4 +1,6 @@
 import { ITService, PrintingProduct, Testimonial, TeamMember } from './types';
+import AchilikeVictor from './assets/images/Achilike Victor.jpeg';
+import ObinnaIhekona from './assets/images/Obinna Ihekona.png';
 
 export const IT_SERVICES: ITService[] = [
   {
@@ -168,24 +170,18 @@ export const TESTIMONIALS: Testimonial[] = [
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'm1',
-    name: 'Efe Cuva',
+    name: 'Achilike Victor',
     role: 'Founder & Infrastructure Lead',
     bio: 'Believes in clean hardware wires, beautiful paper weights, and server instances that write quiet diaries instead of chaotic telemetry. Crafted over 200 cloud configurations.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&h=300&auto=format&fit=crop'
+    image: AchilikeVictor,
   },
+  
   {
     id: 'm2',
-    name: 'Sarah Jenkins',
-    role: 'Director of Brand & Print Synthesis',
-    bio: 'Former manual typographer. Merges heavyweight corporate architecture with hand-pressed ink textures to give brands a distinctive physical weight in a flat digital world.',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&h=300&auto=format&fit=crop'
-  },
-  {
-    id: 'm3',
-    name: 'Michael Chen',
-    role: 'Principal Cloud Architect',
-    bio: 'Ex-Google DevOps Engineer. Draws multi-region replication networks with hand-held charcoal pointers. Masters the terminal, yet values the quiet patience of analog setups.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&h=300&auto=format&fit=crop'
+    name: 'Obinna Ihekona',
+    role: 'Development & Design Lead',
+    bio: 'A full-stack artisan who hand-codes every line of CSS and JavaScript. He has a background in fine arts and software engineering, blending aesthetics with functionality in every project.',
+    image: ObinnaIhekona
   }
 ];
 
