@@ -151,7 +151,7 @@ export default function ITServices() {
               <div className="pt-2 border-t border-charcoal/10 flex items-center justify-between text-xs sm:text-sm font-bold text-charcoal hover:text-clay">
                 <span>Request details & pricing spec</span>
                 <span className="font-hand font-semibold text-clay/80 group-hover:translate-x-1 transition-transform">
-                  Let’s Sketch →
+                  Let’s Work →
                 </span>
               </div>
             </motion.div>

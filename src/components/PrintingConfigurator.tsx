@@ -158,7 +158,7 @@ export default function PrintingConfigurator() {
   };
 
   return (
-    <div id="printing-configurator-card" className="bg-cream border-2 border-charcoal rounded-xl sketch-shadow-lg overflow-hidden max-w-4xl mx-auto">
+    <div id="printing-configurator-card" className="bg-cream border-2 border-charcoal rounded-xl sketch-shadow-lg overflow-visible max-w-6xl mx-auto">
       
       {/* Configurator Header & Progress Steps */}
       <div className="bg-sand border-b-2 border-charcoal p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -268,7 +268,7 @@ export default function PrintingConfigurator() {
                   
                   <div className="flex flex-col md:flex-row gap-6 items-stretch">
                     {/* Left Column: Interactive 2-Column Bento Deck - Zero Scrolling on Desktop */}
-                    <div className="w-full md:w-7/12 grid grid-cols-1 sm:grid-cols-2 gap-3 select-none self-start">
+                    <div className="w-full md:w-5/12 grid grid-cols-1 sm:grid-cols-2 gap-3 select-none self-start">
                       {PRINTING_PRODUCTS.map((prod) => {
                         const isSelected = selectedProduct.id === prod.id;
                         return (
@@ -308,7 +308,7 @@ export default function PrintingConfigurator() {
                     </div>
 
                     {/* Right Column: Spec card highlighting currently selected item */}
-                    <div className="flex-1 bg-sand/15 border-2 border-charcoal/15 rounded-xl p-5 flex flex-col justify-between relative overflow-hidden min-h-[300px]">
+                    <div className="flex-1 bg-sand/15 border-2 border-charcoal/15 rounded-xl p-5 flex flex-col justify-between relative overflow-visible min-h-[300px]">
                       {/* Quiet logo backdrop mask */}
                       <div className="absolute right-[-15px] top-[-15px] text-charcoal/[0.03] w-24 h-24 pointer-events-none transform rotate-12">
                         {getProductIcon(selectedProduct.id)}
@@ -363,14 +363,14 @@ export default function PrintingConfigurator() {
                         </div>
                       </div>
 
-                      <div className="pt-4 mt-3 border-t border-charcoal/10 flex items-center justify-between gap-4">
+                        <div className="pt-4 mt-3 border-t border-charcoal/10 flex items-center justify-between gap-4">
                         <span className="font-hand font-extrabold text-sm text-moss select-none animate-pulse">
                           “Artisanal plate ready!”
                         </span>
                         <button
                           type="button"
                           onClick={handleNextStep}
-                          className="bg-clay hover:bg-clay/90 text-cream px-5 py-2.5 text-xs font-bold rounded border-2 border-charcoal sketch-shadow cursor-pointer transition-all hover:-translate-y-0.5 flex items-center space-x-1.5"
+                            className="bg-clay hover:bg-clay/90 text-cream px-4 sm:px-5 py-2.5 text-xs font-bold rounded border-2 border-charcoal sketch-shadow cursor-pointer transition-all hover:-translate-y-0.5 flex items-center space-x-1.5 whitespace-nowrap flex-shrink-0"
                         >
                           <span>Configure Volume</span>
                           <ArrowRight className="w-4 h-4" />
@@ -684,7 +684,7 @@ export default function PrintingConfigurator() {
           </div>
 
           {/* Right Side: Simple Price Estimation summary */}
-          <div className="w-full lg:w-80 bg-beige/30 p-6 sm:p-8 flex flex-col justify-between">
+          <div className="w-full lg:w-96 bg-beige/30 p-6 sm:p-8 flex flex-col justify-between">
             <div className="space-y-6">
               <span className="font-mono text-xxs font-bold text-charcoal/40 uppercase tracking-widest block">
                 Live Pricing Ledger
