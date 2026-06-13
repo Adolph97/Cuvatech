@@ -369,10 +369,19 @@ export default function AdminDashboard() {
           className="bg-white border border-charcoal/5 p-12 rounded-[2.5rem] shadow-2xl shadow-charcoal/5 max-w-md w-full space-y-8 relative"
         >
           <div className="text-center space-y-3">
-            <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center text-primary mx-auto shadow-inner">
-              <ShieldCheck className="w-8 h-8" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mx-auto shadow-inner">
+              <svg className="w-10 h-10" viewBox="0 0 100 100" fill="none">
+                <defs>
+                  <mask id="login-logo-cutout">
+                    <rect x="0" y="0" width="100" height="100" fill="white" />
+                    <rect x="28" y="24" width="14" height="52" rx="7" fill="black" />
+                    <rect x="35" y="38" width="65" height="24" fill="black" />
+                  </mask>
+                </defs>
+                <circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#login-logo-cutout)" />
+              </svg>
             </div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">cuva_gate</h1>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">cuva tech.</h1>
             <p className="text-xs text-charcoal/40 font-bold uppercase tracking-widest leading-none">Administrative Credentials Guard</p>
           </div>
 
@@ -469,10 +478,19 @@ export default function AdminDashboard() {
       <aside className="w-64 bg-white border-r border-charcoal/5 flex flex-col justify-between py-10 px-6 sticky top-0 h-screen">
         <div className="space-y-12">
           <div className="flex items-center space-x-3 px-2">
-            <div className="bg-primary p-2 rounded-xl text-white">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="bg-black p-2 border border-charcoal/5 rounded-xl shadow-sm flex items-center justify-center w-10 h-10">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
+                <defs>
+                  <mask id="sidebar-logo-cutout">
+                    <rect x="0" y="0" width="100" height="100" fill="white" />
+                    <rect x="28" y="24" width="14" height="52" rx="7" fill="black" />
+                    <rect x="35" y="38" width="65" height="24" fill="black" />
+                  </mask>
+                </defs>
+                <circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#sidebar-logo-cutout)" />
+              </svg>
             </div>
-            <span className="font-display text-xl font-extrabold tracking-tight">cuva_admin</span>
+            <span className="font-display text-xl font-extrabold tracking-tight">cuva tech.</span>
           </div>
 
           <nav className="space-y-2">

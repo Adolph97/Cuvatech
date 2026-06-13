@@ -1,11 +1,41 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Zap } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface NavbarProps {
   activeSection: string;
   onNavigate: (sectionId: string) => void;
   onOpenConsultForm: () => void;
+}
+
+// Shared logo component for consistency
+export function CuvaLogo({ className = '' }: { className?: string }) {
+  return (
+    <div className="flex items-center space-x-3">
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className={`bg-black p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10 ${className}`}
+      >
+        {/* Artisanal genuine custom circular Cut-out logo mark */}
+        <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
+          <defs>
+            <mask id="nav-logo-cutout">
+              <rect x="0" y="0" width="100" height="100" fill="white" />
+              <rect x="28" y="24" width="14" height="52" rx="7" fill="black" />
+              <rect x="35" y="38" width="65" height="24" fill="black" />
+            </mask>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#nav-logo-cutout)" />
+        </svg>
+      </motion.div>
+      <div className="flex flex-col items-start">
+        <span className="font-display text-xl sm:text-2xl font-extrabold leading-none tracking-tight text-charcoal">
+          cuva tech.
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }: NavbarProps) {
@@ -25,7 +55,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
     { id: 'it-services', label: 'IT Services' },
     { id: 'branding-printing', label: 'Branding & Printing' },
     { id: 'digital-marketing', label: 'Marketing' },
-    { id: 'about-us', label: 'Our Story' },
+    { id: 'printing-jobs', label: 'Printing Jobs' },
     { id: 'testimonials', label: 'Reviews' },
     { id: 'contact', label: 'Say Hello' }
   ];
@@ -34,25 +64,21 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
     <nav
       id="cuva-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-bg/80 backdrop-blur-md py-3 shadow-sm' 
+        scrolled
+          ? 'bg-bg/80 backdrop-blur-md py-3 shadow-sm'
           : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
-          
+
           {/* Logo Brand with CUSTOM mask cutout "C" */}
           <button
             id="brand-logo-btn"
             onClick={() => onNavigate('hero')}
-            className="flex items-center space-x-2 group focus:outline-none cursor-pointer"
+            className="flex items-center space-x-3 group focus:outline-none cursor-pointer"
           >
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-black p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10"
-            >
+            <div className="bg-black p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10">
               {/* Artisanal genuine custom circular Cut-out logo mark */}
               <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
                 <defs>
@@ -64,9 +90,9 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                 </defs>
                 <circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#nav-logo-cutout)" />
               </svg>
-            </motion.div>
+            </div>
             <div className="flex flex-col items-start">
-              <span className="font-display text-2xl font-extrabold leading-none tracking-tight text-charcoal">
+              <span className="font-display text-xl sm:text-2xl font-extrabold leading-none tracking-tight text-charcoal">
                 cuva tech.
               </span>
             </div>
@@ -89,9 +115,9 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                 >
                   {item.label}
                   {isActive && (
-                    <motion.span 
+                    <motion.span
                       layoutId="nav-underline"
-                      className="absolute -bottom-1 left-0 right-0 h-[3px] bg-primary rounded-full" 
+                      className="absolute -bottom-1 left-0 right-0 h-[3px] bg-primary rounded-full"
                     />
                   )}
                 </button>
@@ -131,8 +157,8 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
       {/* Mobile Drawer with Framer Motion AnimatePresence */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            id="mobile-nav-drawer" 
+          <motion.div
+            id="mobile-nav-drawer"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -164,9 +190,9 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                   setIsOpen(false);
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-moss text-cream w-full py-3 text-center text-sm font-bold border-2 border-charcoal rounded sketch-shadow mt-3 flex items-center justify-center space-x-2 cursor-pointer"
+                className="bg-charcoal text-white w-full py-3 text-center text-sm font-bold rounded-2xl sketch-shadow mt-3 flex items-center justify-center space-x-2 cursor-pointer border border-charcoal/5"
               >
-                <Zap className="w-4 h-4 fill-current" />
+                <ArrowRight className="w-4 h-4" />
                 <span>Request Free Consultation</span>
               </motion.button>
             </div>
