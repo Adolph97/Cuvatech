@@ -5,62 +5,60 @@ import { ScribbleStar, ScribbleUnderline } from './NotionIllustrations';
 
 export default function AboutUs() {
   return (
-    <section id="about-us" className="py-20 bg-cream border-b-2 border-charcoal relative">
+    <section id="about-us" className="py-24 bg-bg relative overflow-hidden">
       {/* Structural grids accents */}
-      <div className="absolute inset-x-0 h-[1.5px] bg-charcoal/10 top-1/4" />
-      <div className="absolute inset-y-0 w-[1.5px] bg-charcoal/10 left-1/4" />
+      <div className="absolute inset-x-0 h-[1px] bg-charcoal/5 top-1/4" />
+      <div className="absolute inset-y-0 w-[1px] bg-charcoal/5 left-1/4" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <span className="font-hand font-bold text-lg text-clay tracking-wider uppercase block mb-1">
-            04 / Intellectual Layer
-          </span>
-          <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-black text-charcoal leading-tight mb-4">
+          <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">
             Our Story & Values
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
+            Everything starts with <br />
+            <span className="text-primary italic">craftsmanship.</span>
           </h2>
-          <div className="w-24 h-1 bg-charcoal mx-auto mb-6 rounded-full" />
-          <p className="font-sans text-lg text-charcoal/80 leading-relaxed">
+          <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
             We are a multi-service technology and creative synthesis studio. We believe that technology 
             should feel less like cold aluminum servers, and more like beautiful, warm physical stationery.
           </p>
         </div>
 
         {/* Founding and story segments */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20">
-          <div className="lg:col-span-7 space-y-6">
-            <h3 className="font-serif text-3xl sm:text-4xl font-black text-charcoal leading-tight">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start mb-24">
+          <div className="lg:col-span-7 space-y-8">
+            <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
               Bridging the gap between heavy cloud infrastructure and manual typography.
             </h3>
             
-            <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed">
+            <p className="font-sans text-base text-charcoal/70 leading-relaxed">
               Founded in Dublin in 2024, Cuva Tech emerged from a simple question: <em>Why must high-performance IT 
               solutions feel so sterile?</em> Our founder, Efe Cuva, spent years wiring remote database nodes across 
               heavy financial networks, yet spent weekends collecting manual handpressed journals and studying print ink 
               absorption rules.
             </p>
 
-            <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed">
+            <p className="font-sans text-base text-charcoal/70 leading-relaxed">
               We realized that the best brands aren’t built with off-the-shelf automated scripts or template blocks. 
-              They require bespoke physical presence combined with weightless, secure cloud engines. Cuva Tech brings 
-              these two worlds into harmony under one roof: offering enterprise-grade Cloud Architecture, 
-              handbound silk-screen print production, and high-fidelity growth marketing.
+              They require bespoke physical presence combined with weightless, secure cloud engines.
             </p>
 
-            <div className="pt-4 flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 bg-beige border-2 border-charcoal p-5 rounded-lg sketch-shadow-sm">
-                <span className="font-hand font-bold text-xs text-clay">Differentiator [I]</span>
-                <h5 className="font-serif text-lg font-bold text-charcoal mt-1">Symmetrical Synthesis</h5>
-                <p className="font-sans text-xs text-charcoal/70 mt-1 lines-clamp-3">
+            <div className="pt-6 flex flex-col sm:flex-row gap-6">
+              <div className="flex-1 bg-white border border-charcoal/5 p-6 rounded-2xl shadow-sm">
+                <span className="font-sans font-bold text-xs text-primary uppercase tracking-wider">Symmetry</span>
+                <h5 className="font-display text-xl font-bold text-charcoal mt-2">Symmetrical Synthesis</h5>
+                <p className="font-sans text-sm text-charcoal/50 mt-2">
                   Your website layout, search keywords, and actual printed invoicing books are custom engineered in tandem.
                 </p>
               </div>
 
-              <div className="flex-1 bg-beige border-2 border-charcoal p-5 rounded-lg sketch-shadow-sm">
-                <span className="font-hand font-bold text-xs text-clay">Differentiator [II]</span>
-                <h5 className="font-serif text-lg font-bold text-charcoal mt-1 font-bold">Uncompromising Quality</h5>
-                <p className="font-sans text-xs text-charcoal/70 mt-1 lines-clamp-3">
+              <div className="flex-1 bg-white border border-charcoal/5 p-6 rounded-2xl shadow-sm">
+                <span className="font-sans font-bold text-xs text-primary uppercase tracking-wider">Quality</span>
+                <h5 className="font-display text-xl font-bold text-charcoal mt-2">Uncompromising</h5>
+                <p className="font-sans text-sm text-charcoal/50 mt-2">
                   No cookie-cutter AI automation codes. Everything is adjusted, compiled, and hand-sketched by lead designers.
                 </p>
               </div>
@@ -68,30 +66,30 @@ export default function AboutUs() {
           </div>
 
           {/* Mission and Vision statements */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-8">
             {/* Mission Statement */}
-            <div className="bg-sand border-2 border-charcoal p-6 sm:p-8 rounded-xl sketch-shadow relative overflow-hidden">
+            <div className="bg-primary/5 border border-primary/10 p-8 rounded-3xl relative overflow-hidden">
               <div className="absolute right-3 top-3 opacity-10">
-                <BookOpen className="w-16 h-16 text-charcoal" />
+                <BookOpen className="w-16 h-16 text-primary" />
               </div>
-              <span className="font-mono text-xxs font-bold text-clay uppercase tracking-widest block mb-1">
-                OUR MISSION STATEMENT //
+              <span className="font-sans text-xs font-bold text-primary uppercase tracking-widest block mb-4">
+                OUR MISSION
               </span>
-              <p className="font-serif text-xl sm:text-2xl font-bold italic text-charcoal leading-relaxed">
+              <p className="font-display text-2xl font-bold italic text-charcoal leading-relaxed">
                 “To humanize the digital workspace by engineering bulletproof cloud systems and elegant material 
                 craft that commands respect, builds trust, and endures.”
               </p>
             </div>
 
             {/* Vision Statement */}
-            <div className="bg-cream border-2 border-charcoal p-6 sm:p-8 rounded-xl sketch-shadow-lg relative overflow-hidden">
+            <div className="bg-white border border-charcoal/5 p-8 rounded-3xl shadow-lg shadow-charcoal/5 relative overflow-hidden">
               <div className="absolute right-3 top-3 opacity-10">
-                <Sparkles className="w-16 h-16 text-clay" />
+                <Sparkles className="w-16 h-16 text-primary" />
               </div>
-              <span className="font-mono text-xxs font-bold text-moss uppercase tracking-widest block mb-1">
-                OUR VISION STATEMENT //
+              <span className="font-sans text-xs font-bold text-charcoal/40 uppercase tracking-widest block mb-4">
+                OUR VISION
               </span>
-              <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed font-medium italic">
+              <p className="font-sans text-base text-charcoal/60 leading-relaxed italic">
                 “We envision a technological landscape where digital interfaces preserve personal craftsmanship, where 
                 infrastructure represents high design, and where client relations are cultivated through quiet competence and tea.”
               </p>

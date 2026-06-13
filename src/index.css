@@ -1,92 +1,121 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-display: "Outfit", sans-serif;
   --font-hand: "Caveat", cursive;
   
-  --color-cream: #ffffff;
-  --color-beige: #f3f7fc;
-  --color-sand: #e0ecfc;
-  --color-charcoal: #181d26;
-  --color-clay: #2563eb;
-  --color-moss: #3b82f6;
-  --color-terracotta: #1d4ed8;
+  --color-primary: #E58B6D;
+  --color-primary-light: #F5D6C6;
+  --color-bg: #FDF9F3;
+  --color-card: #ffffff;
+  --color-charcoal: #1E1B18;
+  --color-muted: #71717A;
+  
+  /* Legacy names mapping for compatibility if needed, but updated values */
+  --color-cream: #FDF9F3;
+  --color-beige: #FFF5EE;
+  --color-sand: #F5D6C6;
+  --color-clay: #E58B6D;
+  --color-moss: #1E1B18;
+  --color-terracotta: #E58B6D;
 }
 
 @layer base {
   body {
-    background-color: var(--color-cream);
+    background-color: var(--color-bg);
     color: var(--color-charcoal);
+    background-image: radial-gradient(var(--color-charcoal) 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
+    opacity: 0.99; /* Ensure background is visible */
+  }
+
+  /* Soften global elements */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 
-/* Custom hand-drawn sketchy details and offset shadows */
-.sketch-border {
-  border: 1.5px solid var(--color-charcoal);
-  border-radius: 4px;
+/* Updated softer styles */
+.soft-card {
+  background: var(--color-card);
+  border: 1px solid rgba(30, 27, 24, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px -4px rgba(30, 27, 24, 0.05);
+  transition: all 0.3s ease;
 }
 
+.soft-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(30, 27, 24, 0.1);
+  border-color: var(--color-primary);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #d17a5d;
+  transform: scale(1.02);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--color-charcoal);
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: 1px solid rgba(30, 27, 24, 0.15);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bg);
+  transform: scale(1.02);
+}
+
+/* Keep some animations but soften them */
 @keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-7px) rotate(0.5deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
-}
-
-@keyframes float-reverse {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(5px) rotate(-0.5deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
-}
-
-@keyframes wiggle-subtle {
-  0%, 100% { transform: rotate(-1deg); }
-  50% { transform: rotate(1deg); }
-}
-
-@keyframes draw-pulse {
-  0%, 100% { opacity: 0.85; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.03); }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
 }
 
 .anim-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
-.anim-float-delayed {
-  animation: float-reverse 7s ease-in-out infinite;
-  animation-delay: 1.5s;
-}
-
-.anim-wiggle {
-  animation: wiggle-subtle 4s ease-in-out infinite;
-}
-
-.anim-pulse-draw {
-  animation: draw-pulse 3.5s ease-in-out infinite;
+/* Override the old sketch styles to be softer */
+.sketch-border {
+  border: 1px solid rgba(30, 27, 24, 0.1);
+  border-radius: 12px;
 }
 
 .sketch-shadow {
-  box-shadow: 4px 4px 0px 0px var(--color-charcoal);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .sketch-shadow-sm {
-  box-shadow: 2px 2px 0px 0px var(--color-charcoal);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .sketch-shadow-lg {
-  box-shadow: 6px 6px 0px 0px var(--color-charcoal);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .sketch-shadow-hover:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--color-charcoal);
-}
-
-.sketch-shadow-active:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px var(--color-charcoal);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Custom scrollbar layout */
@@ -94,9 +123,9 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-beige);
+  background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-sand);
-  border: 1px solid var(--color-charcoal);
+  background: var(--color-primary-light);
+  border-radius: 10px;
 }

@@ -71,7 +71,7 @@ export default function App() {
   };
 
   return (
-    <div className="bg-cream text-charcoal min-h-screen font-sans antialiased selection:bg-sand selection:text-clay">
+    <div className="bg-bg text-charcoal min-h-screen font-sans antialiased selection:bg-primary/20 selection:text-primary">
       
       {/* Dynamic Navigation Bar */}
       <Navbar
@@ -83,15 +83,11 @@ export default function App() {
       {/* HERO SECTION */}
       <header
         id="hero"
-        className="pt-32 pb-20 sm:pb-28 bg-cream border-b-2 border-charcoal relative overflow-hidden"
+        className="pt-32 pb-20 sm:pb-28 bg-bg relative overflow-hidden"
       >
-        {/* Subtle grid pattern backing */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1e1b18_1.2px,transparent_1.2px)] [background-size:20px_20px] opacity-[0.03] pointer-events-none" />
-
-        {/* Ambient brand color glows (Clay, Moss, Sand) matching artisanal identity */}
-        <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-sand/25 blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute -bottom-16 -left-16 w-96 h-96 rounded-full bg-clay/5 blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
-        <div className="absolute top-1/2 left-1/3 w-72 h-72 rounded-full bg-moss/5 blur-[100px] mix-blend-multiply pointer-events-none -z-10" />
+        {/* Ambient brand color glows (Primary) matching new identity */}
+        <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-primary/10 blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute -bottom-16 -left-16 w-96 h-96 rounded-full bg-primary/5 blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -119,11 +115,11 @@ export default function App() {
                   hidden: { opacity: 0, y: 15, scale: 0.95 },
                   visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 20 } }
                 }}
-                className="inline-flex items-center space-x-2 px-3 py-1.5 bg-beige border border-charcoal rounded-md rotate-[-1deg] shadow-sm select-none"
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/10 rounded-full shadow-sm select-none"
               >
-                <Sparkles className="w-4 h-4 text-clay animate-pulse" />
-                <span className="font-hand font-extrabold text-sm text-clay select-none">
-                  Unifying Silicon & Ink: Artisanal Tech Agency
+                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                <span className="font-sans font-bold text-xs text-charcoal/60 uppercase tracking-widest select-none">
+                  Project Preview
                 </span>
               </motion.div>
 
@@ -133,78 +129,86 @@ export default function App() {
                   hidden: { opacity: 0, y: 20 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
                 }}
-                className="space-y-4 relative"
+                className="space-y-6 relative"
               >
-                {/* Float stars around heading */}
-                <div className="absolute top-[-30px] left-[-15px] text-moss opacity-80 anim-float pointer-events-none">
-                  <ScribbleStar className="w-8 h-8" />
-                </div>
-                <div className="absolute top-[-10px] right-[10%] text-terracotta opacity-70 anim-float-delayed pointer-events-none">
-                  <ScribbleStar className="w-6 h-6 transform rotate-45" />
-                </div>
-
-                <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-black text-charcoal leading-none tracking-tight">
-                  High-End Tech <br />
-                  <span className="relative inline-block px-1">
-                    <span className="text-clay italic font-normal font-serif relative z-10">Synthesised</span>
-                    <ScribbleUnderline className="absolute left-0 bottom-[-6px] w-full text-clay h-3 opacity-95" />
-                  </span> for Creative Mindsets.
+                <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-extrabold text-charcoal leading-none tracking-tight">
+                  <span className="relative inline-block">
+                    everything tech.
+                    <div className="absolute left-0 bottom-2 w-full h-4 bg-primary/30 -z-10 rounded-full" />
+                  </span>
                 </h1>
                 
-                <p className="font-sans text-lg sm:text-xl text-charcoal/80 leading-relaxed max-w-2xl">
-                  We build modern cloud environments, custom-printed paper structures, and semantic search campaigns. 
-                  A deeply personal, warm touch engineered cleanly from raw paper layout drafts.
+                <p className="font-sans text-xl sm:text-2xl text-charcoal/70 leading-relaxed max-w-2xl font-medium">
+                  Cuva Tech is your full-service crew for IT solutions, 
+                  branding & printing, and digital marketing — so 
+                  growing businesses get one calm partner instead of 
+                  five vendors.
                 </p>
               </motion.div>
 
-              {/* Action Buttons with offset shadows */}
+              {/* Action Buttons */}
               <motion.div 
                 variants={{
                   hidden: { opacity: 0, y: 15 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
                 }}
-                className="flex flex-wrap items-center gap-4 pt-2"
+                className="flex flex-wrap items-center gap-4 pt-4"
               >
                 <motion.button
                   id="hero-primary-cta"
-                  onClick={() => handleNavigate('branding-printing')}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-clay hover:bg-clay/90 text-cream px-6 py-4 text-base font-bold rounded-lg border-2 border-charcoal sketch-shadow hover:shadow-[6px_6px_0px_0px_rgba(30,27,24,1)] cursor-pointer transition-all flex items-center space-x-2"
+                  onClick={() => handleNavigate('contact')}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-primary text-white px-8 py-5 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 cursor-pointer transition-all flex items-center space-x-2"
                 >
-                  <span>Build Print Order</span>
-                  <ArrowRight className="w-5 h-5 animate-pulse" />
+                  <span>Start a project</span>
+                  <ArrowRight className="w-5 h-5" />
                 </motion.button>
                 
                 <motion.button
                   id="hero-secondary-cta"
                   onClick={() => handleNavigate('it-services')}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-cream hover:bg-[#eae8e0] text-charcoal px-6 py-4 text-base font-bold rounded-lg border-2 border-charcoal sketch-shadow-sm cursor-pointer transition-all hover:shadow-[4px_4px_0px_0px_rgba(30,27,24,1)]"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white text-charcoal border border-charcoal/10 px-8 py-5 text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
                 >
-                  Explore IT Pillars
+                  See what we do
                 </motion.button>
               </motion.div>
 
-              {/* Tiny hand annotation with pointer arrow */}
+              {/* Stats like in image */}
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0, y: 10 },
+                  visible: { opacity: 1, y: 0, transition: { delay: 0.6 } }
+                }}
+                className="flex items-center space-x-12 pt-10"
+              >
+                <div>
+                  <div className="text-3xl font-extrabold text-charcoal">120+</div>
+                  <div className="text-sm text-charcoal/50 font-medium">projects shipped</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-charcoal">98%</div>
+                  <div className="text-sm text-charcoal/50 font-medium">clients who stay</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-charcoal">24/7</div>
+                  <div className="text-sm text-charcoal/50 font-medium">real human support</div>
+                </div>
+              </motion.div>
+
+              {/* "that's us!" text with emoji */}
               <motion.div 
                 variants={{
                   hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { delay: 0.5, duration: 0.5 } }
+                  visible: { opacity: 1, transition: { delay: 0.8 } }
                 }}
-                className="flex items-center space-x-2 text-clay/80 font-hand text-base font-bold select-none pt-1 relative pr-12 sm:pr-0"
+                className="pt-8"
               >
-                <span className="animate-pulse text-lg">✍️</span>
-                <span>"No AI automation templates here. We hand-sketch every corporate model coordinates!"</span>
-
-                {/* Notion Style hand-drawn arrow pointer to interactive card switcher */}
-                <div className="absolute right-[-20px] lg:right-[-65px] top-[-25px] hidden lg:block text-moss anim-float pointer-events-none">
-                  <HanddrawnArrow className="w-14 h-14 transform rotate-[25deg] scale-x-[-1]" />
-                  <span className="font-hand font-bold text-sm text-moss absolute top-[-14px] right-[-30px] rotate-[10deg] tracking-wide whitespace-nowrap">
-                    Interactive Sketches!
-                  </span>
-                </div>
+                <span className="font-hand text-3xl text-primary font-bold italic rotate-[-5deg] inline-block">
+                  that's us! 👋
+                </span>
               </motion.div>
 
             </motion.div>
@@ -219,48 +223,48 @@ export default function App() {
               <div className="relative w-full max-w-md">
                 
                 {/* Decorative absolute backing card */}
-                <div className="absolute inset-0 bg-sand border-2 border-charcoal rounded-xl translate-x-3 translate-y-3 -z-10" />
+                <div className="absolute inset-0 bg-primary/5 rounded-3xl translate-x-3 translate-y-3 -z-10" />
 
                 {/* Main Image Frame (OOT Box style) */}
-                <div className="bg-cream border-2 border-charcoal rounded-xl overflow-hidden shadow-sm relative p-3">
+                <div className="bg-white border border-charcoal/5 rounded-3xl overflow-hidden shadow-xl relative p-4">
                   
                   {/* Top Switcher Tabs */}
-                  <div className="flex border-b border-charcoal/10 pb-2.5 mb-3 text-xxs font-mono font-bold justify-between items-center">
-                    <span className="text-charcoal/50">VISUAL_DECK // Dublin_D2</span>
+                  <div className="flex border-b border-charcoal/5 pb-3 mb-4 text-[10px] font-bold justify-between items-center">
+                    <span className="text-charcoal/30 uppercase tracking-widest">Visual_Deck // Dublin_D2</span>
                     
-                    <div className="flex bg-beige border border-charcoal/20 rounded p-0.5 space-x-1">
+                    <div className="flex bg-bg rounded-lg p-1 space-x-1">
                       <button
                         type="button"
                         onClick={() => setHeroVisual('sketch')}
-                        className={`px-2 py-1 rounded text-[10px] transition-colors cursor-pointer ${
-                          heroVisual === 'sketch' ? 'bg-charcoal text-cream font-bold' : 'text-charcoal/60 hover:bg-sand'
+                        className={`px-3 py-1.5 rounded-md text-[10px] transition-all cursor-pointer ${
+                          heroVisual === 'sketch' ? 'bg-charcoal text-white font-bold shadow-sm' : 'text-charcoal/40 hover:bg-white'
                         }`}
                       >
-                        🖋️ Sketch View
+                        🖋️ Sketch
                       </button>
                       <button
                         type="button"
                         onClick={() => setHeroVisual('sculpture')}
-                        className={`px-2 py-1 rounded text-[10px] transition-colors cursor-pointer ${
-                          heroVisual === 'sculpture' ? 'bg-charcoal text-cream font-bold' : 'text-charcoal/60 hover:bg-sand'
+                        className={`px-3 py-1.5 rounded-md text-[10px] transition-all cursor-pointer ${
+                          heroVisual === 'sculpture' ? 'bg-charcoal text-white font-bold shadow-sm' : 'text-charcoal/40 hover:bg-white'
                         }`}
                       >
-                        🏺 3D Sculpture
+                        🏺 3D
                       </button>
                     </div>
                   </div>
 
-                  <div className="bg-beige/40 border border-charcoal/25 p-3 rounded-md relative flex flex-col items-center justify-center overflow-hidden min-h-[310px]">
+                  <div className="bg-bg/50 border border-charcoal/5 p-4 rounded-2xl relative flex flex-col items-center justify-center overflow-hidden min-h-[310px]">
                     
                     {/* Media content switcher */}
                     <AnimatePresence mode="wait">
                       {heroVisual === 'sketch' ? (
                         <motion.div
                           key="sketches"
-                          initial={{ opacity: 0, y: 5 }}
+                          initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          transition={{ duration: 0.2 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
                           className="w-full flex flex-col items-center justify-center"
                         >
                           <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto">
@@ -270,14 +274,14 @@ export default function App() {
                           </div>
 
                           {/* Interactive sketch selective control pills */}
-                          <div className="flex flex-wrap justify-center gap-1 mt-4 pt-3.5 border-t border-charcoal/10 w-full select-none">
+                          <div className="flex flex-wrap justify-center gap-2 mt-6 pt-5 border-t border-charcoal/5 w-full select-none">
                             <button
                               type="button"
                               onClick={() => setActiveSketch('it')}
-                              className={`px-2.5 py-1 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer ${
+                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                                 activeSketch === 'it'
-                                  ? 'bg-clay text-cream border-charcoal'
-                                  : 'bg-sand/30 hover:bg-sand text-charcoal/70 border-charcoal/15'
+                                  ? 'bg-primary text-white'
+                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
                               }`}
                             >
                               💻 Systems
@@ -285,10 +289,10 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => setActiveSketch('print')}
-                              className={`px-2.5 py-1 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer ${
+                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                                 activeSketch === 'print'
-                                  ? 'bg-clay text-cream border-charcoal'
-                                  : 'bg-sand/30 hover:bg-sand text-charcoal/70 border-charcoal/15'
+                                  ? 'bg-primary text-white'
+                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
                               }`}
                             >
                               📔 Material
@@ -296,10 +300,10 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => setActiveSketch('marketing')}
-                              className={`px-2.5 py-1 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer ${
+                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                                 activeSketch === 'marketing'
-                                  ? 'bg-clay text-cream border-charcoal'
-                                  : 'bg-sand/30 hover:bg-sand text-charcoal/70 border-charcoal/15'
+                                  ? 'bg-primary text-white'
+                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
                               }`}
                             >
                               🔍 Semantic
@@ -309,16 +313,16 @@ export default function App() {
                       ) : (
                         <motion.div
                           key="sculpture"
-                          initial={{ opacity: 0, scale: 0.97 }}
+                          initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.97 }}
-                          transition={{ duration: 0.2 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3 }}
                           className="w-full flex items-center justify-center p-1"
                         >
                           <img
                             src="/src/assets/images/cuva_hero_3d_1781188111481.jpg"
                             alt="Artisanal Tech Concept Sculpture"
-                            className="w-full h-auto object-cover rounded shadow-inner"
+                            className="w-full h-auto object-cover rounded-xl shadow-inner"
                             referrerPolicy="no-referrer"
                           />
                         </motion.div>
@@ -327,9 +331,9 @@ export default function App() {
 
                   </div>
 
-                  <div className="mt-3 px-1 pb-1 flex items-center justify-between text-xxs font-semibold text-charcoal/50 select-none">
-                    <span className="font-mono">PROJECT_CODE: Dublin_D2</span>
-                    <span className="font-hand text-clay font-bold text-xs">“Organic proportions”</span>
+                  <div className="mt-4 px-1 pb-1 flex items-center justify-between text-[10px] font-bold text-charcoal/30 select-none">
+                    <span className="tracking-widest">PROJECT_CODE: Dublin_D2</span>
+                    <span className="font-hand text-primary text-sm italic">“Organic proportions”</span>
                   </div>
                 </div>
 
@@ -341,81 +345,78 @@ export default function App() {
       </header>
 
       {/* CORE THREE-SERVICES OVERVIEW GRID - ANIMATED */}
-      <section className="py-20 bg-beige border-b-2 border-charcoal relative">
+      <section className="py-24 bg-white/50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="font-mono text-xs font-bold text-charcoal/40 uppercase tracking-widest block">Core Ecosystem Configs</span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-black text-charcoal mt-1">
+          <div className="max-w-3xl mx-auto text-center mb-20">
+            <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">Core Ecosystem</span>
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal">
               Three Unified Creative Practices
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
             
             {/* Card 1: IT Solutions */}
             <motion.div 
-              whileHover={{ y: -6, boxShadow: '8px 8px 0px 0px rgba(30,27,24,1)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="bg-cream border-2 border-charcoal p-7 rounded-xl sketch-shadow transition-all flex flex-col justify-between group"
+              whileHover={{ y: -8 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-mono text-xxs font-bold text-moss uppercase tracking-wider block mb-2">[ LAYER_01 - SYSTEMS ]</span>
-                <h3 className="font-serif text-2xl font-bold text-charcoal mb-3">IT Solutions</h3>
-                <p className="font-sans text-sm text-charcoal/70 leading-relaxed mb-6">
+                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ SYSTEMS ]</span>
+                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">IT Solutions</h3>
+                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   Onsite servers migrated seamlessly to AWS & GCP cloud meshes, configured with multi-region backup structures.
                 </p>
               </div>
               <button
                 onClick={() => handleNavigate('it-services')}
-                className="text-xs font-bold text-clay hover:underline text-left flex items-center space-x-1 cursor-pointer"
+                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Examine cloud services</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span>Examine services</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
 
             {/* Card 2: Branding & Printing */}
             <motion.div 
-              whileHover={{ y: -6, boxShadow: '8px 8px 0px 0px rgba(30,27,24,1)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="bg-cream border-2 border-charcoal p-7 rounded-xl sketch-shadow transition-all flex flex-col justify-between group"
+              whileHover={{ y: -8 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-mono text-xxs font-bold text-clay uppercase tracking-wider block mb-2">[ LAYER_02 - MATERIAL ]</span>
-                <h3 className="font-serif text-2xl font-bold text-charcoal mb-3">Branding & Fine Print</h3>
-                <p className="font-sans text-sm text-charcoal/70 leading-relaxed mb-6">
+                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ MATERIAL ]</span>
+                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Branding & Print</h3>
+                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   Canva project connections, customized logo creation, and bespoke hand-screened garment and notebooks.
                 </p>
               </div>
               <button
                 onClick={() => handleNavigate('branding-printing')}
-                className="text-xs font-bold text-clay hover:underline text-left flex items-center space-x-1 cursor-pointer"
+                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Launch paper configurator</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span>Launch configurator</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
 
             {/* Card 3: Digital Marketing */}
             <motion.div 
-              whileHover={{ y: -6, boxShadow: '8px 8px 0px 0px rgba(30,27,24,1)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="bg-cream border-2 border-charcoal p-7 rounded-xl sketch-shadow transition-all flex flex-col justify-between group"
+              whileHover={{ y: -8 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-mono text-xxs font-bold text-terracotta uppercase tracking-wider block mb-2">[ LAYER_03 - GROWTH ]</span>
-                <h3 className="font-serif text-2xl font-bold text-charcoal mb-3">Digital Marketing</h3>
-                <p className="font-sans text-sm text-charcoal/70 leading-relaxed mb-6">
+                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ GROWTH ]</span>
+                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Digital Marketing</h3>
+                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   On-page SEO diagnostics, semantic keyword maps, Meta & Google Ad sandbox campaigns focused on CPA.
                 </p>
               </div>
               <button
                 onClick={() => handleNavigate('digital-marketing')}
-                className="text-xs font-bold text-clay hover:underline text-left flex items-center space-x-1 cursor-pointer"
+                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Study SEO & marketing tab</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span>Study marketing tab</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
 
@@ -427,43 +428,42 @@ export default function App() {
       <ITServices />
 
       {/* BRANDING & PRINTING SECTION */}
-      <section id="branding-printing" className="py-20 bg-cream border-b-2 border-charcoal relative">
+      <section id="branding-printing" className="py-24 bg-bg relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Header */}
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <span className="font-hand font-bold text-lg text-clay tracking-wider uppercase block mb-1">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <span className="font-sans text-xs font-bold text-primary tracking-widest uppercase block mb-3">
               02 / Material Layer
             </span>
-            <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-black text-charcoal leading-tight mb-4">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
               Branding, Logos & Print
             </h2>
-            <div className="w-24 h-1 bg-charcoal mx-auto mb-6 rounded-full" />
-            <p className="font-sans text-lg text-charcoal/80 leading-relaxed">
+            <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
               We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking 
               your Canva projects directly or using our custom product configurators.
             </p>
           </div>
 
           {/* Sub Tab Switcher: Canva vs Configurator */}
-          <div className="flex border-2 border-charcoal max-w-sm mx-auto rounded overflow-hidden text-xs sm:text-sm font-bold bg-beige mb-12">
+          <div className="flex bg-white/50 border border-charcoal/5 max-w-sm mx-auto rounded-2xl p-1.5 text-xs sm:text-sm font-bold mb-16 shadow-sm">
             <button
               id="subtab-print"
               onClick={() => setBrandingSubTab('print')}
-              className={`flex-1 py-3 text-center transition-all ${
-                brandingSubTab === 'print' ? 'bg-charcoal text-cream' : 'text-charcoal hover:bg-sand'
+              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
+                brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-lg' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
-              Printing Configurator
+              Configurator
             </button>
             <button
               id="subtab-logo"
               onClick={() => setBrandingSubTab('logo')}
-              className={`flex-1 py-3 text-center transition-all ${
-                brandingSubTab === 'logo' ? 'bg-charcoal text-cream' : 'text-charcoal hover:bg-sand'
+              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
+                brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-lg' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
-              Logos & Canva Connection
+              Logos & Canva
             </button>
           </div>
 
@@ -500,41 +500,45 @@ export default function App() {
 
       {/* GLOBAL CONSULTATION BOOKING MODAL */}
       {isConsultOpen && (
-        <div id="global-modal-overlay" className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div
+        <div id="global-modal-overlay" className="fixed inset-0 z-50 bg-charcoal/20 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div
             id="global-modal-content"
-            className="bg-cream border-2 border-charcoal w-full max-w-md rounded-xl sketch-shadow-lg overflow-hidden animate-scale-in"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl shadow-charcoal/20 overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-sand border-b-2 border-charcoal p-5 flex items-center justify-between">
+            <div className="bg-primary/5 p-8 pb-6 flex items-start justify-between">
               <div>
-                <span className="font-hand font-bold text-sm text-clay">Cuva Consultation Docket</span>
-                <h3 className="font-serif text-xl sm:text-2xl font-black text-charcoal leading-none">Schedule Consultation</h3>
+                <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Cuva Docket</span>
+                <h3 className="font-display text-3xl font-extrabold text-charcoal leading-tight">Schedule <br />Consultation</h3>
               </div>
               <button
                 id="close-global-modal"
                 onClick={() => setIsConsultOpen(false)}
-                className="sketch-border p-2 bg-beige hover:bg-sand text-charcoal rounded hover:scale-105 active:scale-95 transition-all font-mono font-bold text-sm"
+                className="w-10 h-10 rounded-full bg-white border border-charcoal/5 flex items-center justify-center hover:bg-bg transition-colors cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5 text-charcoal/40" />
               </button>
             </div>
 
             {globalSent ? (
-              <div id="global-success-state" className="p-8 text-center space-y-4">
-                <div className="inline-block p-3 bg-green-50 border-2 border-charcoal rounded-full text-moss animate-bounce">
+              <div id="global-success-state" className="p-12 text-center space-y-6">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full text-primary animate-bounce">
                   <CheckCircle className="w-10 h-10" />
                 </div>
-                <h4 className="font-serif text-xl font-bold text-charcoal">Session Reserved!</h4>
-                <p className="font-sans text-xs text-charcoal/70 leading-normal">
-                  Thank you. We have blocked space in Efe and Sarah’s schedule. We will reach out to schedule tea or video link coordinates within 4 business hours.
-                </p>
+                <div className="space-y-2">
+                  <h4 className="font-display text-2xl font-bold text-charcoal">Session Reserved!</h4>
+                  <p className="font-sans text-sm text-charcoal/50 leading-relaxed">
+                    Thank you. We have blocked space in Efe and Sarah’s schedule. We will reach out shortly.
+                  </p>
+                </div>
               </div>
             ) : (
-              <form onSubmit={handleGlobalSubmit} className="p-6 space-y-4 font-sans">
+              <form onSubmit={handleGlobalSubmit} className="p-8 pt-2 space-y-5 font-sans">
                 
-                <div className="flex flex-col">
-                  <label className="text-xs font-bold text-charcoal mb-1">Your Name</label>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Your Name</label>
                   <input
                     id="global-input-name"
                     type="text"
@@ -542,12 +546,12 @@ export default function App() {
                     value={globalName}
                     onChange={(e) => setGlobalName(e.target.value)}
                     placeholder="Efe Cuva"
-                    className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="text-xs font-bold text-charcoal mb-1">Email Address</label>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
                   <input
                     id="global-input-email"
                     type="email"
@@ -555,13 +559,13 @@ export default function App() {
                     value={globalEmail}
                     onChange={(e) => setGlobalEmail(e.target.value)}
                     placeholder="partner@efe_agency.co"
-                    className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="text-xs font-bold text-charcoal mb-1 font-bold">Main Service Area of Interest</label>
-                  <select className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
+                  <select className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
                     <option>IT Cloud Systems & Migrations</option>
                     <option>Fine Stationery & Booklets print</option>
                     <option>Handdrawn Logo Design Guidelines</option>
@@ -569,23 +573,20 @@ export default function App() {
                   </select>
                 </div>
 
-                <div className="flex items-start pt-1">
-                  <input type="checkbox" required defaultChecked className="mt-1 mr-2 p-1 border border-charcoal text-clay" />
-                  <span className="text-xxs text-charcoal/60 leading-tight">
-                    I agree to the GDPR data rules. My details will remain secure.
-                  </span>
-                </div>
-
                 <button
                   id="global-submit-consult"
                   type="submit"
-                  className="bg-clay hover:bg-clay/90 text-cream w-full py-3 text-xs font-bold rounded border-2 border-charcoal sketch-shadow hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-center"
+                  className="bg-primary text-white w-full py-5 text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-center mt-4"
                 >
-                  Send Consultation Request
+                  Send Request
                 </button>
+                
+                <p className="text-[10px] text-charcoal/30 text-center px-4">
+                  By submitting, you agree to our data handling protocols. We strictly never sell your information.
+                </p>
               </form>
             )}
-          </div>
+          </motion.div>
         </div>
       )}
 

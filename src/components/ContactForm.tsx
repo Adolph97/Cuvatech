@@ -52,8 +52,8 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-cream border-b-2 border-charcoal relative">
-      <div className="absolute inset-0 bg-[#fbfbf9]/50 pointer-events-none" />
+    <section id="contact" className="py-20 bg-bg border-b border-charcoal/5 relative">
+      <div className="absolute inset-0 bg-white/20 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -62,8 +62,8 @@ export default function ContactForm() {
           {/* Left Side: Custom map & Contact Specifications */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-3">
-              <span className="font-hand font-bold text-lg text-clay block">Say Hello</span>
-              <h3 className="font-serif text-4xl sm:text-5xl font-black text-charcoal">
+              <span className="font-hand font-bold text-lg text-primary block">Say Hello</span>
+              <h3 className="font-display text-4xl sm:text-5xl font-bold text-charcoal leading-tight">
                 Establish Direct Contact
               </h3>
               <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
@@ -73,142 +73,137 @@ export default function ContactForm() {
             </div>
 
             {/* Custom Hand-Drawn Map (SVG layout of Temple Lane, Dublin) */}
-            <div className="bg-white border-2 border-charcoal p-4 rounded-xl sketch-shadow-sm space-y-3">
-              <span className="font-mono text-xxs font-bold text-clay/80 uppercase block">OUR WORKSPACE POSITION SPEC</span>
+            <div className="bg-white border border-charcoal/5 p-5 rounded-2xl shadow-sm space-y-4">
+              <span className="font-mono text-[10px] font-bold text-primary/60 uppercase block tracking-widest">OUR WORKSPACE POSITION SPEC</span>
               
-              <div className="h-44 bg-beige border-2 border-charcoal rounded-md relative overflow-hidden flex items-center justify-center">
+              <div className="h-48 bg-bg border border-charcoal/5 rounded-xl relative overflow-hidden flex items-center justify-center">
                 
                 {/* Visual sketch map shapes */}
-                <svg className="absolute inset-0 w-full h-full text-charcoal/20 stroke-[1.2]" viewBox="0 0 300 200" fill="none">
+                <svg className="absolute inset-0 w-full h-full text-charcoal/10 stroke-[1.2]" viewBox="0 0 300 200" fill="none">
                   {/* Street grids */}
-                  <path d="M0,45h300M0,150h300M120,0v200M220,0v200" stroke="currentColor" strokeWidth="6" />
+                  <path d="M0,45h300M0,150h300M120,0v200M220,0v200" stroke="currentColor" strokeWidth="4" />
                   {/* Small back alleys */}
-                  <path d="M40,45v105M120,95h100" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3"/>
+                  <path d="M40,45v105M120,95h100" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3"/>
                   
                   {/* Blocks shapes representing buildings */}
-                  <rect x="20" y="10" width="80" height="25" fill="#eae6db" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="140" y="10" width="60" height="25" fill="#eae6db" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="240" y="10" width="50" height="120" fill="#eae6db" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="20" y="60" width="80" height="75" fill="#eae6db" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="140" y="60" width="60" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1.5" />
+                  <rect x="20" y="10" width="80" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
+                  <rect x="140" y="10" width="60" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
+                  <rect x="240" y="10" width="50" height="120" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
+                  <rect x="20" y="60" width="80" height="75" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
+                  <rect x="140" y="60" width="60" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
                   {/* Cuva studio block highlighted */}
-                  <rect x="140" y="105" width="60" height="30" fill="#faf3e0" stroke="currentColor" strokeWidth="2" />
+                  <rect x="140" y="105" width="60" height="30" fill="rgba(229, 139, 109, 0.1)" stroke="var(--color-primary)" strokeWidth="1" />
                   
                   {/* River Liffey representation at bottom */}
-                  <path d="M0,185 Q100,180 200,190 T300,182" stroke="#8c5d3a" strokeWidth="4" strokeOpacity="0.15" />
-                  
-                  {/* Text tags */}
-                  <text x="50" y="25" fontFamily="Georgia" fontSize="9" fill="#1e1b18" fillOpacity="0.4">DAME ST.</text>
-                  <text x="175" y="125" fontFamily="Georgia" fontSize="10" fontWeight="bold" fill="#8c5d3a">CUVA</text>
-                  <text x="250" y="70" fontFamily="Georgia" fontSize="8" fill="#1e1b18" fillOpacity="0.4" transform="rotate(90, 250, 70)">TEMPLE LANE</text>
+                  <path d="M0,185 Q100,180 200,190 T300,182" stroke="var(--color-primary)" strokeWidth="4" strokeOpacity="0.1" />
                 </svg>
 
                 {/* Animated Map Pin */}
-                <div className="absolute top-[100px] left-[155px] flex flex-col items-center group cursor-pointer">
-                  <div className="bg-clay text-cream p-1 rounded-full border border-charcoal animate-bounce sketch-shadow-sm">
+                <div className="absolute top-[105px] left-[155px] flex flex-col items-center group cursor-pointer">
+                  <div className="bg-primary text-white p-1.5 rounded-full shadow-lg animate-bounce">
                     <MapPin className="w-5 h-5" />
                   </div>
-                  <div className="bg-charcoal text-cream text-[9px] font-bold px-2 py-0.5 rounded border border-charcoal mt-1 pointer-events-none whitespace-nowrap">
+                  <div className="bg-charcoal text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1.5 pointer-events-none whitespace-nowrap shadow-sm">
                     Cuva Studio
                   </div>
                 </div>
               </div>
 
-              <span className="font-sans text-[10px] text-charcoal/50 text-center block italic">
-                (Click the pin or search 8 Temple Lane South, Dublin 2, Ireland on standard layouts)
+              <span className="font-sans text-[10px] text-charcoal/40 text-center block font-medium">
+                (8 Temple Lane South, Dublin 2, Ireland)
               </span>
             </div>
 
             {/* Direct addresses points */}
-            <div className="space-y-4 font-sans text-sm text-charcoal">
-              <div className="flex items-start space-x-3.5">
-                <span className="p-2 bg-beige border border-charcoal/20 rounded">
-                  <MapPin className="w-4 h-4 text-clay" />
+            <div className="space-y-5 font-sans text-sm text-charcoal">
+              <div className="flex items-start space-x-4">
+                <span className="p-2.5 bg-primary/5 border border-primary/10 rounded-xl">
+                  <MapPin className="w-4 h-4 text-primary" />
                 </span>
                 <div>
-                  <strong className="text-charcoal block">Cuva Studio HQ</strong>
-                  <span className="text-charcoal/70">8 Temple Lane South, Temple Bar, Dublin 2, Ireland</span>
+                  <strong className="text-charcoal block font-bold">Cuva Studio HQ</strong>
+                  <span className="text-charcoal/60">8 Temple Lane South, Temple Bar, Dublin 2, Ireland</span>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3.5">
-                <span className="p-2 bg-beige border border-charcoal/20 rounded">
-                  <Mail className="w-4 h-4 text-clay" />
+              <div className="flex items-start space-x-4">
+                <span className="p-2.5 bg-primary/5 border border-primary/10 rounded-xl">
+                  <Mail className="w-4 h-4 text-primary" />
                 </span>
                 <div>
-                  <strong className="text-charcoal block">Email Correspondence</strong>
-                  <a href="mailto:studio@cuva.tech" className="text-clay hover:underline font-semibold">studio@cuva.tech</a>
+                  <strong className="text-charcoal block font-bold">Email Correspondence</strong>
+                  <a href="mailto:studio@cuva.tech" className="text-primary hover:underline font-bold">studio@cuva.tech</a>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3.5">
-                <span className="p-2 bg-beige border border-charcoal/20 rounded">
-                  <Phone className="w-4 h-4 text-clay" />
+              <div className="flex items-start space-x-4">
+                <span className="p-2.5 bg-primary/5 border border-primary/10 rounded-xl">
+                  <Phone className="w-4 h-4 text-primary" />
                 </span>
                 <div>
-                  <strong className="text-charcoal block">Direct Phone Hub</strong>
-                  <span className="text-charcoal/70">+353 (1) 482-9031</span>
+                  <strong className="text-charcoal block font-bold">Direct Phone Hub</strong>
+                  <span className="text-charcoal/60">+353 (1) 482-9031</span>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3.5">
-                <span className="p-2 bg-beige border border-charcoal/20 rounded">
-                  <Clock className="w-4 h-4 text-clay" />
+              <div className="flex items-start space-x-4">
+                <span className="p-2.5 bg-primary/5 border border-primary/10 rounded-xl">
+                  <Clock className="w-4 h-4 text-primary" />
                 </span>
                 <div>
-                  <strong className="text-charcoal block">Studio Availability</strong>
-                  <span className="text-charcoal/70">Monday – Friday: 09:00 - 17:30 GMT</span>
+                  <strong className="text-charcoal block font-bold">Studio Availability</strong>
+                  <span className="text-charcoal/60">Monday – Friday: 09:00 - 17:30 GMT</span>
                 </div>
               </div>
             </div>
 
             {/* Social Grid */}
-            <div className="pt-4 border-t border-charcoal/10 flex items-center space-x-4">
-              <span className="text-xs font-bold text-charcoal/40 uppercase font-mono">Analog Threads:</span>
-              <a href="https://x.com/cuva.tech" target="_blank" rel="noreferrer" className="p-2 bg-beige hover:bg-sand border border-charcoal rounded transition-colors" title="X">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal">
+            <div className="pt-6 border-t border-charcoal/5 flex items-center space-x-4">
+              <span className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest font-sans">Connect:</span>
+              <a href="https://x.com/cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
-              <a href="https://www.tiktok.com/@cuva.tech" target="_blank" rel="noreferrer" className="p-2 bg-beige hover:bg-sand border border-charcoal rounded transition-colors" title="TikTok">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal">
+              <a href="https://www.tiktok.com/@cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                 </svg>
               </a>
-              <a href="https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx" target="_blank" rel="noreferrer" className="p-2 bg-beige hover:bg-sand border border-charcoal rounded transition-colors" title="Instagram">
-                <Instagram className="w-4 h-4 text-charcoal" />
+              <a href="https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
+                <Instagram className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="p-2 bg-beige hover:bg-sand border border-charcoal rounded transition-colors" title="LinkedIn">
-                <Linkedin className="w-4 h-4 text-charcoal" />
+              <a href="https://www.linkedin.com/company/cuva-tech/" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
+                <Linkedin className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
               </a>
             </div>
 
           </div>
 
           {/* Right Side: Inquiry Contact Form */}
-          <div className="lg:col-span-7 bg-white border-2 border-charcoal p-6 sm:p-10 rounded-xl sketch-shadow">
+          <div className="lg:col-span-7 bg-white border border-charcoal/5 p-8 sm:p-12 rounded-3xl shadow-lg">
             
             {submitted ? (
-              <div id="contact-success-state" className="py-12 text-center space-y-6">
-                <div className="inline-block p-4 bg-orange-50 border-2 border-charcoal rounded-full text-clay animate-bounce">
-                  <CheckCircle className="w-12 h-12" />
+              <div id="contact-success-state" className="py-12 text-center space-y-8">
+                <div className="inline-block p-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-bounce shadow-sm">
+                  <CheckCircle className="w-16 h-16 stroke-[1.5]" />
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-serif text-3xl font-black text-charcoal">Brief lodged!</h4>
-                  <p className="font-sans text-sm text-charcoal/70 max-w-sm mx-auto leading-relaxed">
-                    Thank you <strong className="font-bold">{formInputs.fullName}</strong>. Your inquiry of interest has been scheduled on Sarah’s creative layout docket.
+                <div className="space-y-3">
+                  <h4 className="font-display text-3xl font-bold text-charcoal">Brief lodged!</h4>
+                  <p className="font-sans text-sm text-charcoal/60 max-w-sm mx-auto leading-relaxed">
+                    Thank you <strong className="font-bold text-charcoal">{formInputs.fullName}</strong>. Your inquiry of interest has been scheduled on Sarah’s creative layout docket.
                   </p>
                 </div>
 
-                <div className="bg-[#FAF3E0] p-5 rounded border-2 border-charcoal text-left max-w-md mx-auto space-y-2">
-                  <span className="font-mono text-xxs font-bold text-moss block">CUVA WORKFLOW SPEC:</span>
-                  <div className="grid grid-cols-2 text-xs font-sans gap-y-1">
+                <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 text-left max-w-md mx-auto space-y-4">
+                  <span className="font-mono text-[10px] font-bold text-primary/60 block uppercase tracking-widest">CUVA WORKFLOW SPEC:</span>
+                  <div className="grid grid-cols-2 text-xs font-sans gap-y-2">
                     <span className="text-charcoal/50">Service Area:</span>
                     <span className="text-charcoal font-bold text-right">{formInputs.enquiryType}</span>
                     <span className="text-charcoal/50">Contact Email:</span>
                     <span className="text-charcoal font-bold text-right truncate pl-4">{formInputs.email}</span>
                     <span className="text-charcoal/50">Est. Response:</span>
-                    <span className="text-clay font-bold text-right">Inside 4 business hours</span>
+                    <span className="text-primary font-bold text-right uppercase tracking-tighter">Inside 4 business hours</span>
                   </div>
                 </div>
 
@@ -226,27 +221,27 @@ export default function ContactForm() {
                       consent: true
                     });
                   }}
-                  className="bg-charcoal hover:bg-charcoal/90 text-cream px-6 py-2 border-2 border-charcoal rounded text-xs font-bold sketch-shadow transition-all"
+                  className="btn-secondary w-full max-w-xs"
                 >
                   Log Another Inquiry
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-5">
+              <form onSubmit={handleFormSubmit} className="space-y-6">
                 
-                <div className="border-b border-charcoal/10 pb-4 mb-3">
-                  <h4 className="font-serif text-2xl font-black text-charcoal">
+                <div className="border-b border-charcoal/5 pb-6 mb-2">
+                  <h4 className="font-display text-3xl font-bold text-charcoal">
                     Write to our Studio
                   </h4>
-                  <span className="font-hand font-bold text-clay text-sm block">Let's compile client blueprints</span>
+                  <span className="font-hand font-bold text-primary text-base block mt-1">Let's compile client blueprints</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Name field */}
                   <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1 flex justify-between">
+                    <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1 flex justify-between">
                       <span>Your Name</span>
-                      {errors.fullName && <span className="text-terracotta text-xxs font-normal">{errors.fullName}</span>}
+                      {errors.fullName && <span className="text-primary text-[10px] font-bold uppercase">{errors.fullName}</span>}
                     </label>
                     <input
                       id="contact-form-name"
@@ -255,13 +250,13 @@ export default function ContactForm() {
                       value={formInputs.fullName}
                       onChange={handleInputChange}
                       placeholder="Jane Doe"
-                      className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white"
+                      className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>
 
                   {/* Company field */}
                   <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1">Company / Organization</label>
+                    <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Company / Organization</label>
                     <input
                       id="contact-form-company"
                       type="text"
@@ -269,17 +264,17 @@ export default function ContactForm() {
                       value={formInputs.companyName}
                       onChange={handleInputChange}
                       placeholder="Lighthouse Books"
-                      className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white"
+                      className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Email field */}
                   <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1 flex justify-between">
+                    <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1 flex justify-between">
                       <span>Email coordinates</span>
-                      {errors.email && <span className="text-terracotta text-xxs font-normal">{errors.email}</span>}
+                      {errors.email && <span className="text-primary text-[10px] font-bold uppercase">{errors.email}</span>}
                     </label>
                     <input
                       id="contact-form-email"
@@ -288,13 +283,13 @@ export default function ContactForm() {
                       value={formInputs.email}
                       onChange={handleInputChange}
                       placeholder="jane@lighthouse.co"
-                      className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white"
+                      className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>
 
                   {/* Phone field */}
                   <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1">Phone callback number</label>
+                    <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Phone callback number</label>
                     <input
                       id="contact-form-phone"
                       type="tel"
@@ -302,20 +297,20 @@ export default function ContactForm() {
                       value={formInputs.phone}
                       onChange={handleInputChange}
                       placeholder="+353 (1) 500-2918"
-                      className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white"
+                      className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
                 {/* Dropdown service switcher */}
                 <div className="flex flex-col">
-                  <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1">Service area of choice</label>
+                  <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Service area of choice</label>
                   <select
                     id="contact-form-enquiry"
                     name="enquiryType"
                     value={formInputs.enquiryType}
                     onChange={handleInputChange}
-                    className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none font-bold text-charcoal"
+                    className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal cursor-pointer"
                   >
                     <option value="IT Systems">IT Cloud Systems (AWS, GCP, Net setups)</option>
                     <option value="Logo & Brand specs">Bespoke Logo & Brand Guidelines</option>
@@ -327,9 +322,9 @@ export default function ContactForm() {
 
                 {/* Message text area */}
                 <div className="flex flex-col">
-                  <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1 flex justify-between">
+                  <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1 flex justify-between">
                     <span>How can we help synthesize your goals?</span>
-                    {errors.message && <span className="text-terracotta text-xxs font-normal">{errors.message}</span>}
+                    {errors.message && <span className="text-primary text-[10px] font-bold uppercase">{errors.message}</span>}
                   </label>
                   <textarea
                     id="contact-form-message"
@@ -337,31 +332,31 @@ export default function ContactForm() {
                     rows={4}
                     value={formInputs.message}
                     onChange={handleInputChange}
-                    placeholder="E.g., We need our physical networks bridged to cloud storage and are hoping to print 200 companion leather notebooks with our minimal branding. Help design?"
-                    className="bg-beige border-2 border-charcoal p-2.5 rounded text-sm focus:outline-none focus:bg-white resize-none"
+                    placeholder="E.g., We need our physical networks bridged to cloud storage and are hoping to print 200 companion leather notebooks..."
+                    className="bg-bg border border-charcoal/10 p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm resize-none"
                   />
                 </div>
 
                 {/* GDPR Consent */}
-                <div className="flex items-start pt-1">
+                <div className="flex items-start pt-2">
                   <input
                     id="contact-form-gdpr"
                     type="checkbox"
                     required
                     checked={formInputs.consent}
                     onChange={handleCheckboxChange}
-                    className="mt-1 mr-2 p-1 border-2 border-charcoal text-clay"
+                    className="mt-1 mr-3 p-1 border border-charcoal/10 text-primary focus:ring-primary/20 cursor-pointer rounded transition-all"
                   />
-                  <span className="font-sans text-xxs text-charcoal/60 leading-tight">
+                  <span className="font-sans text-[11px] font-medium text-charcoal/40 leading-relaxed">
                     I agree to the GDPR client privacy covenants. I consent to Cuva Tech logging my details securely to reply to this studio project specifications brief.
                   </span>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-4">
                   <button
                     id="submit-contact-btn"
                     type="submit"
-                    className="bg-clay hover:bg-clay/90 text-cream w-full py-4 text-sm font-bold border-2 border-charcoal sketch-shadow hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 transition-all flex items-center justify-center space-x-2"
+                    className="btn-primary w-full py-4 text-sm flex items-center justify-center space-x-3 shadow-xl shadow-primary/20"
                   >
                     <Send className="w-4 h-4" />
                     <span>Lodge Project Spec Brief</span>

@@ -35,8 +35,8 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
       id="cuva-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-cream/95 backdrop-blur-md py-3 border-b-2 border-charcoal shadow-sm' 
-          : 'bg-cream py-5'
+          ? 'bg-bg/80 backdrop-blur-md py-3 shadow-sm' 
+          : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,10 +51,10 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
             <motion.div 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-sand p-2 border-2 border-charcoal rounded-md sketch-shadow-sm transition-transform duration-200 group-hover:-translate-y-[1px] group-hover:-translate-x-[1px] group-hover:shadow-[3px_3px_0px_0px_rgba(30,27,24,1)] flex items-center justify-center w-9 h-9"
+              className="bg-primary p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10"
             >
-              {/* Artisanal genuine custom circular Cut-out logo mark - completely vector transparent via Mask */}
-              <svg className="w-5 h-5 text-charcoal" viewBox="0 0 100 100" fill="none">
+              {/* Artisanal genuine custom circular Cut-out logo mark */}
+              <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
                 <defs>
                   <mask id="nav-logo-cutout">
                     <rect x="0" y="0" width="100" height="100" fill="white" />
@@ -65,18 +65,15 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                 <circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#nav-logo-cutout)" />
               </svg>
             </motion.div>
-            <div className="flex flex-col items-start translate-y-[-1px]">
-              <span className="font-serif text-2xl font-black leading-none tracking-tight text-charcoal -mb-1">
-                CUVA TECH
-              </span>
-              <span className="font-hand font-bold text-xs tracking-wide text-clay/80 select-none">
-                it & brand synthesis
+            <div className="flex flex-col items-start">
+              <span className="font-display text-2xl font-extrabold leading-none tracking-tight text-charcoal">
+                cuva tech.
               </span>
             </div>
           </button>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -84,17 +81,17 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                   id={`nav-link-${item.id}`}
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`relative px-2 py-1 text-sm font-semibold transition-all duration-150 cursor-pointer ${
+                  className={`relative px-1 py-1 text-sm font-bold transition-all duration-150 cursor-pointer ${
                     isActive
-                      ? 'text-clay font-bold'
-                      : 'text-charcoal/70 hover:text-charcoal'
+                      ? 'text-primary'
+                      : 'text-charcoal/50 hover:text-charcoal'
                   }`}
                 >
                   {item.label}
                   {isActive && (
                     <motion.span 
                       layoutId="nav-underline"
-                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-clay rounded-full" 
+                      className="absolute -bottom-1 left-0 right-0 h-[3px] bg-primary rounded-full" 
                     />
                   )}
                 </button>
@@ -107,11 +104,11 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
             <motion.button
               id="nav-consult-cta"
               onClick={onOpenConsultForm}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="bg-moss hover:bg-moss/90 text-cream px-4 py-2 text-sm font-bold border-2 border-charcoal sketch-shadow hover:shadow-[5px_5px_0px_0px_rgba(30,27,24,1)] active:translate-x-0 active:translate-y-0 cursor-pointer transition-all flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-charcoal text-white px-6 py-2.5 text-sm font-bold rounded-full cursor-pointer transition-all flex items-center space-x-2"
             >
-              <span>Consultation</span>
+              <span>Get started</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>
