@@ -51,7 +51,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
             <motion.div 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-primary p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10"
+              className="bg-black p-2 border border-charcoal/5 rounded-xl shadow-sm transition-transform duration-200 flex items-center justify-center w-10 h-10"
             >
               {/* Artisanal genuine custom circular Cut-out logo mark */}
               <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">

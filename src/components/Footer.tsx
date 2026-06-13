@@ -58,7 +58,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               className="flex items-center space-x-4 text-left focus:outline-none group cursor-pointer"
             >
               <div className="bg-white p-2.5 border border-charcoal/5 rounded-[1.25rem] shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl flex items-center justify-center w-14 h-14">
-                <svg className="w-8 h-8 text-primary transition-colors" viewBox="0 0 100 100" fill="none">
+                <svg className="w-8 h-8 text-black transition-colors" viewBox="0 0 100 100" fill="none">
                   <defs>
                     <mask id="footer-logo-cutout">
                       <rect x="0" y="0" width="100" height="100" fill="white" />
@@ -107,7 +107,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <li><button onClick={() => onNavigate('about-us')} className="hover:text-primary transition-colors block cursor-pointer">Our Story</button></li>
                 <li><button onClick={() => onNavigate('testimonials')} className="hover:text-primary transition-colors block cursor-pointer">Client Reviews</button></li>
                 <li><button onClick={() => onNavigate('contact')} className="hover:text-primary transition-colors block cursor-pointer">Contact Studio</button></li>
-                <li><a href="https://trustpilot.com" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors block">Trustpilot</a></li>
+                <li><button onClick={() => window.location.href = '/admin'} className="hover:text-primary transition-colors block cursor-pointer">Admin Portal</button></li>
               </ul>
             </div>
           </motion.div>

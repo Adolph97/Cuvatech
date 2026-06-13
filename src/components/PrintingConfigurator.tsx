@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PRINTING_PRODUCTS } from '../data';
 import { PrintingProduct, DesignFile } from '../types';
 import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useOrders } from '../OrderStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -20,6 +21,7 @@ const staggerContainer = {
 };
 
 export default function PrintingConfigurator() {
+  const { addOrder } = useOrders();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [selectedProduct, setSelectedProduct] = useState<PrintingProduct>(PRINTING_PRODUCTS[0]);
   const [quantity, setQuantity] = useState<number>(PRINTING_PRODUCTS[0].minQty);
@@ -31,16 +33,32 @@ export default function PrintingConfigurator() {
 
   // Upload Draft
   const [designFile, setDesignFile] = useState<DesignFile | null>(null);
+  const [rawFile, setRawFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Billing Page
   const [cardHolder, setCardHolder] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
   const [consentGdpr, setConsentGdpr] = useState(true);
+
+  // Public settings from admin console
+  const [publicSettings, setPublicSettings] = useState({
+    stripePublishableKey: '',
+    paypalClientId: '',
+    paymentMode: 'sandbox'
+  });
+
+  useEffect(() => {
+    fetch('/api/settings/public')
+      .then(res => res.json())
+      .then(data => setPublicSettings(data))
+      .catch(err => console.error("Error loading public settings:", err));
+  }, []);
   
   // Order Process
   const [submittingOrder, setSubmittingOrder] = useState(false);
@@ -112,12 +130,14 @@ export default function PrintingConfigurator() {
     }
 
     setUploadError('');
-    // Create a mock local pointer
+    setRawFile(file);
+    
     setDesignFile({
       name: file.name,
       size: Math.round(file.size / 1024),
       type: file.type,
-      previewUrl: URL.createObjectURL(file)
+      previewUrl: URL.createObjectURL(file),
+      base64: '' // will be replaced by server URL after upload
     });
   };
 
@@ -126,6 +146,7 @@ export default function PrintingConfigurator() {
       URL.revokeObjectURL(designFile.previewUrl);
     }
     setDesignFile(null);
+    setRawFile(null);
   };
 
   // Pricing calculations
@@ -160,16 +181,59 @@ export default function PrintingConfigurator() {
     if (currentStep === 3) setCurrentStep(2);
   };
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingOrder(true);
-    
-    // Process billing
-    setTimeout(() => {
+
+    try {
+      let fileUrl = '';
+      let fileName = '';
+      let fileType = '';
+
+      // Upload design file to server if present
+      if (rawFile) {
+        const formData = new FormData();
+        formData.append('file', rawFile);
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          fileUrl = uploadData.url;
+          fileName = uploadData.name;
+          fileType = uploadData.type;
+        } else {
+          throw new Error('File upload failed');
+        }
+      }
+
+      await addOrder({
+        type: 'Print',
+        customerName: cardHolder,
+        customerEmail: customerEmail || 'customer@payment.co',
+        details: {
+          product: actualProductLabel,
+          quantity: quantity,
+          total: total,
+          dimensions: customDimension,
+          notes: additionalNotes,
+          fileName: fileName || designFile?.name,
+          fileUrl: fileUrl,
+          fileType: fileType || designFile?.type
+        }
+      });
+
       setSubmittingOrder(false);
       setOrderComplete(true);
       setOrderReference(`CUVA-PRNT-${Math.floor(100000 + Math.random() * 900000)}`);
-    }, 2200);
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setSubmittingOrder(false);
+      alert('There was an error processing your order. Please try again.');
+    }
   };
 
   return (
@@ -512,15 +576,30 @@ export default function PrintingConfigurator() {
                     <Lock className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="font-display font-bold block text-green-900 text-lg">Encrypted gateway active</span>
+                    <span className="font-display font-bold block text-green-900 text-lg">
+                      {publicSettings.stripePublishableKey ? 'Stripe Gateway Active' : 'Encrypted gateway active'}
+                    </span>
                     <p className="text-green-800/60 text-xs mt-1 font-medium leading-relaxed">
-                      Proceed to seal checkout. Invoice PDF will be sent to the contact address parameters.
+                      {publicSettings.stripePublishableKey 
+                        ? `Secure checkout via Stripe (${publicSettings.paymentMode.toUpperCase()}). Order invoice will be dispatched.`
+                        : 'Simulated payment gateway active. Set Stripe Publishable Keys in Admin Settings to process live client charges.'
+                      }
                     </p>
                   </div>
                 </div>
 
                 {/* Card inputs */}
                 <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
+                    <input
+                      id="card-email-input" type="email" required
+                      value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder="customer@payment.co"
+                      className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Cardholder Name</label>
                     <input

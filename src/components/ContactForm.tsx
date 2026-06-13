@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle, MapPin, Mail, Phone, Clock, Instagram, Linkedin, HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useOrders } from '../OrderStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,6 +19,7 @@ const staggerContainer = {
 };
 
 export default function ContactForm() {
+  const { addOrder } = useOrders();
   const [formInputs, setFormInputs] = useState({
     fullName: '',
     companyName: '',
@@ -63,6 +65,19 @@ export default function ContactForm() {
       setErrors(newErrors);
       return;
     }
+
+    // Log to Admin Store
+    addOrder({
+      type: 'Contact',
+      customerName: formInputs.fullName,
+      customerEmail: formInputs.email,
+      details: {
+        company: formInputs.companyName,
+        phone: formInputs.phone,
+        enquiryType: formInputs.enquiryType,
+        message: formInputs.message
+      }
+    });
 
     setSubmitted(true);
   };

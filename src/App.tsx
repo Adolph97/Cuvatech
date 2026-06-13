@@ -13,6 +13,10 @@ import { ITIllustration, PrintIllustration, MarketingIllustration, MasterHeroIll
 import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+// Admin System Imports
+import { OrderProvider, useOrders } from './OrderStore';
+import AdminDashboard from './components/AdminDashboard';
+
 // Animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -29,7 +33,8 @@ const staggerContainer = {
   }
 };
 
-export default function App() {
+function LandingPage() {
+  const { addOrder } = useOrders();
   const [activeSection, setActiveSection] = useState('hero');
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [globalName, setGlobalName] = useState('');
@@ -76,6 +81,15 @@ export default function App() {
   const handleGlobalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!globalName.trim() || !globalEmail.trim()) return;
+
+    // Log to Admin Store
+    addOrder({
+      type: 'Consultation',
+      customerName: globalName,
+      customerEmail: globalEmail,
+      details: { interest: 'General Agency Inquiry' }
+    });
+
     setGlobalSent(true);
     setTimeout(() => {
       setGlobalSent(false);
@@ -98,14 +112,14 @@ export default function App() {
       {/* HERO SECTION */}
       <header
         id="hero"
-        className="pt-32 pb-20 sm:pb-28 bg-bg relative overflow-hidden"
+        className="pt-32 pb-20 sm:pb-32 bg-bg relative overflow-hidden"
       >
         {/* Ambient brand color glows (Primary) matching new identity */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-primary/10 blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute -bottom-16 -left-16 w-96 h-96 rounded-full bg-primary/5 blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             
             {/* Hero Left Content - STAGGERED MOTION ENTRANCES */}
             <motion.div 
@@ -120,10 +134,10 @@ export default function App() {
                 variants={fadeInUp}
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm select-none"
               >
-                {/* <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                 <span className="font-sans font-bold text-[10px] text-charcoal/40 uppercase tracking-[0.2em] select-none">
                   Project Preview
-                </span> */}
+                </span>
               </motion.div>
 
               {/* Display Header */}
@@ -237,7 +251,7 @@ export default function App() {
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 
                 <AnimatePresence mode="popLayout">
-                  {/* Orbit 1: IT/Print/Marketing Icon A */}
+                  {/* Orbit 1 */}
                   <motion.div
                     key={`${activeSketch}-orbit-1`}
                     initial={{ opacity: 0, scale: 0.5 }}
@@ -263,7 +277,7 @@ export default function App() {
                     </motion.div>
                   </motion.div>
 
-                  {/* Orbit 2: IT/Print/Marketing Icon B */}
+                  {/* Orbit 2 */}
                   <motion.div
                     key={`${activeSketch}-orbit-2`}
                     initial={{ opacity: 0, scale: 0.5 }}
@@ -291,7 +305,7 @@ export default function App() {
                     </motion.div>
                   </motion.div>
 
-                  {/* Orbit 3: IT/Print/Marketing Icon C */}
+                  {/* Orbit 3 */}
                   <motion.div
                     key={`${activeSketch}-orbit-3`}
                     initial={{ opacity: 0, scale: 0.5 }}
@@ -550,97 +564,131 @@ export default function App() {
       <Footer onNavigate={handleNavigate} />
 
       {/* GLOBAL CONSULTATION BOOKING MODAL */}
-      {isConsultOpen && (
-        <div id="global-modal-overlay" className="fixed inset-0 z-50 bg-charcoal/20 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div
-            id="global-modal-content"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl shadow-charcoal/20 overflow-hidden"
-          >
-            {/* Header */}
-            <div className="bg-primary/5 p-8 pb-6 flex items-start justify-between">
-              <div>
-                <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Cuva Docket</span>
-                <h3 className="font-display text-3xl font-extrabold text-charcoal leading-tight">Schedule <br />Consultation</h3>
-              </div>
-              <button
-                id="close-global-modal"
-                onClick={() => setIsConsultOpen(false)}
-                className="w-10 h-10 rounded-full bg-white border border-charcoal/5 flex items-center justify-center hover:bg-bg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5 text-charcoal/40" />
-              </button>
-            </div>
-
-            {globalSent ? (
-              <div id="global-success-state" className="p-12 text-center space-y-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full text-primary animate-bounce">
-                  <CheckCircle className="w-10 h-10" />
+      <AnimatePresence>
+        {isConsultOpen && (
+          <div id="global-modal-overlay" className="fixed inset-0 z-50 bg-charcoal/20 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              id="global-modal-content"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl shadow-charcoal/20 overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-primary/5 p-8 pb-6 flex items-start justify-between">
+                <div>
+                  <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Cuva Docket</span>
+                  <h3 className="font-display text-3xl font-extrabold text-charcoal leading-tight">Schedule <br />Consultation</h3>
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-display text-2xl font-bold text-charcoal">Session Reserved!</h4>
-                  <p className="font-sans text-sm text-charcoal/50 leading-relaxed">
-                    Thank you. We have blocked space in Efe and Sarah’s schedule. We will reach out shortly.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleGlobalSubmit} className="p-8 pt-2 space-y-5 font-sans">
-                
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Your Name</label>
-                  <input
-                    id="global-input-name"
-                    type="text"
-                    required
-                    value={globalName}
-                    onChange={(e) => setGlobalName(e.target.value)}
-                    placeholder="Efe Cuva"
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
-                  <input
-                    id="global-input-email"
-                    type="email"
-                    required
-                    value={globalEmail}
-                    onChange={(e) => setGlobalEmail(e.target.value)}
-                    placeholder="partner@efe_agency.co"
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
-                  <select className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-                    <option>IT Cloud Systems & Migrations</option>
-                    <option>Fine Stationery & Booklets print</option>
-                    <option>Handdrawn Logo Design Guidelines</option>
-                    <option>CPA Marketing & SEO growth checks</option>
-                  </select>
-                </div>
-
                 <button
-                  id="global-submit-consult"
-                  type="submit"
-                  className="bg-primary text-white w-full py-5 text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-center mt-4"
+                  id="close-global-modal"
+                  onClick={() => setIsConsultOpen(false)}
+                  className="w-10 h-10 rounded-full bg-white border border-charcoal/5 flex items-center justify-center hover:bg-bg transition-colors cursor-pointer"
                 >
-                  Send Request
+                  <X className="w-5 h-5 text-charcoal/40" />
                 </button>
-                
-                <p className="text-[10px] text-charcoal/30 text-center px-4">
-                  By submitting, you agree to our data handling protocols. We strictly never sell your information.
-                </p>
-              </form>
-            )}
-          </motion.div>
-        </div>
-      )}
+              </div>
+
+              {globalSent ? (
+                <div id="global-success-state" className="p-12 text-center space-y-6">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full text-primary animate-bounce">
+                    <CheckCircle className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-display text-2xl font-bold text-charcoal">Session Reserved!</h4>
+                    <p className="font-sans text-sm text-charcoal/50 leading-relaxed">
+                      Thank you. We have blocked space in Efe and Sarah’s schedule. We will reach out shortly.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleGlobalSubmit} className="p-8 pt-2 space-y-5 font-sans">
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Your Name</label>
+                    <input
+                      id="global-input-name"
+                      type="text"
+                      required
+                      value={globalName}
+                      onChange={(e) => setGlobalName(e.target.value)}
+                      placeholder="Efe Cuva"
+                      className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
+                    <input
+                      id="global-input-email"
+                      type="email"
+                      required
+                      value={globalEmail}
+                      onChange={(e) => setGlobalEmail(e.target.value)}
+                      placeholder="partner@efe_agency.co"
+                      className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
+                    <select className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
+                      <option>IT Cloud Systems & Migrations</option>
+                      <option>Fine Stationery & Booklets print</option>
+                      <option>Handdrawn Logo Design Guidelines</option>
+                      <option>CPA Marketing & SEO growth checks</option>
+                    </select>
+                  </div>
+
+                  <button
+                    id="global-submit-consult"
+                    type="submit"
+                    className="bg-primary text-white w-full py-5 text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-center mt-4"
+                  >
+                    Send Request
+                  </button>
+                  
+                  <p className="text-[10px] text-charcoal/30 text-center px-4">
+                    By submitting, you agree to our data handling protocols. We strictly never sell your information.
+                  </p>
+                </form>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
+  );
+}
+
+export default function App() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setPath(window.location.pathname);
+      window.scrollTo(0, 0);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Polyfill for manual pushState
+    const originalPushState = window.history.pushState;
+    window.history.pushState = function(...args: any[]) {
+      originalPushState.apply(window.history, args as any);
+      handleLocationChange();
+    };
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.history.pushState = originalPushState;
+    };
+  }, []);
+
+  return (
+    <OrderProvider>
+      {path === '/admin' ? <AdminDashboard /> : <LandingPage />}
+    </OrderProvider>
   );
 }

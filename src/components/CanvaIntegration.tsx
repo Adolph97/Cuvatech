@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Share2, UploadCloud, AlertCircle, CheckCircle, ArrowRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useOrders } from '../OrderStore';
 import { DesignFile } from '../types';
 
 interface CanvaTemplate {
@@ -30,6 +31,7 @@ const staggerContainer = {
 };
 
 export default function CanvaIntegration() {
+  const { addOrder } = useOrders();
   const [status, setStatus] = useState({ connected: false, connecting: false, submitted: false, error: '' });
   const [form, setForm] = useState({ name: '', email: '', brandGoal: '', colors: 'Warm Earth tones' });
   const [assets, setAssets] = useState<{ template: CanvaTemplate | null, file: DesignFile | null }>({ template: null, file: null });
@@ -48,12 +50,40 @@ export default function CanvaIntegration() {
     if (file.size > 25 * 1024 * 1024) return updateStatus({ error: 'File exceeds 25MB standard budget limit.' });
     
     updateStatus({ error: '' });
-    setAssets(a => ({ ...a, file: { name: file.name, size: Math.round(file.size / 1024), type: file.type, previewUrl: URL.createObjectURL(file) } }));
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAssets(a => ({ 
+        ...a, 
+        file: { 
+          name: file.name, 
+          size: Math.round(file.size / 1024), 
+          type: file.type, 
+          previewUrl: URL.createObjectURL(file),
+          base64: reader.result as string
+        } 
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim()) return updateStatus({ error: 'Please provide your name and email.' });
+    
+    addOrder({
+      type: 'Branding',
+      customerName: form.name,
+      customerEmail: form.email,
+      details: {
+        goal: form.brandGoal,
+        palette: form.colors,
+        template: assets.template?.title,
+        fileName: assets.file?.name,
+        fileData: assets.file?.base64
+      }
+    });
+
     updateStatus({ error: '', submitted: true });
   };
 

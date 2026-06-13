@@ -3,6 +3,7 @@ import { IT_SERVICES } from '../data';
 import { ITService } from '../types';
 import { Server, Cpu, Cloud, HelpCircle, FileText, CheckCircle, Send, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useOrders } from '../OrderStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,6 +27,7 @@ interface ITServicesProps {
 }
 
 export default function ITServices() {
+  const { addOrder } = useOrders();
   const [selectedService, setSelectedService] = useState<ITService | null>(null);
   const [formInputs, setFormInputs] = useState({
     fullName: '',
@@ -79,6 +81,18 @@ export default function ITServices() {
     }
 
     // Process valid form
+    addOrder({
+      type: 'IT',
+      customerName: formInputs.fullName,
+      customerEmail: formInputs.email,
+      details: {
+        service: selectedService?.title,
+        company: formInputs.companyName,
+        phone: formInputs.phone,
+        message: formInputs.message
+      }
+    });
+
     setFormSubmitted(true);
   };
 

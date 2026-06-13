@@ -30,6 +30,7 @@ export interface DesignFile {
   size: number;
   type: string;
   previewUrl?: string;
+  base64?: string;
 }
 
 export interface Testimonial {
