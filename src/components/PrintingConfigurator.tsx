@@ -4,6 +4,21 @@ import { PrintingProduct, DesignFile } from '../types';
 import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
 export default function PrintingConfigurator() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [selectedProduct, setSelectedProduct] = useState<PrintingProduct>(PRINTING_PRODUCTS[0]);
@@ -87,7 +102,7 @@ export default function PrintingConfigurator() {
     const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
     
     if (!validFormats.includes(extension) && !validFormats.includes(extension + 'eg')) {
-      setUploadError(`Unrecognized file format (${extension}). Fallback rule: please supply PNG, JPG, PDF, AI, or SVG formats or click below to request technical assistance.`);
+      setUploadError(`Unrecognized file format (${extension}). Fallback rule: please supply PNG, JPG, PDF, AI, or SVG formats.`);
       return;
     }
 
@@ -158,76 +173,58 @@ export default function PrintingConfigurator() {
   };
 
   return (
-    <div id="printing-configurator-card" className="bg-bg border border-charcoal/5 rounded-3xl shadow-xl overflow-visible max-w-6xl mx-auto">
+    <motion.div 
+      id="printing-configurator-card" 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={staggerContainer}
+      className="bg-bg border border-charcoal/5 rounded-[2.5rem] shadow-2xl overflow-hidden max-w-6xl mx-auto"
+    >
       
       {/* Configurator Header & Progress Steps */}
-      <div className="bg-primary/5 border-b border-charcoal/5 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-t-3xl">
+      <motion.div variants={fadeInUp} className="bg-primary/5 border-b border-charcoal/5 p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-10">
         <div>
-          <span className="font-hand font-bold text-sm text-primary">Step-by-Step Print Configurator</span>
-          <h3 className="font-display text-2xl font-bold text-charcoal">Cuva Paperworks</h3>
+          <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Print Configurator</span>
+          <h3 className="font-display text-3xl font-extrabold text-charcoal leading-none">Cuva Paperworks</h3>
         </div>
         
         {/* Steps display */}
-        <div className="flex items-center space-x-4 text-[10px] font-bold uppercase tracking-wider">
-          <div className={`flex items-center ${currentStep >= 1 ? 'text-primary' : 'text-charcoal/30'}`}>
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 transition-colors ${currentStep === 1 ? 'bg-white shadow-sm border border-charcoal/5' : 'bg-primary/10'}`}>1</span>
-            <span className="hidden sm:inline">Choose</span>
-          </div>
-          <span className="text-charcoal/10">⎯⎯</span>
-          <div className={`flex items-center ${currentStep >= 2 ? 'text-primary' : 'text-charcoal/30'}`}>
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 transition-colors ${currentStep === 2 ? 'bg-white shadow-sm border border-charcoal/5' : 'bg-primary/10'}`}>2</span>
-            <span className="hidden sm:inline">Design</span>
-          </div>
-          <span className="text-charcoal/10">⎯⎯</span>
-          <div className={`flex items-center ${currentStep >= 3 ? 'text-primary' : 'text-charcoal/30'}`}>
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 transition-colors ${currentStep === 3 ? 'bg-white shadow-sm border border-charcoal/5' : 'bg-primary/10'}`}>3</span>
-            <span className="hidden sm:inline">Checkout</span>
-          </div>
+        <div className="flex items-center space-x-6 text-[10px] font-bold uppercase tracking-widest">
+          {[
+            { n: 1, label: 'Choose' },
+            { n: 2, label: 'Design' },
+            { n: 3, label: 'Checkout' }
+          ].map((s, i) => (
+            <React.Fragment key={s.n}>
+              <div className={`flex items-center ${currentStep >= s.n ? 'text-primary' : 'text-charcoal/20'}`}>
+                <span className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 transition-all font-bold ${currentStep === s.n ? 'bg-white shadow-xl shadow-primary/10 border border-primary/20 scale-110' : currentStep > s.n ? 'bg-primary/10' : 'bg-charcoal/5'}`}>{s.n}</span>
+                <span className="hidden sm:inline">{s.label}</span>
+              </div>
+              {i < 2 && <span className="text-charcoal/5 font-normal tracking-[-0.2em]">⎯⎯⎯</span>}
+            </React.Fragment>
+          ))}
         </div>
-      </div>
+      </motion.div>
 
       {orderComplete ? (
-        <div id="print-order-complete" className="p-10 sm:p-16 text-center space-y-8">
-          <div className="inline-block p-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-bounce shadow-sm">
-            <CheckCircle className="w-16 h-16 stroke-[1.5]" />
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} id="print-order-complete" className="p-16 sm:p-24 text-center space-y-10">
+          <div className="inline-block p-8 bg-primary/10 border border-primary/20 rounded-full text-primary animate-bounce shadow-inner">
+            <CheckCircle className="w-20 h-20 stroke-[1.5]" />
           </div>
 
-          <div className="space-y-3">
-            <h4 className="font-display text-3xl font-bold text-charcoal">Order & Layout Lodged!</h4>
-            <p className="font-sans text-sm text-charcoal/80 max-w-lg mx-auto leading-relaxed">
-              Your payment has cleared successfully. The design and dimensions have been locked onto our 
-              silkscreen master plate under Reference ID:
-              <span className="font-mono bg-primary/10 font-bold px-3 py-1 rounded-full border border-primary/20 inline-block mt-3 select-all">
+          <div className="space-y-4">
+            <h4 className="font-display text-4xl font-extrabold text-charcoal leading-none">Order Lodged!</h4>
+            <p className="font-sans text-base text-charcoal/50 max-w-lg mx-auto leading-relaxed">
+              Your payment has cleared successfully. The design and dimensions have been locked under Reference ID:
+              <span className="font-mono bg-primary/10 font-bold px-4 py-1.5 rounded-full border border-primary/20 inline-block mt-4 select-all text-primary">
                 {orderReference}
               </span>
             </p>
           </div>
 
-          {/* Recapitulation of printed specs */}
-          <div className="bg-white border border-charcoal/5 max-w-md mx-auto p-6 rounded-2xl shadow-sm space-y-4">
-            <span className="font-mono text-[10px] font-bold text-primary uppercase block tracking-widest">Print Docket Details:</span>
-            <div className="grid grid-cols-2 text-xs gap-y-2.5 font-sans">
-              <span className="text-charcoal/50">Product Category:</span>
-              <span className="text-charcoal font-bold text-right">{actualProductLabel}</span>
-              
-              <span className="text-charcoal/50">Total Quantity:</span>
-              <span className="text-charcoal font-bold text-right">{quantity} {selectedProduct.unitLabel}</span>
-              
-              <span className="text-charcoal/50">Design Filename:</span>
-              <span className="text-charcoal font-mono text-right truncate pl-4">{designFile?.name}</span>
-
-              {customDimension && (
-                <>
-                  <span className="text-charcoal/50">Preferred Sizes:</span>
-                  <span className="text-charcoal font-bold text-right">{customDimension}</span>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Next Steps text */}
-          <div className="max-w-md mx-auto font-hand text-lg text-primary font-bold opacity-80 leading-relaxed">
-            “Our press technicians are inspecting your vector format resolution now. You will receive a PDF proof layout confirmation email shortly!”
+          <div className="max-w-md mx-auto font-hand text-2xl text-primary font-bold opacity-80 leading-relaxed rotate-[-1deg]">
+            “Our press technicians are inspecting your vector format resolution now. PDF proof coming soon!”
           </div>
 
           <button
@@ -240,35 +237,35 @@ export default function PrintingConfigurator() {
               setAdditionalNotes('');
               setCustomProductLabel('');
             }}
-            className="btn-primary"
+            className="bg-bg border border-charcoal/10 text-charcoal px-10 py-5 rounded-2xl font-bold text-sm hover:bg-white transition-all shadow-sm cursor-pointer"
           >
-            Create New Print Request
+            Start New Request
           </button>
-        </div>
+        </motion.div>
       ) : (
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x border-t border-charcoal/5 divide-charcoal/5">
           
           {/* Main workspace section */}
-          <div className="flex-1 p-6 sm:p-10 space-y-8 bg-bg overflow-hidden">
+          <div className="flex-1 p-8 sm:p-12 space-y-10 bg-bg overflow-hidden">
             <AnimatePresence mode="wait">
               {/* Step 1 Content: Category list */}
               {currentStep === 1 && (
                 <motion.div
                   key="step-1"
-                  initial={{ opacity: 0, x: -12 }}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.25 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
                   id="step-1-category-view"
-                  className="space-y-6"
+                  className="space-y-8"
                 >
-                  <span className="font-sans text-xs text-charcoal/40 font-bold block uppercase tracking-widest">
-                    [1/3] Select custom product category:
+                  <span className="font-sans text-[10px] text-charcoal/30 font-bold block uppercase tracking-[0.2em]">
+                    [01] Select product category
                   </span>
                   
-                  <div className="flex flex-col xl:flex-row gap-8 items-stretch">
+                  <div className="flex flex-col xl:flex-row gap-10 items-stretch">
                     {/* Left Column: Bento Deck */}
-                    <div className="w-full xl:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-3 select-none self-start">
+                    <div className="w-full xl:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 select-none self-start">
                       {PRINTING_PRODUCTS.map((prod) => {
                         const isSelected = selectedProduct.id === prod.id;
                         return (
@@ -276,47 +273,41 @@ export default function PrintingConfigurator() {
                             id={`print-prod-${prod.id}`}
                             key={prod.id}
                             onClick={() => handleProductChange(prod)}
-                            whileHover={{ scale: 1.015 }}
-                            whileTap={{ scale: 0.985 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                             type="button"
-                            className={`text-left p-4 rounded-2xl border transition-all flex items-center space-x-3 group relative cursor-pointer ${
+                            className={`text-left p-5 rounded-2xl border transition-all flex items-center space-x-4 group relative cursor-pointer ${
                               isSelected
-                                ? 'border-primary/50 bg-white shadow-md'
+                                ? 'border-primary bg-white shadow-xl shadow-primary/5'
                                 : 'border-charcoal/5 hover:border-primary/20 bg-white/50 hover:bg-white'
                             }`}
                           >
-                            <span className="p-2.5 bg-bg border border-charcoal/5 rounded-xl group-hover:scale-105 transition-transform shrink-0 flex items-center justify-center">
+                            <span className="p-3 bg-bg border border-charcoal/5 rounded-xl group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
                               {getProductIcon(prod.id)}
                             </span>
                             <div className="min-w-0 flex-1">
-                              <span className="font-sans font-bold text-xs text-charcoal block leading-snug">
+                              <span className="font-sans font-bold text-sm text-charcoal block leading-tight">
                                 {prod.label.split(' / ')[0]}
                               </span>
-                              <span className="font-mono text-[9px] text-charcoal/40 block mt-1 uppercase font-bold">
-                                Min: {prod.minQty} {prod.unitLabel}
+                              <span className="font-sans text-[10px] text-charcoal/30 block mt-1 uppercase font-bold tracking-widest">
+                                Min: {prod.minQty}
                               </span>
                             </div>
-                            {isSelected && (
-                              <span className="absolute right-3 top-3 flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                              </span>
-                            )}
                           </motion.button>
                         );
                       })}
                     </div>
 
                     {/* Right Column: Spec card */}
-                    <div className="flex-1 bg-white border border-charcoal/5 rounded-3xl p-6 sm:p-8 flex flex-col justify-between relative shadow-sm min-h-[340px]">
-                      <div className="space-y-6">
-                        <div className="flex items-center space-x-4 pb-5 border-b border-charcoal/5">
-                          <span className="p-3 bg-bg border border-charcoal/5 rounded-2xl shrink-0">
+                    <div className="flex-1 bg-white border border-charcoal/5 rounded-[2rem] p-8 sm:p-10 flex flex-col justify-between relative shadow-xl shadow-charcoal/5 min-h-[400px]">
+                      <div className="space-y-8">
+                        <div className="flex items-center space-x-5 pb-6 border-b border-charcoal/5">
+                          <span className="p-4 bg-bg border border-charcoal/5 rounded-[1.5rem] shrink-0">
                             {getProductIcon(selectedProduct.id)}
                           </span>
                           <div>
-                            <span className="font-hand font-bold text-xs text-primary block tracking-wide uppercase leading-none mb-1.5">
-                              Active Product Spec Sheet
+                            <span className="font-sans font-bold text-[10px] text-primary block tracking-[0.2em] uppercase mb-1.5">
+                              Active Specification
                             </span>
                             <h4 className="font-display font-bold text-2xl text-charcoal leading-none">
                               {selectedProduct.label}
@@ -324,48 +315,31 @@ export default function PrintingConfigurator() {
                           </div>
                         </div>
 
-                        <p className="font-sans text-sm text-charcoal/70 leading-relaxed">
-                          {selectedProduct.description}
+                        <p className="font-sans text-base text-charcoal/60 leading-relaxed italic">
+                          "{selectedProduct.description}"
                         </p>
 
-                        {/* Custom Input */}
-                        {selectedProduct.id === 'custom' && (
-                          <div id="custom-label-input-container" className="pt-2 flex flex-col space-y-2 animate-scale-in">
-                            <label className="font-sans text-xs font-bold text-charcoal/60">
-                              Describe custom material, asset or dimensions:
-                            </label>
-                            <input
-                              id="custom-product-text"
-                              type="text"
-                              value={customProductLabel}
-                              onChange={(e) => setCustomProductLabel(e.target.value)}
-                              placeholder="E.g., Linen folder, wooden box cover"
-                              className="bg-bg border border-charcoal/10 p-3 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 w-full transition-all"
-                            />
-                          </div>
-                        )}
-
                         {/* Financial specs */}
-                        <div className="bg-bg border border-charcoal/5 p-4 rounded-2xl grid grid-cols-2 gap-y-2.5 text-xs font-sans">
-                          <span className="text-charcoal/50">Baseline Unit Price:</span>
-                          <span className="text-charcoal font-bold text-right">${selectedProduct.basePrice.toFixed(2)} / {selectedProduct.unitLabel.slice(0, -1) || 'unit'}</span>
+                        <div className="bg-bg border border-charcoal/5 p-6 rounded-2xl grid grid-cols-2 gap-y-4 text-xs font-sans">
+                          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Unit Price</span>
+                          <span className="text-charcoal font-extrabold text-right">${selectedProduct.basePrice.toFixed(2)}</span>
                           
-                          <span className="text-charcoal/50">Minimum Batch Volume:</span>
-                          <span className="text-charcoal font-bold text-right">{selectedProduct.minQty} {selectedProduct.unitLabel}</span>
+                          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Batch Volume</span>
+                          <span className="text-charcoal font-extrabold text-right">{selectedProduct.minQty} {selectedProduct.unitLabel}</span>
                           
-                          <span className="text-charcoal/50">Initial setup overhead:</span>
-                          <span className="text-charcoal font-bold text-right">${selectedProduct.id === 'custom' ? '25.00' : '15.00'}</span>
+                          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Setup Fee</span>
+                          <span className="text-charcoal font-extrabold text-right">${selectedProduct.id === 'custom' ? '25.00' : '15.00'}</span>
                         </div>
                       </div>
 
-                      <div className="pt-6 mt-6 border-t border-charcoal/5 flex items-center justify-between gap-4">
-                        <span className="font-hand font-bold text-base text-charcoal/40 select-none animate-pulse">
-                          “Artisanal plate ready!”
+                      <div className="pt-8 mt-8 border-t border-charcoal/5 flex items-center justify-between gap-6">
+                        <span className="font-hand font-bold text-xl text-primary/40 select-none animate-pulse rotate-[-2deg]">
+                          “Plate ready!”
                         </span>
                         <button
                           type="button"
                           onClick={handleNextStep}
-                          className="btn-primary py-2.5 px-6 flex items-center space-x-2"
+                          className="bg-primary text-white px-10 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center space-x-3 cursor-pointer"
                         >
                           <span>Next Step</span>
                           <ArrowRight className="w-4 h-4" />
@@ -380,25 +354,25 @@ export default function PrintingConfigurator() {
               {currentStep === 2 && (
                 <motion.div
                   key="step-2"
-                  initial={{ opacity: 0, x: -12 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.25 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
                   id="step-2-specs-view"
-                  className="space-y-8"
+                  className="space-y-10"
                 >
-                <span className="font-sans text-xs text-charcoal/40 font-bold block uppercase tracking-widest">
-                  [2/3] Specify volume & attach layouts:
+                <span className="font-sans text-[10px] text-charcoal/30 font-bold block uppercase tracking-[0.2em]">
+                  [02] Specify volume & attach layouts
                 </span>
 
                 {/* Grid inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   
                   {/* Quantity */}
-                  <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1.5 flex justify-between">
-                      <span>Order Quantity ({selectedProduct.unitLabel})</span>
-                      <span className="text-primary text-xs font-bold font-mono">Min: {selectedProduct.minQty}</span>
+                  <div className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Order Quantity</span>
+                      <span className="text-primary">Min: {selectedProduct.minQty}</span>
                     </label>
                     <input
                       id="config-print-qty"
@@ -406,45 +380,39 @@ export default function PrintingConfigurator() {
                       min={selectedProduct.minQty}
                       value={quantity}
                       onChange={handleQuantityChange}
-                      className="bg-white border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal"
                     />
-                    {quantity < selectedProduct.minQty && (
-                      <span className="text-primary text-xxs mt-2 font-bold flex items-center">
-                        <AlertTriangle className="w-3 h-3 mr-1" />
-                        Under product budget minimum.
-                      </span>
-                    )}
                   </div>
 
                   {/* Size / Dimensions option */}
-                  <div className="flex flex-col">
-                    <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1.5">
-                      Preferred Sizes & Layout dimensions
+                  <div className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">
+                      Preferred Sizes & Dimensions
                     </label>
                     <input
                       id="config-print-sizes"
                       type="text"
                       value={customDimension}
                       onChange={(e) => setCustomDimension(e.target.value)}
-                      placeholder="E.g., 5 Large, 12 Medium | 100cm x 50cm"
-                      className="bg-white border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      placeholder="E.g., 5 Large, 12 Medium"
+                      className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal"
                     />
                   </div>
 
                 </div>
 
                 {/* DRAG AND DROP VECTOR UPLOAD */}
-                <div className="space-y-3">
-                  <label className="font-sans text-xs sm:text-sm font-bold text-charcoal block">
-                    Upload Design File
+                <div className="space-y-4">
+                  <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1 block">
+                    Upload Design Brief
                   </label>
 
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all relative ${
-                      isDragging ? 'bg-primary/5 border-primary scale-[1.01]' : 'bg-white border-charcoal/10 hover:border-primary/30 hover:bg-white shadow-sm'
+                    className={`border-2 border-dashed rounded-[2rem] p-12 text-center transition-all relative ${
+                      isDragging ? 'bg-primary/5 border-primary scale-[1.02]' : 'bg-white border-charcoal/5 hover:border-primary/20 hover:bg-bg/50 shadow-sm'
                     }`}
                   >
                     <input
@@ -457,52 +425,49 @@ export default function PrintingConfigurator() {
                     />
 
                     {!designFile ? (
-                      <div className="space-y-4">
-                        <UploadCloud className="w-12 h-12 text-primary/30 mx-auto stroke-[1.2]" />
+                      <div className="space-y-6">
+                        <div className="p-4 bg-primary/5 rounded-full inline-block animate-pulse">
+                          <UploadCloud className="w-12 h-12 text-primary stroke-[1.2]" />
+                        </div>
                         <div>
-                          <p className="font-sans text-sm font-bold text-charcoal">
-                            Drag and drop Vector Layout files here or browse files
+                          <p className="font-display text-xl font-bold text-charcoal">
+                            Drag and drop Vector Layouts
                           </p>
-                          <p className="font-sans text-xxs text-charcoal/40 mt-1.5 max-w-sm mx-auto">
-                            Requires PNG, JPG, PDF, AI, or SVG parameters. Maximum size limit is 25MB.
+                          <p className="font-sans text-xs text-charcoal/30 mt-2 max-w-sm mx-auto font-medium">
+                            PNG, JPG, PDF, AI, or SVG. Maximum scale: 25MB.
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <div id="file-ready-preview" className="space-y-5 animate-scale-in">
+                      <div id="file-ready-preview" className="space-y-6">
                         {designFile.type.startsWith('image/') ? (
-                          <div className="p-2 bg-bg border border-charcoal/5 rounded-2xl inline-block">
+                          <div className="p-3 bg-white border border-charcoal/5 rounded-[1.5rem] inline-block shadow-2xl shadow-charcoal/5">
                             <img
                               src={designFile.previewUrl}
-                              alt="Preview layout"
-                              className="max-h-40 max-w-xs object-contain rounded-xl"
-                              referrerPolicy="no-referrer"
+                              alt="Preview"
+                              className="max-h-48 max-w-xs object-contain rounded-xl"
                             />
                           </div>
                         ) : (
-                          <div className="bg-primary/10 border border-primary/20 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center">
-                            <span className="font-mono font-bold text-xs text-primary">PDF/AI</span>
+                          <div className="bg-primary/10 border border-primary/20 w-24 h-24 rounded-[1.5rem] mx-auto flex items-center justify-center shadow-xl shadow-primary/5">
+                            <span className="font-mono font-bold text-xs text-primary tracking-widest uppercase">Spec</span>
                           </div>
                         )}
 
-                        <div className="flex items-center justify-center space-x-4 bg-bg p-3 border border-charcoal/5 rounded-2xl max-w-md mx-auto">
+                        <div className="flex items-center justify-center space-x-6 bg-white p-4 border border-charcoal/5 rounded-2xl max-w-md mx-auto shadow-sm">
                           <div className="text-left truncate min-w-0">
                             <span className="font-mono text-xs font-bold text-charcoal block truncate">
                               {designFile.name}
                             </span>
-                            <span className="font-sans text-xxs text-charcoal/40 block font-bold uppercase mt-0.5 tracking-tighter">
-                              {designFile.size} KB • {designFile.type || 'Vector Spec'}
+                            <span className="font-sans text-[9px] text-charcoal/30 block font-bold uppercase mt-1 tracking-widest">
+                              {designFile.size} KB • {designFile.type.split('/')[1] || 'Spec'}
                             </span>
                           </div>
                           
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleRemoveFile();
-                            }}
-                            className="p-2 bg-white border border-charcoal/10 hover:border-primary hover:text-primary rounded-full transition-all shadow-sm"
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveFile(); }}
+                            className="p-3 bg-primary/5 text-primary hover:bg-primary hover:text-white rounded-full transition-all cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -510,27 +475,19 @@ export default function PrintingConfigurator() {
                       </div>
                     )}
                   </div>
-
-                  {uploadError && (
-                    <div id="upload-alert" className="bg-primary/5 text-primary text-xs p-4 rounded-2xl flex items-start space-x-3 border border-primary/10 animate-shake">
-                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span className="font-bold">{uploadError}</span>
-                    </div>
-                  )}
                 </div>
 
-                {/* Additional Spec notes */}
-                <div className="flex flex-col">
-                  <label className="font-sans text-xs sm:text-sm font-bold text-charcoal mb-1.5">
-                    Custom production notes or special instructions
+                <div className="space-y-2">
+                  <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">
+                    Special production instructions
                   </label>
                   <textarea
                     id="config-print-notes"
                     rows={3}
                     value={additionalNotes}
                     onChange={(e) => setAdditionalNotes(e.target.value)}
-                    placeholder="E.g. We would prefer white water-based silkscreen inks on organic black textiles."
-                    className="bg-white border border-charcoal/10 p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none shadow-sm"
+                    placeholder="E.g. We prefer white water-based inks on organic black textiles."
+                    className="w-full bg-white border border-charcoal/5 p-6 rounded-[1.5rem] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none shadow-sm font-medium text-charcoal"
                   />
                 </div>
                 </motion.div>
@@ -540,130 +497,84 @@ export default function PrintingConfigurator() {
               {currentStep === 3 && (
                 <motion.div
                   key="step-3"
-                  initial={{ opacity: 0, x: -12 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.25 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <form id="print-billing-form" onSubmit={handleCheckoutSubmit} className="space-y-6">
-                <span className="font-sans text-xs text-charcoal/40 font-bold block uppercase tracking-widest">
-                  [3/3] Secure SSL Checkout Gate:
+                  <form id="print-billing-form" onSubmit={handleCheckoutSubmit} className="space-y-8">
+                <span className="font-sans text-[10px] text-charcoal/30 font-bold block uppercase tracking-[0.2em]">
+                  [03] Secure SSL Checkout Gate
                 </span>
 
-                <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl flex items-start space-x-4 text-emerald-950">
-                  <div className="p-2 bg-white rounded-xl shadow-sm">
-                    <Lock className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="bg-green-50 border border-green-100 p-6 rounded-[1.5rem] flex items-start space-x-5">
+                  <div className="p-3 bg-white rounded-xl shadow-sm text-green-500">
+                    <Lock className="w-6 h-6" />
                   </div>
-                  <div className="text-xs">
-                    <span className="font-bold block text-sm">Encrypted payment gateway active</span>
-                    <p className="text-emerald-800/60 mt-1 leading-relaxed">
-                      This order summary has been checked against print inventory codes. Proceed to seal checkout.
+                  <div>
+                    <span className="font-display font-bold block text-green-900 text-lg">Encrypted gateway active</span>
+                    <p className="text-green-800/60 text-xs mt-1 font-medium leading-relaxed">
+                      Proceed to seal checkout. Invoice PDF will be sent to the contact address parameters.
                     </p>
                   </div>
                 </div>
 
                 {/* Card inputs */}
-                <div className="space-y-4">
-                  <div className="flex flex-col">
-                    <label className="font-sans text-xs font-bold text-charcoal mb-1.5">Cardholder Name</label>
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Cardholder Name</label>
                     <input
-                      id="card-holder-input"
-                      type="text"
-                      required
-                      value={cardHolder}
-                      onChange={(e) => setCardHolder(e.target.value)}
+                      id="card-holder-input" type="text" required
+                      value={cardHolder} onChange={(e) => setCardHolder(e.target.value)}
                       placeholder="Jane Doe"
-                      className="bg-white border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold"
                     />
                   </div>
 
-                  <div className="flex flex-col">
-                    <label className="font-sans text-xs font-bold text-charcoal mb-1.5">Credit Card Number</label>
+                  <div className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Credit Card Number</label>
                     <div className="relative">
-                      <CreditCard className="w-5 h-5 text-charcoal/20 absolute left-4 top-1/2 -translate-y-1/2" />
+                      <CreditCard className="w-5 h-5 text-charcoal/10 absolute left-6 top-1/2 -translate-y-1/2" />
                       <input
-                        id="card-number-input"
-                        type="text"
-                        required
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                        maxLength={19}
-                        placeholder="4111 8888 2222 3912"
-                        className="bg-white border border-charcoal/10 p-3.5 pl-12 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm w-full font-mono tracking-widest"
+                        id="card-number-input" type="text" required
+                        value={cardNumber} onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+                        maxLength={19} placeholder="4111 8888 2222 3912"
+                        className="w-full bg-white border border-charcoal/5 px-6 pl-14 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono tracking-[0.2em] font-bold"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <label className="font-sans text-xs font-bold text-charcoal mb-1.5">Expiry Date</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Expiry</label>
                       <input
-                        id="card-expiry-input"
-                        type="text"
-                        required
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        className="bg-white border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center"
+                        id="card-expiry-input" type="text" required placeholder="MM/YY" maxLength={5}
+                        value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)}
+                        className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center font-bold"
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <label className="font-sans text-xs font-bold text-charcoal mb-1.5">CVV / Security</label>
+                    <div className="space-y-2">
+                      <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">CVV</label>
                       <input
-                        id="card-cvv-input"
-                        type="password"
-                        required
-                        maxLength={3}
-                        value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value.replace(/\D/g,''))}
+                        id="card-cvv-input" type="password" required maxLength={3}
+                        value={cardCvv} onChange={(e) => setCardCvv(e.target.value.replace(/\D/g,''))}
                         placeholder="***"
-                        className="bg-white border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center"
+                        className="w-full bg-white border border-charcoal/5 px-6 py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center font-bold"
                       />
                     </div>
                   </div>
-
-                  {/* GDPR */}
-                  <div className="flex items-start pt-2">
-                    <div className="relative flex items-center">
-                      <input
-                        id="card-gdpr-check"
-                        type="checkbox"
-                        required
-                        checked={consentGdpr}
-                        onChange={(e) => setConsentGdpr(e.target.checked)}
-                        className="w-4 h-4 border-charcoal/10 text-primary focus:ring-primary/20 cursor-pointer rounded transition-all"
-                      />
-                    </div>
-                    <span className="font-sans text-[10px] font-medium text-charcoal/50 ml-3 leading-snug">
-                      I consent to secure card processing in accordance with PCI-DSS guidelines. Invoice PDF will be sent to the contact address parameters.
-                    </span>
-                  </div>
                 </div>
 
-                <div className="pt-4">
-                  <button
-                    id="submit-payment-btn"
-                    type="submit"
-                    disabled={submittingOrder}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-600/10 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center space-x-2 disabled:opacity-50"
-                  >
-                    {submittingOrder ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        <span>Processing Payment...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 fill-current" />
-                        <span>Confirm Order: ${total.toFixed(2)}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  id="submit-payment-btn" type="submit" disabled={submittingOrder}
+                  className="bg-primary text-white w-full py-6 rounded-2xl font-bold text-sm shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-3 cursor-pointer disabled:opacity-50"
+                >
+                  {submittingOrder ? (
+                    <><svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
+                  ) : (
+                    <><Lock className="w-4 h-4" /><span>Confirm Order: ${total.toFixed(2)}</span></>
+                  )}
+                </button>
               </form>
               </motion.div>
             )}
@@ -671,11 +582,10 @@ export default function PrintingConfigurator() {
 
             {/* Back action */}
             {currentStep > 1 && (
-              <div className="pt-6 border-t border-charcoal/5 flex justify-start">
+              <div className="pt-8 border-t border-charcoal/5 flex justify-start">
                 <button
-                  type="button"
-                  onClick={handlePrevStep}
-                  className="px-5 py-2.5 hover:bg-primary/5 text-charcoal/60 hover:text-primary text-xs font-bold flex items-center space-x-2 transition-all rounded-xl"
+                  type="button" onClick={handlePrevStep}
+                  className="px-6 py-3 hover:bg-white text-charcoal/40 hover:text-primary text-[10px] font-bold uppercase tracking-widest flex items-center space-x-3 transition-all rounded-full border border-transparent hover:border-charcoal/5 cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Go back</span>
@@ -685,59 +595,58 @@ export default function PrintingConfigurator() {
           </div>
 
           {/* Right Side: Price summary */}
-          <div className="w-full lg:w-96 bg-white p-6 sm:p-10 flex flex-col justify-between shadow-inner">
-            <div className="space-y-8">
-              <span className="font-mono text-[10px] font-bold text-charcoal/30 uppercase tracking-widest block">
-                Live Pricing Ledger
+          <div className="w-full lg:w-[400px] bg-white p-10 sm:p-14 flex flex-col justify-between shadow-inner">
+            <div className="space-y-10">
+              <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.3em] block">
+                Live Ledger
               </span>
 
-              <div className="border-b border-dashed border-charcoal/10 pb-6">
-                <h4 className="font-display text-xl font-bold text-charcoal truncate">
+              <div className="border-b border-dashed border-charcoal/10 pb-8">
+                <h4 className="font-display text-2xl font-extrabold text-charcoal truncate">
                   {actualProductLabel}
                 </h4>
-                <p className="font-sans text-xs text-charcoal/40 font-bold mt-1.5 uppercase tracking-tighter">
-                  Selected model configuration
+                <p className="font-sans text-[10px] text-charcoal/20 font-bold mt-2 uppercase tracking-widest">
+                  Active Configuration
                 </p>
               </div>
 
               {/* Calc List */}
-              <div className="space-y-4 text-xs font-sans">
-                <div className="flex justify-between">
-                  <span className="text-charcoal/40 font-bold uppercase tracking-tighter">Base unit cost:</span>
-                  <span className="text-charcoal font-bold">${unitPrice.toFixed(2)} / unit</span>
+              <div className="space-y-5 text-[11px] font-sans">
+                <div className="flex justify-between font-medium">
+                  <span className="text-charcoal/40 uppercase tracking-widest">Unit cost</span>
+                  <span className="text-charcoal font-bold">${unitPrice.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-charcoal/40 font-bold uppercase tracking-tighter">Batch Quantity:</span>
-                  <span className="text-charcoal font-bold">{Math.max(quantity, selectedProduct.minQty)} {selectedProduct.unitLabel}</span>
+                <div className="flex justify-between font-medium">
+                  <span className="text-charcoal/40 uppercase tracking-widest">Batch Qty</span>
+                  <span className="text-charcoal font-bold">{Math.max(quantity, selectedProduct.minQty)}</span>
                 </div>
                 {quantity >= 200 && (
                   <div className="flex justify-between text-primary font-bold">
-                    <span className="uppercase tracking-tighter">Bulk discount tier:</span>
-                    <span>-{quantity >= 500 ? '20%' : '10%'} off</span>
+                    <span className="uppercase tracking-widest">Bulk Tier</span>
+                    <span>-{quantity >= 500 ? '20%' : '10%'}</span>
                   </div>
                 )}
-                <div className="flex justify-between border-t border-charcoal/5 pt-4">
-                  <span className="text-charcoal/40 font-bold uppercase tracking-tighter">Setup & Plate Fee:</span>
+                <div className="flex justify-between border-t border-charcoal/5 pt-5 font-medium">
+                  <span className="text-charcoal/40 uppercase tracking-widest">Plate Fee</span>
                   <span className="text-charcoal font-bold">${setupFee.toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-charcoal/5 mt-10">
-              <div className="flex justify-between items-baseline mb-8">
-                <span className="font-display font-bold text-charcoal/40 text-sm uppercase tracking-widest">Total:</span>
-                <span className="font-display font-bold text-charcoal text-4xl">
+            <div className="pt-10 border-t border-charcoal/5 mt-14">
+              <div className="flex justify-between items-baseline mb-10">
+                <span className="font-display font-bold text-charcoal/20 text-sm uppercase tracking-widest">Total</span>
+                <span className="font-display font-extrabold text-charcoal text-5xl">
                   ${total.toFixed(2)}
                 </span>
               </div>
 
               {currentStep === 2 && (
                 <button
-                  id="printing-configurator-next"
-                  onClick={handleNextStep}
-                  className="btn-primary w-full py-4 text-sm flex items-center justify-center space-x-2 shadow-xl shadow-primary/20"
+                  id="printing-configurator-next" onClick={handleNextStep}
+                  className="bg-charcoal text-white w-full py-6 rounded-2xl font-bold text-sm shadow-2xl shadow-charcoal/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-3 cursor-pointer"
                 >
-                  <span>Checkout & Purchase</span>
+                  <span>Checkout</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -746,6 +655,6 @@ export default function PrintingConfigurator() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

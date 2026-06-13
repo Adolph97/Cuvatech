@@ -4,6 +4,21 @@ import { ITService } from '../types';
 import { Server, Cpu, Cloud, HelpCircle, FileText, CheckCircle, Send, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
 interface ITServicesProps {
   onPreSelectService?: string;
   isModalOpen?: boolean;
@@ -81,14 +96,21 @@ export default function ITServices() {
   };
 
   return (
-    <section id="it-services" className="py-20 bg-bg border-b border-charcoal/5 relative">
+    <motion.section 
+      id="it-services" 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={staggerContainer}
+      className="py-20 bg-bg border-b border-charcoal/5 relative"
+    >
       {/* Visual Organic Accent Grid line background */}
       <div className="absolute inset-0 bg-[radial-gradient(#1e1b18_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
+        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <span className="font-hand font-bold text-lg text-primary tracking-wider uppercase block mb-1">
             01 / System Layer
           </span>
@@ -100,7 +122,7 @@ export default function ITServices() {
             Quiet, bulletproof infrastructure built for creative minds. We draft setups using paper-based 
             clarity before engineering cloud architectures that withstand massive traffic peaks. 
           </p>
-        </div>
+        </motion.div>
 
         {/* Services Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
@@ -108,8 +130,9 @@ export default function ITServices() {
             <motion.div
               id={`it-service-${service.id}`}
               key={service.id}
+              variants={fadeInUp}
               onClick={() => openFormFor(service)}
-              whileHover={{ y: -6 }}
+              whileHover={{ y: -10 }}
               transition={{ type: "spring", stiffness: 450, damping: 20 }}
               className="soft-card p-8 cursor-pointer flex flex-col justify-between group"
             >
@@ -159,7 +182,10 @@ export default function ITServices() {
         </div>
 
         {/* Dynamic Consultation request Banner */}
-        <div className="mt-16 bg-primary/10 border border-primary/20 p-8 sm:p-12 rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+        <motion.div 
+          variants={fadeInUp}
+          className="mt-16 bg-primary/10 border border-primary/20 p-8 sm:p-12 rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
+        >
           <div className="max-w-2xl">
             <h4 className="font-display text-2xl sm:text-3xl font-bold text-charcoal mb-2">
               Unsure about legacy database frameworks?
@@ -176,7 +202,7 @@ export default function ITServices() {
           >
             Schedule System Audit
           </button>
-        </div>
+        </motion.div>
 
       </div>
 
@@ -381,6 +407,6 @@ export default function ITServices() {
           </div>
         )}
       </AnimatePresence>
-    </section>
+    </motion.section>
   );
 }

@@ -390,6 +390,114 @@ export function MarketingIllustration({ className = 'w-full h-auto' }: { classNa
 }
 
 /**
+ * 4. Distinct Pillar Illustrations (Humaans/Undraw inspired)
+ */
+
+// IT Pillar Scene
+export function HeroITIllustration({ className = 'w-full h-auto' }: { className?: string }) {
+  return (
+    <div className={`relative select-none ${className}`}>
+      <AnimationStyles />
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        <circle cx="400" cy="100" r="80" fill="#E58B6D" fillOpacity="0.05" />
+        <ellipse cx="250" cy="360" rx="200" ry="15" fill="#1E1B18" fillOpacity="0.03" />
+        
+        {/* Central Cloud/Systems Focus */}
+        <g className="anim-float" style={{ transformOrigin: '250px 200px' }}>
+          <rect x="150" y="100" width="200" height="150" rx="24" fill="white" stroke="#E58B6D" strokeWidth="1" />
+          <rect x="150" y="100" width="200" height="40" rx="24" fill="#E58B6D" fillOpacity="0.1" />
+          <path d="M180 180 h140 M180 200 h100 M180 220 h120" stroke="#F4F4F5" strokeWidth="8" strokeLinecap="round" />
+          <circle cx="175" cy="120" r="5" fill="#E58B6D" />
+          <circle cx="195" cy="120" r="5" fill="#E58B6D" fillOpacity="0.5" />
+        </g>
+
+        {/* Character interacting with system */}
+        <g id="it-character">
+          <path d="M100 360 C100 300 180 300 180 360" fill="#E58B6D" fillOpacity="0.2" />
+          <path d="M110 360 V260 C110 230 170 230 170 260 V360" fill="white" stroke="#1E1B18" strokeWidth="0.5" />
+          <circle cx="140" cy="200" r="35" fill="#FFF5EE" />
+          <path d="M115 185 Q110 150 140 145 Q175 150 165 185" fill="#1E1B18" />
+          <path d="M130 270 L200 220" stroke="#1E1B18" strokeWidth="1.5" strokeDasharray="5 5" opacity="0.3" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// Print Pillar Scene
+export function HeroPrintIllustration({ className = 'w-full h-auto' }: { className?: string }) {
+  return (
+    <div className={`relative select-none ${className}`}>
+      <AnimationStyles />
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        <rect x="50" y="50" width="100" height="100" rx="50" fill="#E58B6D" fillOpacity="0.05" />
+        <ellipse cx="250" cy="360" rx="200" ry="15" fill="#1E1B18" fillOpacity="0.03" />
+
+        {/* Central Print/Material Focus */}
+        <g className="anim-float" style={{ transformOrigin: '250px 180px' }}>
+          <path d="M200 80 L350 60 L380 240 L230 260 Z" fill="white" stroke="#E58B6D" strokeWidth="1" />
+          <path d="M230 110 h100 M230 140 h80 M230 170 h110" stroke="#E58B6D" strokeWidth="2" opacity="0.2" />
+          <circle cx="340" cy="220" r="15" fill="#E58B6D" fillOpacity="0.2" />
+        </g>
+
+        {/* Character holding paper */}
+        <g id="print-character">
+          <path d="M120 360 C120 300 200 300 200 360" fill="#E58B6D" fillOpacity="0.2" />
+          <path d="M130 360 V260 C130 230 190 230 190 260 V360" fill="white" stroke="#1E1B18" strokeWidth="0.5" />
+          <circle cx="160" cy="200" r="35" fill="#FFF5EE" />
+          <path d="M135 185 Q130 150 160 145 Q195 150 185 185" fill="#1E1B18" />
+          <path d="M190 270 Q230 250 250 200" stroke="#1E1B18" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// Marketing Pillar Scene
+export function HeroMarketingIllustration({ className = 'w-full h-auto' }: { className?: string }) {
+  return (
+    <div className={`relative select-none ${className}`}>
+      <AnimationStyles />
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        <rect x="350" y="250" width="120" height="120" rx="60" fill="#E58B6D" fillOpacity="0.03" />
+        <ellipse cx="250" cy="360" rx="200" ry="15" fill="#1E1B18" fillOpacity="0.03" />
+
+        {/* Central Marketing/SEO Focus */}
+        <g className="anim-float" style={{ transformOrigin: '300px 200px' }}>
+          <rect x="250" y="120" width="150" height="180" rx="20" fill="white" stroke="#1E1B18" strokeOpacity="0.05" />
+          <path d="M270 250 Q310 180 340 210 T380 150" stroke="#E58B6D" strokeWidth="4" strokeLinecap="round" fill="none" />
+          <circle cx="380" cy="150" r="6" fill="#E58B6D" className="anim-pulse-subtle" />
+        </g>
+
+        {/* Character looking at chart */}
+        <g id="marketing-character">
+          <path d="M80 360 C80 300 160 300 160 360" fill="#E58B6D" fillOpacity="0.2" />
+          <path d="M90 360 V260 C90 230 150 230 150 260 V360" fill="white" stroke="#1E1B18" strokeWidth="0.5" />
+          <circle cx="120" cy="200" r="35" fill="#FFF5EE" />
+          <path d="M95 185 Q90 150 120 145 Q155 150 145 185" fill="#1E1B18" />
+          <path d="M150 260 L240 220" stroke="#1E1B18" strokeWidth="1.5" strokeDasharray="5 5" opacity="0.3" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+export function MasterHeroIllustration({ 
+  className = 'w-full h-auto',
+  activePillar = 'it' 
+}: { 
+  className?: string;
+  activePillar?: 'it' | 'print' | 'marketing';
+}) {
+  switch (activePillar) {
+    case 'it': return <HeroITIllustration className={className} />;
+    case 'print': return <HeroPrintIllustration className={className} />;
+    case 'marketing': return <HeroMarketingIllustration className={className} />;
+    default: return <HeroITIllustration className={className} />;
+  }
+}
+
+/**
  * Scribble Star - Cozy handdrawn ranking starburst / sparkle
  */
 export function ScribbleStar({ className = 'w-6 h-6 text-clay' }: { className?: string }) {

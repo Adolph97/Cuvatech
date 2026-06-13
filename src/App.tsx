@@ -8,10 +8,26 @@ import AboutUs from './components/AboutUs';
 import Testimonials from './components/Testimonials';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
-import { ITIllustration, PrintIllustration, MarketingIllustration, ScribbleUnderline, HanddrawnArrow, ScribbleStar, ScribbleCircle } from './components/NotionIllustrations';
+import { ITIllustration, PrintIllustration, MarketingIllustration, MasterHeroIllustration, ScribbleUnderline, HanddrawnArrow, ScribbleStar, ScribbleCircle } from './components/NotionIllustrations';
 
-import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero');
@@ -24,7 +40,6 @@ export default function App() {
   const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print'>('print');
 
   // Hero interactive visual switcher states
-  const [heroVisual, setHeroVisual] = useState<'sculpture' | 'sketch'>('sketch');
   const [activeSketch, setActiveSketch] = useState<'it' | 'print' | 'marketing'>('it');
 
   // Multi-section tracking active ID on scroll
@@ -96,49 +111,39 @@ export default function App() {
             <motion.div 
               initial="hidden"
               animate="visible"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.12,
-                    delayChildren: 0.1
-                  }
-                }
-              }}
+              variants={staggerContainer}
               className="lg:col-span-7 space-y-8 text-left"
             >
               
               {/* Hand-sketched tag indicator */}
               <motion.div 
-                variants={{
-                  hidden: { opacity: 0, y: 15, scale: 0.95 },
-                  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 20 } }
-                }}
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/10 rounded-full shadow-sm select-none"
+                variants={fadeInUp}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm select-none"
               >
-                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                <span className="font-sans font-bold text-xs text-charcoal/60 uppercase tracking-widest select-none">
+                {/* <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                <span className="font-sans font-bold text-[10px] text-charcoal/40 uppercase tracking-[0.2em] select-none">
                   Project Preview
-                </span>
+                </span> */}
               </motion.div>
 
               {/* Display Header */}
               <motion.div 
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
-                }}
+                variants={fadeInUp}
                 className="space-y-6 relative"
               >
-                <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-extrabold text-charcoal leading-none tracking-tight">
+                <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
                   <span className="relative inline-block">
                     everything tech.
-                    <div className="absolute left-0 bottom-2 w-full h-4 bg-primary/30 -z-10 rounded-full" />
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: '100%' }}
+                      transition={{ delay: 1, duration: 0.8 }}
+                      className="absolute left-0 bottom-2 h-4 bg-primary/30 -z-10 rounded-full" 
+                    />
                   </span>
                 </h1>
                 
-                <p className="font-sans text-xl sm:text-2xl text-charcoal/70 leading-relaxed max-w-2xl font-medium">
+                <p className="font-sans text-xl sm:text-2xl text-charcoal/60 leading-relaxed max-w-2xl font-medium">
                   Cuva Tech is your full-service crew for IT solutions, 
                   branding & printing, and digital marketing — so 
                   growing businesses get one calm partner instead of 
@@ -148,18 +153,15 @@ export default function App() {
 
               {/* Action Buttons */}
               <motion.div 
-                variants={{
-                  hidden: { opacity: 0, y: 15 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                }}
+                variants={fadeInUp}
                 className="flex flex-wrap items-center gap-4 pt-4"
               >
                 <motion.button
                   id="hero-primary-cta"
                   onClick={() => handleNavigate('contact')}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-primary text-white px-8 py-5 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 cursor-pointer transition-all flex items-center space-x-2"
+                  className="bg-primary text-white px-8 py-5 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 cursor-pointer transition-all flex items-center space-x-2"
                 >
                   <span>Start a project</span>
                   <ArrowRight className="w-5 h-5" />
@@ -168,9 +170,9 @@ export default function App() {
                 <motion.button
                   id="hero-secondary-cta"
                   onClick={() => handleNavigate('it-services')}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-charcoal border border-charcoal/10 px-8 py-5 text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
+                  className="bg-white text-charcoal border border-charcoal/5 px-8 py-5 text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
                 >
                   See what we do
                 </motion.button>
@@ -178,165 +180,170 @@ export default function App() {
 
               {/* Stats like in image */}
               <motion.div 
-                variants={{
-                  hidden: { opacity: 0, y: 10 },
-                  visible: { opacity: 1, y: 0, transition: { delay: 0.6 } }
-                }}
+                variants={fadeInUp}
                 className="flex items-center space-x-12 pt-10"
               >
                 <div>
-                  <div className="text-3xl font-extrabold text-charcoal">120+</div>
-                  <div className="text-sm text-charcoal/50 font-medium">projects shipped</div>
+                  <div className="text-4xl font-extrabold text-charcoal">120+</div>
+                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">projects</div>
                 </div>
+                <div className="w-px h-10 bg-charcoal/5" />
                 <div>
-                  <div className="text-3xl font-extrabold text-charcoal">98%</div>
-                  <div className="text-sm text-charcoal/50 font-medium">clients who stay</div>
+                  <div className="text-4xl font-extrabold text-charcoal">98%</div>
+                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">retention</div>
                 </div>
+                <div className="w-px h-10 bg-charcoal/5" />
                 <div>
-                  <div className="text-3xl font-extrabold text-charcoal">24/7</div>
-                  <div className="text-sm text-charcoal/50 font-medium">real human support</div>
+                  <div className="text-4xl font-extrabold text-charcoal">24/7</div>
+                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">support</div>
                 </div>
               </motion.div>
 
               {/* "that's us!" text with emoji */}
               <motion.div 
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { delay: 0.8 } }
-                }}
+                variants={fadeInUp}
                 className="pt-8"
               >
-                <span className="font-hand text-3xl text-primary font-bold italic rotate-[-5deg] inline-block">
+                <span className="font-hand text-4xl text-primary font-bold italic rotate-[-5deg] inline-block">
                   that's us! 👋
                 </span>
               </motion.div>
 
             </motion.div>
 
-            {/* Hero Right Content: INTERACTIVE media switcher (Notion sketches vs 3D) */}
+            {/* Hero Right Content: ORBITAL 3D REVOLVING GRAPHIC */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="lg:col-span-5 flex justify-center w-full"
+              transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 flex justify-center w-full relative h-[500px] items-center"
             >
-              <div className="relative w-full max-w-md">
+              {/* Background Decorative Glows */}
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 bg-primary/10 rounded-full blur-[100px] -z-10" 
+              />
+
+              {/* Main Central Illustration */}
+              <div className="relative z-10 w-full max-w-[400px] drop-shadow-[0_20px_50px_rgba(229,139,109,0.15)]">
+                <MasterHeroIllustration 
+                  className="w-full h-auto" 
+                  activePillar={activeSketch} 
+                />
+              </div>
+
+              {/* Orbital Icons Layer */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 
-                {/* Decorative absolute backing card */}
-                <div className="absolute inset-0 bg-primary/5 rounded-3xl translate-x-3 translate-y-3 -z-10" />
-
-                {/* Main Image Frame (OOT Box style) */}
-                <div className="bg-white border border-charcoal/5 rounded-3xl overflow-hidden shadow-xl relative p-4">
-                  
-                  {/* Top Switcher Tabs */}
-                  <div className="flex border-b border-charcoal/5 pb-3 mb-4 text-[10px] font-bold justify-between items-center">
-                    <span className="text-charcoal/30 uppercase tracking-widest">Visual_Deck // Dublin_D2</span>
-                    
-                    <div className="flex bg-bg rounded-lg p-1 space-x-1">
-                      <button
-                        type="button"
-                        onClick={() => setHeroVisual('sketch')}
-                        className={`px-3 py-1.5 rounded-md text-[10px] transition-all cursor-pointer ${
-                          heroVisual === 'sketch' ? 'bg-charcoal text-white font-bold shadow-sm' : 'text-charcoal/40 hover:bg-white'
-                        }`}
+                <AnimatePresence mode="popLayout">
+                  {/* Orbit 1: IT/Print/Marketing Icon A */}
+                  <motion.div
+                    key={`${activeSketch}-orbit-1`}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute w-[350px] h-[350px] border border-charcoal/[0.03] rounded-full"
+                    >
+                      <motion.div 
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
                       >
-                        🖋️ Sketch
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setHeroVisual('sculpture')}
-                        className={`px-3 py-1.5 rounded-md text-[10px] transition-all cursor-pointer ${
-                          heroVisual === 'sculpture' ? 'bg-charcoal text-white font-bold shadow-sm' : 'text-charcoal/40 hover:bg-white'
-                        }`}
+                        {activeSketch === 'it' && <Server className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'print' && <Shirt className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <Search className="w-6 h-6 text-primary" />}
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+
+                  {/* Orbit 2: IT/Print/Marketing Icon B */}
+                  <motion.div
+                    key={`${activeSketch}-orbit-2`}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                      style={{ rotate: 120 }}
+                      className="absolute w-[420px] h-[420px] border border-charcoal/[0.02] rounded-full"
+                    >
+                      <motion.div 
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                        style={{ rotate: -120 }}
+                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
                       >
-                        🏺 3D
-                      </button>
-                    </div>
-                  </div>
+                        {activeSketch === 'it' && <Cpu className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'print' && <PenTool className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <BarChart className="w-6 h-6 text-primary" />}
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
 
-                  <div className="bg-bg/50 border border-charcoal/5 p-4 rounded-2xl relative flex flex-col items-center justify-center overflow-hidden min-h-[310px]">
-                    
-                    {/* Media content switcher */}
-                    <AnimatePresence mode="wait">
-                      {heroVisual === 'sketch' ? (
-                        <motion.div
-                          key="sketches"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          className="w-full flex flex-col items-center justify-center"
-                        >
-                          <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto">
-                            {activeSketch === 'it' && <ITIllustration className="w-full h-auto" />}
-                            {activeSketch === 'print' && <PrintIllustration className="w-full h-auto" />}
-                            {activeSketch === 'marketing' && <MarketingIllustration className="w-full h-auto" />}
-                          </div>
+                  {/* Orbit 3: IT/Print/Marketing Icon C */}
+                  <motion.div
+                    key={`${activeSketch}-orbit-3`}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                      style={{ rotate: 240 }}
+                      className="absolute w-[380px] h-[380px] border border-charcoal/[0.025] rounded-full"
+                    >
+                      <motion.div 
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                        style={{ rotate: -240 }}
+                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
+                      >
+                        {activeSketch === 'it' && <Cloud className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'print' && <Type className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <Megaphone className="w-6 h-6 text-primary" />}
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+                </AnimatePresence>
 
-                          {/* Interactive sketch selective control pills */}
-                          <div className="flex flex-wrap justify-center gap-2 mt-6 pt-5 border-t border-charcoal/5 w-full select-none">
-                            <button
-                              type="button"
-                              onClick={() => setActiveSketch('it')}
-                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
-                                activeSketch === 'it'
-                                  ? 'bg-primary text-white'
-                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
-                              }`}
-                            >
-                              💻 Systems
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveSketch('print')}
-                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
-                                activeSketch === 'print'
-                                  ? 'bg-primary text-white'
-                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
-                              }`}
-                            >
-                              📔 Material
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveSketch('marketing')}
-                              className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
-                                activeSketch === 'marketing'
-                                  ? 'bg-primary text-white'
-                                  : 'bg-white hover:bg-primary/5 text-charcoal/50 border border-charcoal/5'
-                              }`}
-                            >
-                              🔍 Semantic
-                            </button>
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="sculpture"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.3 }}
-                          className="w-full flex items-center justify-center p-1"
-                        >
-                          <img
-                            src="/src/assets/images/cuva_hero_3d_1781188111481.jpg"
-                            alt="Artisanal Tech Concept Sculpture"
-                            className="w-full h-auto object-cover rounded-xl shadow-inner"
-                            referrerPolicy="no-referrer"
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+              </div>
 
-                  </div>
-
-                  <div className="mt-4 px-1 pb-1 flex items-center justify-between text-[10px] font-bold text-charcoal/30 select-none">
-                    <span className="tracking-widest">PROJECT_CODE: Dublin_D2</span>
-                    <span className="font-hand text-primary text-sm italic">“Organic proportions”</span>
-                  </div>
+              {/* Bottom Caption & Selector UI Overlay */}
+              <div className="absolute bottom-[-20px] left-0 right-0 flex flex-col items-center space-y-6 z-20">
+                <div className="flex bg-white/80 backdrop-blur-md border border-charcoal/5 rounded-full p-1.5 shadow-xl">
+                  {['it', 'print', 'marketing'].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setActiveSketch(p as any)}
+                      className={`px-6 py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition-all cursor-pointer ${
+                        activeSketch === p
+                          ? 'bg-charcoal text-white shadow-lg'
+                          : 'text-charcoal/30 hover:bg-bg hover:text-charcoal'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
                 </div>
-
+                <div className="flex flex-col items-center text-center space-y-1">
+                  <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.4em]">Agency_System // Dublin</span>
+                  <span className="font-hand text-primary text-lg font-bold italic opacity-60">"Revolving Creative Logic"</span>
+                </div>
               </div>
             </motion.div>
 
@@ -345,22 +352,29 @@ export default function App() {
       </header>
 
       {/* CORE THREE-SERVICES OVERVIEW GRID - ANIMATED */}
-      <section className="py-24 bg-white/50 relative">
+      <motion.section 
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="py-24 bg-white/50 relative"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="max-w-3xl mx-auto text-center mb-20">
+          <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-20">
             <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">Core Ecosystem</span>
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal">
               Three Unified Creative Practices
             </h2>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
             
             {/* Card 1: IT Solutions */}
             <motion.div 
-              whileHover={{ y: -8 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
+              variants={fadeInUp}
+              whileHover={{ y: -12 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ SYSTEMS ]</span>
@@ -380,8 +394,9 @@ export default function App() {
 
             {/* Card 2: Branding & Printing */}
             <motion.div 
-              whileHover={{ y: -8 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
+              variants={fadeInUp}
+              whileHover={{ y: -12 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ MATERIAL ]</span>
@@ -401,8 +416,9 @@ export default function App() {
 
             {/* Card 3: Digital Marketing */}
             <motion.div 
-              whileHover={{ y: -8 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
+              variants={fadeInUp}
+              whileHover={{ y: -12 }}
+              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ GROWTH ]</span>
@@ -422,13 +438,27 @@ export default function App() {
 
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* IT SOLUTIONS MODULAR PORTFOLIO */}
-      <ITServices />
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
+      >
+        <ITServices />
+      </motion.div>
 
       {/* BRANDING & PRINTING SECTION */}
-      <section id="branding-printing" className="py-24 bg-bg relative">
+      <motion.section 
+        id="branding-printing" 
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
+        className="py-24 bg-bg relative"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Header */}
@@ -446,12 +476,12 @@ export default function App() {
           </div>
 
           {/* Sub Tab Switcher: Canva vs Configurator */}
-          <div className="flex bg-white/50 border border-charcoal/5 max-w-sm mx-auto rounded-2xl p-1.5 text-xs sm:text-sm font-bold mb-16 shadow-sm">
+          <div className="flex bg-white/50 border border-charcoal/5 max-w-sm mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-16 shadow-sm">
             <button
               id="subtab-print"
               onClick={() => setBrandingSubTab('print')}
-              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
-                brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-lg' : 'text-charcoal/40 hover:bg-white'
+              className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
+                brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
               Configurator
@@ -459,8 +489,8 @@ export default function App() {
             <button
               id="subtab-logo"
               onClick={() => setBrandingSubTab('logo')}
-              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
-                brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-lg' : 'text-charcoal/40 hover:bg-white'
+              className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
+                brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
               Logos & Canva
@@ -469,22 +499,43 @@ export default function App() {
 
           {/* Sub Tab Workspace Canvas */}
           <div id="branding-workspace-canvas">
-            {brandingSubTab === 'logo' ? (
-              <div className="animate-fade-in-down">
-                <CanvaIntegration />
-              </div>
-            ) : (
-              <div className="animate-fade-in-down">
-                <PrintingConfigurator />
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {brandingSubTab === 'logo' ? (
+                <motion.div 
+                  key="logo"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <CanvaIntegration />
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="print"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <PrintingConfigurator />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* DIGITAL MARKETING CORE SEC */}
-      <DigitalMarketing />
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
+      >
+        <DigitalMarketing />
+      </motion.div>
 
       {/* ABOUT US story, mission, crew blocks */}
       <AboutUs />

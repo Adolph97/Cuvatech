@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle, MapPin, Mail, Phone, Clock, Instagram, Linkedin, HelpCircle } from 'lucide-react';
+import { motion } from 'motion/react';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function ContactForm() {
   const [formInputs, setFormInputs] = useState({
@@ -52,7 +68,14 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-bg border-b border-charcoal/5 relative">
+    <motion.section 
+      id="contact" 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={staggerContainer}
+      className="py-20 bg-bg border-b border-charcoal/5 relative"
+    >
       <div className="absolute inset-0 bg-white/20 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -60,7 +83,7 @@ export default function ContactForm() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* Left Side: Custom map & Contact Specifications */}
-          <div className="lg:col-span-5 space-y-8">
+          <motion.div variants={fadeInUp} className="lg:col-span-5 space-y-8">
             <div className="space-y-3">
               <span className="font-hand font-bold text-lg text-primary block">Say Hello</span>
               <h3 className="font-display text-4xl sm:text-5xl font-bold text-charcoal leading-tight">
@@ -132,7 +155,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Email Correspondence</strong>
-                  <a href="mailto:studio@cuva.tech" className="text-primary hover:underline font-bold">studio@cuva.tech</a>
+                  <a href="mailto:info@cuvatech.com" className="text-primary hover:underline font-bold">info@cuvatech.com</a>
                 </div>
               </div>
 
@@ -160,28 +183,28 @@ export default function ContactForm() {
             {/* Social Grid */}
             <div className="pt-6 border-t border-charcoal/5 flex items-center space-x-4">
               <span className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest font-sans">Connect:</span>
-              <a href="https://x.com/cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
+              <motion.a whileHover={{ y: -5 }} href="https://x.com/cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
-              </a>
-              <a href="https://www.tiktok.com/@cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href="https://www.tiktok.com/@cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                 </svg>
-              </a>
-              <a href="https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href="https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
                 <Instagram className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
-              </a>
-              <a href="https://www.linkedin.com/company/cuva-tech/" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href="https://www.linkedin.com/company/cuva-tech/" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
                 <Linkedin className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
-              </a>
+              </motion.a>
             </div>
 
-          </div>
+          </motion.div>
 
           {/* Right Side: Inquiry Contact Form */}
-          <div className="lg:col-span-7 bg-white border border-charcoal/5 p-8 sm:p-12 rounded-3xl shadow-lg">
+          <motion.div variants={fadeInUp} className="lg:col-span-7 bg-white border border-charcoal/5 p-8 sm:p-12 rounded-3xl shadow-lg">
             
             {submitted ? (
               <div id="contact-success-state" className="py-12 text-center space-y-8">
@@ -366,11 +389,11 @@ export default function ContactForm() {
               </form>
             )}
 
-          </div>
+          </motion.div>
 
         </div>
 
       </div>
-    </section>
+    </motion.section>
   );
 }

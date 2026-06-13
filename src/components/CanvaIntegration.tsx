@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Share2, UploadCloud, AlertCircle, CheckCircle, ArrowRight, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { DesignFile } from '../types';
 
 interface CanvaTemplate {
@@ -8,10 +9,25 @@ interface CanvaTemplate {
 
 const TEMPLATES: CanvaTemplate[] = [
   { id: 't-retro', title: 'Retro Organic Seal', category: 'Branding / Vintage Accent', preview: <svg className="w-16 h-16 text-primary mx-auto stroke-[1.2]" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="2.5" strokeDasharray="3 3" /><polygon points="50,22 58,40 76,40 62,52 68,70 50,58 32,70 38,52 24,40 42,40" stroke="currentColor" strokeWidth="2.5" /><path d="M28 50h44" stroke="currentColor" strokeWidth="1.5" /></svg> },
-  { id: 't-nordic', title: 'Nordic Grid Lettermark', category: 'Minimal Editorial', preview: <svg className="w-16 h-16 text-charcoal mx-auto stroke-[1.2]" viewBox="0 0 100 100" fill="none"><rect x="25" y="25" width="50" height="50" stroke="currentColor" strokeWidth="2" /><path d="M25 50h50M50 25v50M25 25l50 50" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.5" /><text x="50" y="55" fontFamily="Georgia, serif" fontSize="24" fontWeight="bold" textAnchor="middle" fill="currentColor">C</text></svg> },
+  { id: 't-nordic', title: 'Nordic Grid Lettermark', category: 'Minimal Editorial', preview: <svg className="w-16 h-16 text-charcoal mx-auto stroke-[1.2]" viewBox="0 0 100 100" fill="none"><rect x="25" y="25" width="50" height="50" stroke="currentColor" strokeWidth="2" /><path d="M25 50h50M50 25v50M25 25l50 50" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.5" /><text x="50" y="55" fontFamily="Plus Jakarta Sans" fontSize="24" fontWeight="bold" textAnchor="middle" fill="currentColor">C</text></svg> },
   { id: 't-botanical', title: 'Handdrawn Botanical', category: 'Organic / Craft Identity', preview: <svg className="w-16 h-16 text-primary mx-auto stroke-[1.2]" viewBox="0 0 100 100" fill="none"><path d="M50 85C50 85 20 60 20 40C20 20 35 15 50 35C65 15 80 20 80 40C80 60 50 85 50 85Z" stroke="currentColor" strokeWidth="2" /><path d="M50 35v45" stroke="currentColor" strokeWidth="1.5" /><path d="M50 50c5-5 15-5 15-5" stroke="currentColor" strokeWidth="1.5" /><path d="M50 62c-5-5-15-5-15-5" stroke="currentColor" strokeWidth="1.5" /></svg> },
   { id: 't-geo', title: 'Symmetrical Wireframe', category: 'Modern SaaS / Fintech', preview: <svg className="w-16 h-16 text-charcoal mx-auto stroke-[1.2]" viewBox="0 0 100 100" fill="none"><polygon points="50,15 80,35 80,68 50,88 20,68 20,35" stroke="currentColor" strokeWidth="2" /><polygon points="50,25 72,40 72,62 50,78 28,62 28,40" stroke="currentColor" strokeWidth="1.5" /><line x1="50" y1="15" x2="50" y2="88" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" /></svg> }
 ];
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function CanvaIntegration() {
   const [status, setStatus] = useState({ connected: false, connecting: false, submitted: false, error: '' });
@@ -48,192 +64,221 @@ export default function CanvaIntegration() {
   };
 
   return (
-    <div id="canva-integration-sub" className="bg-primary/5 border border-charcoal/5 rounded-3xl shadow-lg p-6 sm:p-12 relative overflow-hidden">
+    <motion.div 
+      id="canva-integration-sub" 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={staggerContainer}
+      className="bg-primary/5 border border-charcoal/5 rounded-[2.5rem] shadow-xl p-8 sm:p-16 relative overflow-hidden"
+    >
       <div className="absolute inset-0 bg-white/20 pointer-events-none" />
       
-      <div className="flex flex-col lg:flex-row gap-12 relative z-10">
+      <div className="flex flex-col lg:flex-row gap-16 relative z-10">
         
         {/* Left Side: Canva Connector Widget */}
-        <div className="w-full lg:w-1/2 space-y-8">
-          <div className="flex items-center space-x-4">
-            <span className="p-3 bg-white border border-charcoal/5 rounded-2xl shadow-sm">
-              <Share2 className="w-8 h-8 text-primary" />
+        <motion.div variants={fadeInUp} className="w-full lg:w-1/2 space-y-10">
+          <div className="flex items-center space-x-5">
+            <span className="p-4 bg-white border border-charcoal/5 rounded-[1.5rem] shadow-sm">
+              <Share2 className="w-10 h-10 text-primary" />
             </span>
             <div>
-              <span className="font-hand font-bold text-sm text-primary block">Connected Creator Workspace</span>
-              <h4 className="font-display text-2xl font-bold text-charcoal">Canva Integration Studio</h4>
+              <span className="font-sans font-bold text-xs text-primary block tracking-[0.2em] uppercase mb-1">Connected Workspace</span>
+              <h4 className="font-display text-3xl font-extrabold text-charcoal leading-none">Canva Studio</h4>
             </div>
           </div>
 
-          <p className="font-sans text-sm sm:text-base text-charcoal/60 leading-relaxed max-w-lg">
+          <p className="font-sans text-base text-charcoal/60 leading-relaxed max-w-lg">
             Link your Canva master folder seamlessly. Our designers can inspect your current design drafts 
-            and brand outlines directly from the platform. No more messy email attachment strings.
+            and brand outlines directly from the platform.
           </p>
 
-          {!status.connected ? (
-            <div className="bg-white/80 backdrop-blur-sm border border-charcoal/5 p-8 rounded-2xl text-center space-y-6 shadow-sm">
-              <div className="w-16 h-16 bg-primary/5 border-2 border-dashed border-primary/30 rounded-full mx-auto flex items-center justify-center animate-pulse">
-                <Layout className="w-8 h-8 text-primary" />
-              </div>
-              <div className="space-y-2">
-                <h5 className="font-sans font-bold text-charcoal text-base">Authorize Canva integration</h5>
-                <p className="font-sans text-xs text-charcoal/40 mt-1 max-w-sm mx-auto font-medium">
-                  Clicking authorizes the secure Cuva Tech Developer App callback to associate draft assets.
-                </p>
-              </div>
-
-              <button id="connect-canva-btn" onClick={handleConnect} disabled={status.connecting} className="btn-primary w-full sm:w-auto flex items-center justify-center space-x-2 mx-auto">
-                {status.connecting ? (
-                  <><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Authenticating...</span></>
-                ) : (
-                  <><Layout className="w-4 h-4 mr-1" /><span>Authorize & Connect Canva</span></>
-                )}
-              </button>
-            </div>
-          ) : (
-            <div id="canva-connected-view" className="bg-white/80 backdrop-blur-sm border border-charcoal/5 p-6 rounded-2xl space-y-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-charcoal/5 pb-4">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
-                  <span className="font-mono text-[10px] text-charcoal/40 font-bold uppercase tracking-widest">Canva App Connected [Live]</span>
+          <AnimatePresence mode="wait">
+            {!status.connected ? (
+              <motion.div 
+                key="canva-auth"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white/80 backdrop-blur-md border border-charcoal/5 p-10 rounded-[2rem] text-center space-y-8 shadow-xl shadow-charcoal/5"
+              >
+                <div className="w-20 h-20 bg-primary/5 border-2 border-dashed border-primary/20 rounded-full mx-auto flex items-center justify-center">
+                  <Layout className="w-10 h-10 text-primary animate-pulse" />
                 </div>
-                <button onClick={() => updateStatus({ connected: false })} className="font-sans text-[10px] text-primary hover:underline font-bold uppercase tracking-wider cursor-pointer">Disconnect</button>
-              </div>
+                <div className="space-y-3">
+                  <h5 className="font-display font-bold text-charcoal text-xl">Authorize Integration</h5>
+                  <p className="font-sans text-sm text-charcoal/40 max-w-xs mx-auto font-medium leading-relaxed">
+                    Authorize the secure Cuva Tech App callback to associate your draft assets.
+                  </p>
+                </div>
 
-              <span className="font-sans text-[10px] text-charcoal/30 block font-bold uppercase tracking-widest">Tap to Import Canva Draft:</span>
-              <div className="flex gap-4 lg:grid lg:grid-cols-2 overflow-x-auto lg:overflow-visible pb-2">
-                {TEMPLATES.map((item) => (
-                  <button
-                    key={item.id} id={`canva-tpl-${item.id}`}
-                    onClick={() => setAssets(a => ({ ...a, template: item }))}
-                    className={`text-left p-4 rounded-xl border transition-all flex flex-col justify-between h-40 min-w-[180px] cursor-pointer shadow-sm ${
-                      assets.template?.id === item.id ? 'border-primary bg-primary/5 text-primary' : 'border-charcoal/5 hover:border-primary/30 bg-white text-charcoal'
-                    }`}
-                  >
-                    <div className="flex-1 flex items-center justify-center opacity-80 group-hover:opacity-100">{item.preview}</div>
-                    <div className="border-t border-charcoal/5 pt-3 mt-2">
-                      <span className="font-bold block truncate text-xs">{item.title}</span>
-                      <span className="text-[9px] text-charcoal/40 block truncate font-bold uppercase tracking-tighter mt-0.5">{item.category}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                <button 
+                  id="connect-canva-btn" 
+                  onClick={handleConnect} 
+                  disabled={status.connecting} 
+                  className="bg-primary text-white px-10 py-5 rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center space-x-3 mx-auto disabled:opacity-50"
+                >
+                  {status.connecting ? (
+                    <><svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Authenticating...</span></>
+                  ) : (
+                    <><Layout className="w-5 h-5" /><span>Authorize Canva</span></>
+                  )}
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="canva-connected"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                id="canva-connected-view" 
+                className="bg-white/90 backdrop-blur-md border border-charcoal/5 p-8 rounded-[2rem] space-y-8 shadow-xl shadow-charcoal/5"
+              >
+                <div className="flex items-center justify-between border-b border-charcoal/5 pb-5">
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="font-sans text-[10px] text-charcoal/40 font-bold uppercase tracking-widest">Live Connection</span>
+                  </div>
+                  <button onClick={() => updateStatus({ connected: false })} className="font-sans text-[10px] text-primary hover:underline font-bold uppercase tracking-wider cursor-pointer">Disconnect</button>
+                </div>
+
+                <div className="space-y-4">
+                  <span className="font-sans text-[10px] text-charcoal/20 block font-bold uppercase tracking-[0.2em]">Select Canva Draft:</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2">
+                    {TEMPLATES.map((item) => (
+                      <motion.button
+                        key={item.id} id={`canva-tpl-${item.id}`}
+                        onClick={() => setAssets(a => ({ ...a, template: item }))}
+                        whileHover={{ y: -5 }}
+                        className={`text-left p-6 rounded-2xl border transition-all flex flex-col justify-between h-44 cursor-pointer shadow-sm ${
+                          assets.template?.id === item.id ? 'border-primary bg-primary/5 text-primary' : 'border-charcoal/5 hover:border-primary/20 bg-white text-charcoal'
+                        }`}
+                      >
+                        <div className="flex-1 flex items-center justify-center">{item.preview}</div>
+                        <div className="border-t border-charcoal/5 pt-4 mt-3">
+                          <span className="font-bold block truncate text-xs">{item.title}</span>
+                          <span className="text-[9px] text-charcoal/40 block truncate font-bold uppercase tracking-widest mt-1">{item.category}</span>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Right Side: Design Parameters & Quote Form */}
-        <div className="w-full lg:w-1/2 bg-white border border-charcoal/5 p-8 sm:p-10 rounded-2xl shadow-md self-start lg:sticky lg:top-20">
-          <div className="border-b border-charcoal/5 pb-6 mb-8">
-            <h5 className="font-display text-2xl font-bold text-charcoal">Design Brief Specifications</h5>
-            <span className="font-hand font-bold text-primary text-base block mt-1">Let us synthesize your brand coordinates</span>
+        <motion.div variants={fadeInUp} className="w-full lg:w-1/2 bg-white border border-charcoal/5 p-8 sm:p-12 rounded-[2.5rem] shadow-2xl shadow-charcoal/5 self-start lg:sticky lg:top-32">
+          <div className="border-b border-charcoal/5 pb-8 mb-10">
+            <h5 className="font-display text-3xl font-extrabold text-charcoal leading-none">Brief Specifications</h5>
+            <span className="font-hand font-bold text-primary text-xl block mt-2 opacity-80 rotate-[-1deg]">Let us synthesize your brand coordinates</span>
           </div>
 
           {!status.submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               
-              {assets.template && (
-                <div id="imported-tag" className="bg-primary/5 border border-primary/10 p-4 rounded-xl flex items-center justify-between animate-scale-in">
-                  <div className="flex items-center space-x-3">
-                    <Check className="w-4 h-4 text-primary" />
-                    <span className="font-mono text-[10px] font-bold text-charcoal/60 uppercase">Linked: <span className="text-primary italic">{assets.template.title}</span></span>
-                  </div>
-                  <button type="button" onClick={() => setAssets(a => ({ ...a, template: null }))} className="font-bold font-mono text-[10px] text-charcoal/30 hover:text-primary transition-colors cursor-pointer">CLEAR</button>
-                </div>
-              )}
+              <AnimatePresence>
+                {assets.template && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    id="imported-tag" 
+                    className="bg-primary/5 border border-primary/10 p-5 rounded-2xl flex items-center justify-between overflow-hidden"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-white rounded-full text-primary shadow-sm"><Check className="w-4 h-4" /></div>
+                      <span className="font-sans text-[10px] font-bold text-charcoal/50 uppercase tracking-widest">Linked: <span className="text-primary italic font-extrabold ml-1">{assets.template.title}</span></span>
+                    </div>
+                    <button type="button" onClick={() => setAssets(a => ({ ...a, template: null }))} className="font-bold font-sans text-[10px] text-charcoal/20 hover:text-primary transition-colors cursor-pointer tracking-widest uppercase">Clear</button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {['Name', 'Email'].map((field) => (
-                  <div key={field} className="flex flex-col">
-                    <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Your {field}</label>
+                  <div key={field} className="space-y-2">
+                    <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">{field}</label>
                     <input
                       id={`canva-form-${field.toLowerCase()}`} type={field === 'Email' ? 'email' : 'text'} required
                       value={form[field.toLowerCase() as keyof typeof form]}
                       onChange={(e) => updateForm({ [field.toLowerCase()]: e.target.value })}
-                      placeholder={field === 'Email' ? "brand@efe_designs.com" : "Efe Cuva"}
-                      className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      placeholder={field === 'Email' ? "brand@scribe.co" : "Jane Doe"}
+                      className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                     />
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-col">
-                <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Brand goal & target audience</label>
+              <div className="space-y-2">
+                <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Brand goal & target audience</label>
                 <textarea
                   id="canva-form-goal" rows={3} value={form.brandGoal}
                   onChange={(e) => updateForm({ brandGoal: e.target.value })}
                   placeholder="E.g. High-end eco-friendly apparel line targeting millennial designers."
-                  className="bg-bg border border-charcoal/10 p-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm resize-none"
+                  className="w-full bg-bg border-none px-6 py-5 rounded-[1.5rem] text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none"
                 />
               </div>
 
-              <div className="flex flex-col">
-                <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Preferred Palette Vibe</label>
-                <select id="canva-form-palette" value={form.colors} onChange={(e) => updateForm({ colors: e.target.value })} className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm cursor-pointer font-bold text-charcoal">
+              <div className="space-y-2">
+                <label className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Preferred Palette Vibe</label>
+                <select id="canva-form-palette" value={form.colors} onChange={(e) => updateForm({ colors: e.target.value })} className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none cursor-pointer font-bold text-charcoal appearance-none">
                   {['Warm Earth tones', 'Minimal Noir', 'Solar Brights', 'Boreal Greens'].map(color => (
                     <option key={color} value={color}>{color}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="border border-charcoal/10 border-dashed p-6 rounded-2xl bg-bg/50 relative group hover:bg-bg transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-white rounded-xl border border-charcoal/5 shadow-sm group-hover:scale-105 transition-transform">
-                    <UploadCloud className="w-6 h-6 text-primary" />
+              <div className="border-2 border-charcoal/5 border-dashed p-8 rounded-[2rem] bg-bg/50 relative group hover:bg-bg transition-all text-center">
+                <div className="space-y-4">
+                  <div className="p-3 bg-white rounded-[1.25rem] border border-charcoal/5 shadow-sm group-hover:scale-110 transition-transform inline-block">
+                    <UploadCloud className="w-8 h-8 text-primary" />
                   </div>
                   <div>
-                    <span className="font-sans text-xs font-bold text-charcoal block">Manual artwork upload fallback</span>
-                    <span className="font-sans text-[10px] text-charcoal/40 block font-bold uppercase mt-0.5 tracking-tighter">PNG, SVG, PDF up to 25MB</span>
+                    <span className="font-display font-bold text-charcoal block text-sm">Manual artwork fallback</span>
+                    <span className="font-sans text-[10px] text-charcoal/30 block font-bold uppercase mt-1 tracking-widest">PNG, SVG, PDF up to 25MB</span>
                   </div>
                 </div>
                 <input id="canva-fallback-upload" type="file" onChange={handleFileUpload} accept=".png,.svg,.pdf,.ai,.jpg" className="absolute inset-0 opacity-0 cursor-pointer" />
                 {assets.file && (
-                  <div id="fallback-upload-success" className="mt-4 bg-white p-3 border border-charcoal/5 rounded-xl text-[10px] flex items-center justify-between shadow-sm animate-scale-in">
-                    <span className="font-mono text-charcoal/60 font-bold truncate pr-4">{assets.file.name} ({assets.file.size} KB)</span>
-                    <span className="text-primary font-bold font-mono tracking-widest uppercase">READY</span>
-                  </div>
+                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-6 bg-white p-4 border border-charcoal/5 rounded-2xl text-[10px] flex items-center justify-between shadow-xl shadow-charcoal/5">
+                    <span className="font-mono text-charcoal/40 font-bold truncate pr-4">{assets.file.name}</span>
+                    <span className="text-primary font-bold font-sans tracking-widest uppercase">Ready</span>
+                  </motion.div>
                 )}
               </div>
 
               {status.error && (
-                <div className="bg-primary/5 text-primary text-xs p-3.5 rounded-xl flex items-center space-x-3 border border-primary/10 animate-shake">
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="bg-primary/5 text-primary text-xs p-5 rounded-2xl flex items-center space-x-3 border border-primary/10">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span className="font-bold">{status.error}</span>
-                </div>
+                </motion.div>
               )}
 
-              <button id="submit-logo-brief" type="submit" className="btn-primary w-full py-4 text-sm flex items-center justify-center space-x-3 shadow-xl shadow-primary/10">
-                <span>Submit Design Brief</span>
-                <ArrowRight className="w-4 h-4" />
+              <button id="submit-logo-brief" type="submit" className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-3 cursor-pointer">
+                <span>Submit Briefing</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </form>
           ) : (
-            <div id="brief-success" className="text-center py-10 space-y-8 animate-scale-in">
-              <div className="p-6 bg-primary/10 border border-primary/20 rounded-full inline-block text-primary animate-bounce shadow-sm">
-                <CheckCircle className="w-12 h-12" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-12 space-y-10">
+              <div className="p-8 bg-primary/10 border border-primary/20 rounded-full inline-block text-primary animate-bounce shadow-inner">
+                <CheckCircle className="w-16 h-16" />
               </div>
-              <div className="space-y-3">
-                <h6 className="font-display text-2xl font-bold text-charcoal">Brief parameters lodged!</h6>
-                <p className="font-sans text-sm text-charcoal/50 leading-relaxed max-w-sm mx-auto font-medium">
-                  Excellent work {form.name}, Sarah is putting together structural logo suggestions. 
-                  Your brief has been compiled under ticket <span className="font-mono font-bold bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 mx-1 text-primary">CUVA-{Math.floor(100+Math.random()*900)}</span>.
+              <div className="space-y-4">
+                <h6 className="font-display text-3xl font-extrabold text-charcoal leading-none">Parameters Lodged!</h6>
+                <p className="font-sans text-base text-charcoal/50 leading-relaxed max-w-sm mx-auto font-medium">
+                  Excellent work {form.name}, we are putting together structural suggestions now.
                 </p>
               </div>
               
-              {assets.template && (
-                <div className="bg-bg border border-charcoal/5 p-5 rounded-2xl text-left text-xs max-w-xs mx-auto shadow-sm">
-                  <span className="font-mono text-[10px] font-bold text-primary/60 block uppercase tracking-widest">IMPORTED LINK</span>
-                  <p className="font-bold text-charcoal mt-2 leading-relaxed">Canva Project template <span className="text-primary italic">"{assets.template.title}"</span> was successfully attached!</p>
-                </div>
-              )}
-
-              <button id="reset-brief-btn" onClick={handleReset} className="btn-secondary w-full max-w-xs">
-                Log another design brief
+              <button id="reset-brief-btn" onClick={handleReset} className="bg-bg border border-charcoal/10 text-charcoal px-10 py-5 rounded-2xl font-bold text-sm hover:bg-white transition-all shadow-sm cursor-pointer">
+                Log another brief
               </button>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

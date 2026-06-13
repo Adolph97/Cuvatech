@@ -5,6 +5,21 @@ import { Star, MessageSquarePlus, Filter, CheckCircle, Quote, Sparkles, X } from
 import { motion, AnimatePresence } from 'motion/react';
 import { ScribbleStar, ScribbleCircle } from './NotionIllustrations';
 
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
 export default function Testimonials() {
   const [filter, setFilter] = useState<'ALL' | 'IT' | 'Branding' | 'Digital Marketing'>('ALL');
   const [reviewsList, setReviewsList] = useState<Testimonial[]>(TESTIMONIALS);
@@ -82,13 +97,20 @@ export default function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="py-20 bg-bg border-b border-charcoal/5 relative">
+    <motion.section 
+      id="testimonials" 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={staggerContainer}
+      className="py-20 bg-bg border-b border-charcoal/5 relative"
+    >
       <div className="absolute inset-0 bg-primary/5 opacity-30 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Trustpilot Scoreboard Header */}
-        <div className="bg-white border border-charcoal/5 p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center space-x-6">
             {/* Trustpilot custom visual design */}
             <div className="bg-[#00b67a] p-6 rounded-2xl shadow-md flex flex-col items-center justify-center shrink-0">
@@ -137,10 +159,10 @@ export default function Testimonials() {
               See all reviews
             </a>
           </div>
-        </div>
+        </motion.div>
 
         {/* Filters and Section Intro */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-charcoal/5 relative">
+        <motion.div variants={fadeInUp} className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-charcoal/5 relative">
           <div>
             <span className="font-hand font-bold text-lg text-primary flex items-center space-x-1">
               <span>Client Ledger</span>
@@ -178,7 +200,7 @@ export default function Testimonials() {
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Testimonial Feed Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -186,7 +208,8 @@ export default function Testimonials() {
             <motion.div
               id={`rev-box-${review.id}`}
               key={review.id}
-              whileHover={{ y: -5 }}
+              variants={fadeInUp}
+              whileHover={{ y: -10 }}
               transition={{ type: 'spring', stiffness: 450, damping: 20 }}
               className="soft-card p-8 flex flex-col justify-between relative overflow-hidden group cursor-default"
             >
@@ -374,6 +397,6 @@ export default function Testimonials() {
           </div>
         )}
       </AnimatePresence>
-    </section>
+    </motion.section>
   );
 }
