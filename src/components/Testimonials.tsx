@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TESTIMONIALS, TRUSTPILOT_DATA } from '../data';
 import { Testimonial } from '../types';
-import { Star, MessageSquarePlus, Filter, CheckCircle, Quote, Sparkles, X } from 'lucide-react';
+import { Star, MessageSquarePlus, Filter, CheckCircle, Quote, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScribbleStar, ScribbleCircle } from './NotionIllustrations';
 
@@ -21,12 +21,13 @@ const staggerContainer = {
 };
 
 export default function Testimonials() {
-  const [filter, setFilter] = useState<'ALL' | 'IT' | 'Branding' | 'Digital Marketing'>('ALL');
-  const [reviewsList, setReviewsList] = useState<Testimonial[]>(TESTIMONIALS);
-  
+  const [filter, setFilter] = React.useState<'ALL' | 'IT' | 'Branding' | 'Digital Marketing'>('ALL');
+  const [reviewsList, setReviewsList] = React.useState<Testimonial[]>(TESTIMONIALS);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
   // Submit new review form state
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [newReview, setNewReview] = useState({
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const [newReview, setNewReview] = React.useState({
     name: '',
     company: '',
     sector: '',
@@ -35,11 +36,22 @@ export default function Testimonials() {
     rating: 5,
     serviceType: 'IT' as 'IT' | 'Branding' | 'Digital Marketing'
   });
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
-  const filteredReviews = filter === 'ALL' 
-    ? reviewsList 
+  const filteredReviews = filter === 'ALL'
+    ? reviewsList
     : reviewsList.filter((item) => item.serviceType === filter);
+
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < filteredReviews.length - 1;
+
+  const handlePrev = () => {
+    if (canGoPrev) setCurrentIndex(currentIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (canGoNext) setCurrentIndex(currentIndex + 1);
+  };
 
   // Handle Review submission
   const handleSubmitReview = (e: React.FormEvent) => {
@@ -86,8 +98,8 @@ export default function Testimonials() {
           <Star
             key={i}
             className={`w-4 h-4 ${
-              i < Math.floor(count) 
-                ? 'text-yellow-400 fill-yellow-400' 
+              i < Math.floor(count)
+                ? 'text-yellow-400 fill-yellow-400'
                 : 'text-charcoal/10'
             }`}
           />
@@ -97,8 +109,8 @@ export default function Testimonials() {
   };
 
   return (
-    <motion.section 
-      id="testimonials" 
+    <motion.section
+      id="testimonials"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -108,7 +120,7 @@ export default function Testimonials() {
       <div className="absolute inset-0 bg-primary/5 opacity-30 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Trustpilot Scoreboard Header */}
         <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center space-x-6">
@@ -189,7 +201,7 @@ export default function Testimonials() {
               <button
                 id={`filter-${type}`}
                 key={type}
-                onClick={() => setFilter(type)}
+                onClick={() => { setFilter(type); setCurrentIndex(0); }}
                 className={`px-4 py-2 text-xs font-bold rounded-full transition-all cursor-pointer ${
                   filter === type
                     ? 'bg-charcoal text-white shadow-md'
@@ -202,46 +214,94 @@ export default function Testimonials() {
           </div>
         </motion.div>
 
-        {/* Testimonial Feed Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredReviews.map((review) => (
-            <motion.div
-              id={`rev-box-${review.id}`}
-              key={review.id}
-              variants={fadeInUp}
-              whileHover={{ y: -10 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-              className="soft-card p-8 flex flex-col justify-between relative overflow-hidden group cursor-default"
-            >
-              {/* Hand-drawn quoting asset overlay */}
-              <Quote className="w-16 h-16 text-primary/[0.05] absolute -right-2 -top-2 group-hover:scale-110 transition-transform duration-300 rotate-180" />
-              
-              <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  {renderStars(review.rating)}
-                  <span className="font-mono text-[9px] font-bold px-2.5 py-1 border border-primary/10 bg-primary/5 text-primary rounded-full uppercase tracking-widest">
-                    {review.serviceType}
-                  </span>
+        {/* Horizontal Testimonial Slider */}
+        <div className="relative">
+          <AnimatePresence mode="wait">
+            {filteredReviews.length > 0 && (
+              <motion.div
+                key={`${currentIndex}-${filteredReviews[currentIndex].id}`}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+                className="soft-card p-8 sm:p-12 flex flex-col justify-between relative overflow-hidden"
+              >
+                {/* Hand-drawn quoting asset overlay */}
+                <Quote className="w-16 h-16 text-primary/[0.05] absolute -right-2 -top-2" />
+
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    {renderStars(filteredReviews[currentIndex].rating)}
+                    <span className="font-mono text-[9px] font-bold px-2.5 py-1 border border-primary/10 bg-primary/5 text-primary rounded-full uppercase tracking-widest">
+                      {filteredReviews[currentIndex].serviceType}
+                    </span>
+                  </div>
+
+                  <p className="font-sans text-base sm:text-lg text-charcoal/80 leading-relaxed italic relative z-10">
+                    "{filteredReviews[currentIndex].review}"
+                  </p>
                 </div>
 
-                <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed italic relative z-10">
-                  “{review.review}”
-                </p>
+                <div className="pt-6 border-t border-charcoal/5 mt-8 flex items-center justify-between">
+                  <div>
+                    <span className="font-display font-bold text-charcoal text-xl block leading-none">
+                      {filteredReviews[currentIndex].name}
+                    </span>
+                    <span className="font-sans text-[10px] font-bold text-charcoal/40 mt-2 block uppercase tracking-wider">
+                      {filteredReviews[currentIndex].role} • <span className="text-primary">{filteredReviews[currentIndex].company}</span>
+                    </span>
+                  </div>
+                  <span className="font-hand font-bold text-sm text-primary/60">{filteredReviews[currentIndex].date}</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Navigation Arrows */}
+          {filteredReviews.length > 1 && (
+            <div className="flex justify-center items-center mt-8 space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handlePrev}
+                disabled={!canGoPrev}
+                className={`w-12 h-12 rounded-full border border-charcoal/5 flex items-center justify-center transition-all ${
+                  canGoPrev
+                    ? 'bg-white text-charcoal hover:bg-primary hover:text-white cursor-pointer'
+                    : 'bg-charcoal/5 text-charcoal/20 cursor-not-allowed'
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
+
+              {/* Dots indicator */}
+              <div className="flex space-x-2">
+                {filteredReviews.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                      idx === currentIndex ? 'bg-primary w-8' : 'bg-charcoal/20 hover:bg-charcoal/40'
+                    }`}
+                  />
+                ))}
               </div>
 
-              <div className="pt-6 border-t border-charcoal/5 mt-8 flex items-center justify-between">
-                <div>
-                  <span className="font-display font-bold text-charcoal text-base block leading-none">
-                    {review.name}
-                  </span>
-                  <span className="font-sans text-[10px] font-bold text-charcoal/40 mt-2 block uppercase tracking-wider">
-                    {review.role} • <span className="text-primary">{review.company}</span>
-                  </span>
-                </div>
-                <span className="font-hand font-bold text-xs text-primary/60">{review.date}</span>
-              </div>
-            </motion.div>
-          ))}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleNext}
+                disabled={!canGoNext}
+                className={`w-12 h-12 rounded-full border border-charcoal/5 flex items-center justify-center transition-all ${
+                  canGoNext
+                    ? 'bg-white text-charcoal hover:bg-primary hover:text-white cursor-pointer'
+                    : 'bg-charcoal/5 text-charcoal/20 cursor-not-allowed'
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </motion.button>
+            </div>
+          )}
         </div>
 
       </div>

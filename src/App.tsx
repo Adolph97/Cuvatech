@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import AboutUs from './components/AboutUs';
+import PrintingJobsGallery from './components/PrintingJobsGallery';
 import ITServices from './components/ITServices';
 import CanvaIntegration from './components/CanvaIntegration';
 import PrintingConfigurator from './components/PrintingConfigurator';
 import DigitalMarketing from './components/DigitalMarketing';
-import AboutUs from './components/AboutUs';
 import Testimonials from './components/Testimonials';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
@@ -50,7 +51,7 @@ function LandingPage() {
   // Multi-section tracking active ID on scroll
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['hero', 'it-services', 'branding-printing', 'digital-marketing', 'about-us', 'testimonials', 'contact'];
+      const sections = ['hero', 'it-services', 'branding-printing', 'printing-jobs', 'digital-marketing', 'about-us', 'testimonials', 'contact'];
       const scrollPosition = window.scrollY + 120; // offset navbar height
 
       for (const section of sections) {
@@ -134,10 +135,11 @@ function LandingPage() {
                 variants={fadeInUp}
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm select-none"
               >
+              {/*
                 <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                 <span className="font-sans font-bold text-[10px] text-charcoal/40 uppercase tracking-[0.2em] select-none">
                   Project Preview
-                </span>
+                </span> */}
               </motion.div>
 
               {/* Display Header */}
@@ -147,7 +149,7 @@ function LandingPage() {
               >
                 <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
                   <span className="relative inline-block">
-                    everything tech.
+                    Optimizing Businesses.
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
@@ -159,8 +161,8 @@ function LandingPage() {
                 
                 <p className="font-sans text-xl sm:text-2xl text-charcoal/60 leading-relaxed max-w-2xl font-medium">
                   Cuva Tech is your full-service crew for IT solutions, 
-                  branding & printing, and digital marketing — so 
-                  growing businesses get one calm partner instead of 
+                  branding & printing, and digital marketing.  
+                  Growing businesses get one calm partner instead of 
                   five vendors.
                 </p>
               </motion.div>
@@ -465,8 +467,8 @@ function LandingPage() {
       </motion.div>
 
       {/* BRANDING & PRINTING SECTION */}
-      <motion.section 
-        id="branding-printing" 
+      <motion.section
+        id="branding-printing"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -474,7 +476,7 @@ function LandingPage() {
         className="py-24 bg-bg relative"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="font-sans text-xs font-bold text-primary tracking-widest uppercase block mb-3">
@@ -484,7 +486,7 @@ function LandingPage() {
               Branding, Logos & Print
             </h2>
             <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-              We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking 
+              We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking
               your Canva projects directly or using our custom product configurators.
             </p>
           </div>
@@ -515,7 +517,7 @@ function LandingPage() {
           <div id="branding-workspace-canvas">
             <AnimatePresence mode="wait">
               {brandingSubTab === 'logo' ? (
-                <motion.div 
+                <motion.div
                   key="logo"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -525,7 +527,7 @@ function LandingPage() {
                   <CanvaIntegration />
                 </motion.div>
               ) : (
-                <motion.div 
+                <motion.div
                   key="print"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -540,6 +542,17 @@ function LandingPage() {
 
         </div>
       </motion.section>
+
+      {/* PRINTING JOBS GALLERY SECTION */}
+      <motion.div
+        id="printing-jobs"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
+      >
+        <PrintingJobsGallery />
+      </motion.div>
 
       {/* DIGITAL MARKETING CORE SEC */}
       <motion.div
