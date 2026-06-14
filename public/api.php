@@ -2,7 +2,7 @@
 // Set CORS headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -219,6 +219,113 @@ if (preg_match('/^orders\/([^\/]+)\/notifications$/', $path, $matches)) {
     } else {
         http_response_code(404);
         echo json_encode(["error" => "Order not found"]);
+    }
+    exit();
+}
+
+// Route: orders/:id/note (PATCH)
+if (preg_match('/^orders\/([^\/]+)\/note$/', $path, $matches)) {
+    $order_id = $matches[1];
+    $input = getJsonInput();
+    $orders = json_decode(file_get_contents($db_file), true);
+    
+    $found = false;
+    foreach ($orders as &$order) {
+        if ($order['id'] === $order_id) {
+            $note = isset($input['note']) ? $input['note'] : '';
+            array_unshift($order['notifications'], "📝 Note: \"" . substr($note, 0, 80) . "\"");
+            $found = true;
+            $updated_order = $order;
+            break;
+        }
+    }
+    
+    if ($found) {
+        file_put_contents($db_file, json_encode($orders, JSON_PRETTY_PRINT));
+        echo json_encode($updated_order);
+    } else {
+        http_response_code(404);
+        echo json_encode(["error" => "Order not found"]);
+    }
+    exit();
+}
+
+// Route: orders/:id (DELETE)
+if (preg_match('/^orders\/([^\/]+)$/', $path, $matches) && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $order_id = $matches[1];
+    $orders = json_decode(file_get_contents($db_file), true);
+    
+    $found = false;
+    foreach ($orders as $key => $order) {
+        if ($order['id'] === $order_id) {
+            // Clean up uploaded file if exists
+            if (isset($order['details']['fileUrl']) && $order['details']['fileUrl']) {
+                $file_path = __DIR__ . $order['details']['fileUrl'];
+                if (file_exists($file_path)) {
+                    @unlink($file_path);
+                }
+            }
+            unset($orders[$key]);
+            $orders = array_values($orders);
+            $found = true;
+            break;
+        }
+    }
+    
+    if ($found) {
+        file_put_contents($db_file, json_encode($orders, JSON_PRETTY_PRINT));
+        http_response_code(200);
+        echo json_encode(["success" => true]);
+    } else {
+        http_response_code(404);
+        echo json_encode(["error" => "Order not found"]);
+    }
+    exit();
+}
+
+// Route: upload (POST - multipart file upload)
+if ($path === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $upload_dir = __DIR__ . '/uploads/';
+    
+    // Create uploads directory if it doesn't exist
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['file'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed = ['png', 'jpg', 'jpeg', 'pdf', 'ai', 'svg', 'gif', 'webp'];
+        
+        if (!in_array($ext, $allowed)) {
+            http_response_code(400);
+            echo json_encode(["error" => "File type not allowed"]);
+            exit();
+        }
+        
+        if ($file['size'] > 25 * 1024 * 1024) {
+            http_response_code(400);
+            echo json_encode(["error" => "File exceeds 25MB limit"]);
+            exit();
+        }
+        
+        // Generate unique filename
+        $new_name = bin2hex(random_bytes(12)) . '.' . $ext;
+        $target = $upload_dir . $new_name;
+        
+        if (move_uploaded_file($file['tmp_name'], $target)) {
+            echo json_encode([
+                "url" => "/uploads/" . $new_name,
+                "name" => $file['name'],
+                "type" => $file['type']
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error" => "Failed to save uploaded file"]);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(["error" => "No file uploaded or upload error"]);
     }
     exit();
 }
