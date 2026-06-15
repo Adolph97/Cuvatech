@@ -8,10 +8,13 @@ export interface ITService {
 
 export type PrintingProductCategory =
   | 't-shirts'
+  | 'caps'
   | 'notebooks'
   | 'receipts'
   | 'banners'
   | 'stickers'
+  | 'mugs'
+  | 'menus'
   | 'souvenirs'
   | 'pens'
   | 'custom';

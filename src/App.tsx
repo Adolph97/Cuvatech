@@ -43,7 +43,7 @@ function LandingPage() {
   const [globalSent, setGlobalSent] = useState(false);
   
   // Custom interactive tab for branding
-  const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print'>('print');
+  const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print' | null>(null);
 
   // Hero interactive visual switcher states
   const [activeSketch, setActiveSketch] = useState<'it' | 'print' | 'marketing'>('it');
@@ -216,14 +216,14 @@ function LandingPage() {
               </motion.div>
 
               {/* "that's us!" text with emoji */}
-              <motion.div 
+             {/* <motion.div 
                 variants={fadeInUp}
                 className="pt-8"
               >
                 <span className="font-hand text-4xl text-primary font-bold italic rotate-[-5deg] inline-block">
                   that's us! 👋
                 </span>
-              </motion.div>
+              </motion.div>*/}
 
             </motion.div>
 
@@ -357,8 +357,8 @@ function LandingPage() {
                   ))}
                 </div>
                 <div className="flex flex-col items-center text-center space-y-1">
-                  <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.4em]">Agency_System // Dublin</span>
-                  <span className="font-hand text-primary text-lg font-bold italic opacity-60">"Revolving Creative Logic"</span>
+                  <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.4em]">Agency_System </span>
+                 {/* <span className="font-hand text-primary text-lg font-bold italic opacity-60">"Revolving Creative Logic"</span>*/}
                 </div>
               </div>
             </motion.div>
@@ -403,7 +403,7 @@ function LandingPage() {
                 onClick={() => handleNavigate('it-services')}
                 className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Examine services</span>
+                <span>Explore more</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
@@ -418,14 +418,14 @@ function LandingPage() {
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ MATERIAL ]</span>
                 <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Branding & Print</h3>
                 <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
-                  Canva project connections, customized logo creation, and bespoke hand-screened garment and notebooks.
+                  Logo design, Print Shop (T-shirts, Caps, Menus, etc.), and Free Consultations for your brand identity.
                 </p>
               </div>
               <button
                 onClick={() => handleNavigate('branding-printing')}
                 className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Launch configurator</span>
+                <span>Explore more</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
@@ -447,7 +447,7 @@ function LandingPage() {
                 onClick={() => handleNavigate('digital-marketing')}
                 className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
               >
-                <span>Study marketing tab</span>
+                <span>Explore more</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
@@ -495,21 +495,21 @@ function LandingPage() {
           <div className="flex bg-white/50 border border-charcoal/5 max-w-sm mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-16 shadow-sm">
             <button
               id="subtab-print"
-              onClick={() => setBrandingSubTab('print')}
+              onClick={() => setBrandingSubTab(brandingSubTab === 'print' ? null : 'print')}
               className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
                 brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
-              Configurator
+              Print
             </button>
             <button
               id="subtab-logo"
-              onClick={() => setBrandingSubTab('logo')}
+              onClick={() => setBrandingSubTab(brandingSubTab === 'logo' ? null : 'logo')}
               className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
                 brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
-              Logos & Canva
+              Logos & Graphics
             </button>
           </div>
 
@@ -519,24 +519,24 @@ function LandingPage() {
               {brandingSubTab === 'logo' ? (
                 <motion.div
                   key="logo"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.4 }}
                 >
                   <CanvaIntegration />
                 </motion.div>
-              ) : (
+              ) : brandingSubTab === 'print' ? (
                 <motion.div
                   key="print"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.4 }}
                 >
                   <PrintingConfigurator />
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
 

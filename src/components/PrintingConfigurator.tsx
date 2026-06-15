@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PRINTING_PRODUCTS } from '../data';
 import { PrintingProduct, DesignFile } from '../types';
-import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle, Coffee, Utensils } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOrders } from '../OrderStore';
 
@@ -29,10 +29,13 @@ const ProductSelector: React.FC<{
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
+      case 'caps': return <Shirt className="w-5 h-5 text-primary" />; // Fallback or generic
       case 'notebooks': return <Album className="w-5 h-5 text-charcoal" />;
       case 'receipts': return <BookOpen className="w-5 h-5 text-charcoal" />;
       case 'banners': return <Flag className="w-5 h-5 text-primary" />;
       case 'stickers': return <Grid className="w-5 h-5 text-charcoal" />;
+      case 'mugs': return <Coffee className="w-5 h-5 text-primary" />;
+      case 'menus': return <Utensils className="w-5 h-5 text-charcoal" />;
       case 'souvenirs': return <Gift className="w-5 h-5 text-primary" />;
       case 'pens': return <Pin className="w-5 h-5 text-charcoal" />;
       default: return <FileQuestion className="w-5 h-5 text-charcoal" />;
@@ -82,10 +85,13 @@ const ProductDetailCard: React.FC<{
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
+      case 'caps': return <Shirt className="w-5 h-5 text-primary" />; // Fallback or generic
       case 'notebooks': return <Album className="w-5 h-5 text-charcoal" />;
       case 'receipts': return <BookOpen className="w-5 h-5 text-charcoal" />;
       case 'banners': return <Flag className="w-5 h-5 text-primary" />;
       case 'stickers': return <Grid className="w-5 h-5 text-charcoal" />;
+      case 'mugs': return <Coffee className="w-5 h-5 text-primary" />;
+      case 'menus': return <Utensils className="w-5 h-5 text-charcoal" />;
       case 'souvenirs': return <Gift className="w-5 h-5 text-primary" />;
       case 'pens': return <Pin className="w-5 h-5 text-charcoal" />;
       default: return <FileQuestion className="w-5 h-5 text-charcoal" />;

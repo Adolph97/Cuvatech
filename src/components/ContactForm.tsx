@@ -148,7 +148,7 @@ export default function ContactForm() {
               </div>
 
               <span className="font-sans text-[10px] text-charcoal/40 text-center block font-medium">
-                (8 Temple Lane South, Dublin 2, Ireland)
+                (2108 Bradley Court, Springfield IL)
               </span>
             </div>
 
@@ -160,7 +160,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Cuva Studio HQ</strong>
-                  <span className="text-charcoal/60">8 Temple Lane South, Temple Bar, Dublin 2, Ireland</span>
+                  <span className="text-charcoal/60">2108 Bradley Court, Springfield IL</span>
                 </div>
               </div>
 
@@ -180,7 +180,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Direct Phone Hub</strong>
-                  <span className="text-charcoal/60">+353 (1) 482-9031</span>
+                  <span className="text-charcoal/60">+1 (678) 656-8814</span>
                 </div>
               </div>
 
@@ -334,7 +334,7 @@ export default function ContactForm() {
                       name="phone"
                       value={formInputs.phone}
                       onChange={handleInputChange}
-                      placeholder="+353 (1) 500-2918"
+                      placeholder="+1 (678) 656-8814"
                       className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>

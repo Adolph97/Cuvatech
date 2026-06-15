@@ -98,16 +98,23 @@ export default function ITServices() {
 
   const getServiceIcon = (id: string) => {
     switch (id) {
-      case 'cloud-migration':
+      case 'cloud-solutions':
         return <Cloud className="w-10 h-10 text-charcoal stroke-[1.5]" />;
-      case 'cloud-architecture':
+      case 'it-infrastructure':
         return <Cpu className="w-10 h-10 text-primary stroke-[1.5]" />;
-      case 'infrastructure-management':
+      case 'hardware-software-setup':
         return <Server className="w-10 h-10 text-primary stroke-[1.5]" />;
+      case 'web-development':
+        return <FileText className="w-10 h-10 text-primary stroke-[1.5]" />;
+      case 'software-development':
+        return <Send className="w-10 h-10 text-primary stroke-[1.5]" />;
       default:
         return <HelpCircle className="w-10 h-10 text-charcoal stroke-[1.5]" />;
     }
   };
+
+  const [showAll, setShowAll] = useState(false);
+  const visibleServices = showAll ? IT_SERVICES : IT_SERVICES.slice(0, 2);
 
   return (
     <motion.section 
@@ -125,9 +132,6 @@ export default function ITServices() {
         
         {/* Section Header */}
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
-          <span className="font-hand font-bold text-lg text-primary tracking-wider uppercase block mb-1">
-            01 / System Layer
-          </span>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-charcoal leading-tight mb-4">
             IT Solutions & Systems
           </h2>
@@ -140,60 +144,82 @@ export default function ITServices() {
 
         {/* Services Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-          {IT_SERVICES.map((service, idx) => (
-            <motion.div
-              id={`it-service-${service.id}`}
-              key={service.id}
-              variants={fadeInUp}
-              onClick={() => openFormFor(service)}
-              whileHover={{ y: -10 }}
-              transition={{ type: "spring", stiffness: 450, damping: 20 }}
-              className="soft-card p-8 cursor-pointer flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 bg-white border border-charcoal/5 rounded-2xl shadow-sm group-hover:bg-primary/5 transition-colors">
-                    {getServiceIcon(service.id)}
+          <AnimatePresence>
+            {visibleServices.map((service, idx) => (
+              <motion.div
+                id={`it-service-${service.id}`}
+                key={service.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                variants={fadeInUp}
+                onClick={() => openFormFor(service)}
+                whileHover={{ y: -10 }}
+                transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                className="soft-card p-8 cursor-pointer flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3 bg-white border border-charcoal/5 rounded-2xl shadow-sm group-hover:bg-primary/5 transition-colors">
+                      {getServiceIcon(service.id)}
+                    </div>
+                    <span className="font-mono text-xs text-charcoal/40 font-bold tracking-widest uppercase">
+                      [01-{idx + 1}]
+                    </span>
                   </div>
-                  <span className="font-mono text-xs text-charcoal/40 font-bold tracking-widest uppercase">
-                    [01-{idx + 1}]
-                  </span>
+
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-charcoal mb-1">
+                    {service.title}
+                  </h3>
+                  
+                  <p className="font-hand font-bold text-base text-primary mb-4">
+                    “{service.tagline}”
+                  </p>
+
+                  <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed mb-6">
+                    {service.description}
+                  </p>
+
+                  {/* Bullets */}
+                  <ul className="space-y-3 mb-6">
+                    {service.bullets.map((bullet, bIdx) => (
+                      <li key={bIdx} className="flex items-start text-xs sm:text-sm text-charcoal/80">
+                        <span className="p-0.5 mr-2.5 mt-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                          <Check className="w-3.5 h-3.5" />
+                        </span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <h3 className="font-display text-2xl sm:text-3xl font-bold text-charcoal mb-1">
-                  {service.title}
-                </h3>
-                
-                <p className="font-hand font-bold text-base text-primary mb-4">
-                  “{service.tagline}”
-                </p>
-
-                <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed mb-6">
-                  {service.description}
-                </p>
-
-                {/* Bullets */}
-                <ul className="space-y-3 mb-6">
-                  {service.bullets.map((bullet, bIdx) => (
-                    <li key={bIdx} className="flex items-start text-xs sm:text-sm text-charcoal/80">
-                      <span className="p-0.5 mr-2.5 mt-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
-                        <Check className="w-3.5 h-3.5" />
-                      </span>
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="pt-4 border-t border-charcoal/5 flex items-center justify-between text-xs sm:text-sm font-bold text-charcoal group-hover:text-primary transition-colors">
-                <span>Request details & pricing spec</span>
-                <span className="font-hand font-semibold text-primary group-hover:translate-x-1 transition-transform">
-                  Let’s Work →
-                </span>
-              </div>
-            </motion.div>
-          ))}
+                <div className="pt-4 border-t border-charcoal/5 flex items-center justify-between text-xs sm:text-sm font-bold text-charcoal group-hover:text-primary transition-colors">
+                  <span>Request details & pricing spec</span>
+                  <span className="font-hand font-semibold text-primary group-hover:translate-x-1 transition-transform">
+                    Let’s Work →
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
+
+        {/* Reveal All Button */}
+        {!showAll && IT_SERVICES.length > 2 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-12 text-center"
+          >
+            <button
+              id="reveal-all-it-services"
+              onClick={() => setShowAll(true)}
+              className="btn-secondary px-10 py-4 text-sm font-bold rounded-2xl border border-charcoal/10 hover:bg-white transition-all shadow-sm cursor-pointer"
+            >
+              Reveal All Services
+            </button>
+          </motion.div>
+        )}
 
         {/* Dynamic Consultation request Banner */}
         <motion.div 

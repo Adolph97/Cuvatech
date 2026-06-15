@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Megaphone, Calendar, Check, Play, Eye, Sparkles, Sliders } from 'lucide-react';
+import { Search, Megaphone, Calendar, Check, Play, Eye, Sparkles, Sliders, BarChart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const fadeInUp = {
@@ -78,13 +78,11 @@ export default function DigitalMarketing() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header */}
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-3">
-            03 / Growth Layer
           </span>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6 text-center">
-            Digital Marketing Studio
+            Digital Marketing and Business Insights
           </h2>
           <p className="font-sans text-lg text-charcoal/60 leading-relaxed text-center max-w-2xl mx-auto">
             Quiet, human-intent marketing campaigns designed to convert high-value leads. No flashing triggers, 
@@ -96,8 +94,9 @@ export default function DigitalMarketing() {
         <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-16 select-none">
           {[
             { id: 'seo', label: 'SEO Engine', icon: <Search className="w-4 h-4" /> },
-            { id: 'ads', label: 'Ad Sandbox', icon: <Megaphone className="w-4 h-4" /> },
-            { id: 'social', label: 'Content Strategy', icon: <Calendar className="w-4 h-4" /> }
+            { id: 'ads', label: 'ADS (Google/SM)', icon: <Megaphone className="w-4 h-4" /> },
+            { id: 'social', label: 'Social Strategy', icon: <Calendar className="w-4 h-4" /> },
+            { id: 'analytics', label: 'Analytics & Email', icon: <BarChart className="w-4 h-4" /> }
           ].map((tab) => (
             <motion.button
               id={`marketing-tab-${tab.id}`}
@@ -116,6 +115,89 @@ export default function DigitalMarketing() {
             </motion.button>
           ))}
         </motion.div>
+...
+            {/* ANALYTICS & EMAIL SECTION */}
+            {activeTab === 'analytics' && (
+              <motion.div
+                key="analytics-tab"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4 }}
+                id="tab-analytics-view"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+              >
+              <div className="space-y-8">
+                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block">
+                  Data & Retention [Analytics & Email]
+                </span>
+                <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
+                  Actionable insights, <br /><span className="text-primary italic">tailored messaging.</span>
+                </h3>
+                
+                <p className="font-sans text-base text-charcoal/60 leading-relaxed">
+                  We bridge the gap between raw data and creative strategy. From deep GA4 audits to 
+                  highly-personalized email automation, we ensure every touchpoint is measured and meaningful.
+                </p>
+
+                <ul className="space-y-4">
+                  {[
+                    'Advanced GA4 / GTM implementation and event tracking',
+                    'Custom performance dashboards and conversion path analysis',
+                    'Drip-campaign architecture and high-editorial email design',
+                    'A/B testing protocols for landing pages and subject lines'
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-start text-charcoal/70 text-sm">
+                      <span className="p-1 bg-primary/10 rounded-full mr-3 mt-0.5 text-primary shrink-0">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Interactive Email Preview */}
+              <div className="bg-bg border border-charcoal/5 rounded-3xl p-8 shadow-sm space-y-6">
+                <div className="border-b border-charcoal/5 pb-4">
+                  <h4 className="font-display text-xl font-bold text-charcoal">
+                    Email Newsletter Mockup
+                  </h4>
+                  <p className="font-sans text-xs text-charcoal/40 mt-1">
+                    Preview how your human-intent campaigns land in inboxes.
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-2xl border border-charcoal/5 overflow-hidden shadow-xl shadow-charcoal/5">
+                  <div className="bg-primary/5 p-4 border-b border-charcoal/5 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <span className="text-[10px] font-mono text-charcoal/30 font-bold uppercase tracking-widest">Inbound_Transmission</span>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold text-charcoal/20 uppercase tracking-widest block">Subject:</span>
+                      <p className="text-xs font-bold text-charcoal">The calm logic of your next cloud migration.</p>
+                    </div>
+                    <div className="w-full h-32 bg-primary/5 rounded-xl border border-charcoal/5 flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-primary/20" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-2 w-3/4 bg-charcoal/5 rounded-full" />
+                      <div className="h-2 w-full bg-charcoal/5 rounded-full" />
+                      <div className="h-2 w-5/6 bg-charcoal/5 rounded-full" />
+                    </div>
+                    <div className="pt-2">
+                      <div className="h-8 w-24 bg-charcoal rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </motion.div>
+            )}
 
         {/* Tab Canvas Content */}
         <motion.div 

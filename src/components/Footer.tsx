@@ -73,9 +73,6 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <span className="font-display text-2xl font-extrabold text-charcoal leading-none tracking-tight">
                   cuva tech.
                 </span>
-                <span className="font-sans text-[10px] text-primary font-bold tracking-[0.2em] mt-2 uppercase">
-                  Dublin Studio
-                </span>
               </div>
             </button>
 
@@ -84,9 +81,9 @@ export default function Footer({ onNavigate }: FooterProps) {
               branded paper prints, and search growth campaigns for high-intent niches.
             </p>
 
-            <span className="font-hand text-2xl text-primary font-bold opacity-80 rotate-[-2deg] inline-block">
+            {/*<span className="font-hand text-2xl text-primary font-bold opacity-80 rotate-[-2deg] inline-block">
               “Hand-bound in Dublin 2.”
-            </span>
+            </span>*/}
           </motion.div>
 
           {/* Column 2: Navigation Links */}
@@ -162,8 +159,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Bottom footer credit & Scroll to top */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-10 text-[10px] font-bold text-charcoal/20 font-sans uppercase tracking-[0.2em]">
           <div className="space-y-3 text-center md:text-left">
-            <span className="block">© 2026 Cuva Tech. Hand-bound in Temple Bar, Dublin 2.</span>
-            <span className="block italic text-primary/30 font-medium lowercase tracking-widest opacity-60">Powered by Antigravity frameworks. Compiled under RFC-748 dockets.</span>
+            <span className="block">© 2026 Cuva Tech.</span>
           </div>
 
           <button

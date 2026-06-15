@@ -4,51 +4,63 @@ import ObinnaIhekona from './assets/images/Obinna Ihekona.png';
 
 export const IT_SERVICES: ITService[] = [
   {
-    id: 'cloud-migration',
-    title: 'Onsite to Cloud Migration',
-    tagline: 'Your digital foundation, made weightless.',
-    description: 'We carefully migrate your dusty closet server rigs into warm, elastic cloud architecture without dropping a single packet.',
+    id: 'hardware-software-setup',
+    title: 'Hardware/Software Setup',
+    tagline: 'Precision installs for seamless operations.',
+    description: 'Expert physical and virtual setups to get your office running at peak efficiency.',
     bullets: [
-      'Complete pre-flight hardware and software audits',
-      'Zero-downtime database and client state synchronization',
-      'Secure legacy decryption and post-migration validation tests',
-      'Interactive team onboarding and network routing handover'
+      'Printer & peripheral installation',
+      'POS (Point of Sale) system integration',
+      'Desktop & workstation deployment',
+      'CRM & enterprise software integration'
     ]
   },
   {
-    id: 'cloud-architecture',
-    title: 'Cloud / Solutions Architecture',
-    tagline: 'Blueprints hand-sketched, built sandbox-tough.',
-    description: 'Custom backends engineered on paper first. We model resilient setups tailored precisely to your actual usage, preventing costly bill spikes.',
+    id: 'it-infrastructure',
+    title: 'IT Infrastructure Support & Management',
+    tagline: 'Quiet, bulletproof systems for creative minds.',
+    description: 'Ongoing management and support to ensure your technology never stands in the way of your growth.',
     bullets: [
-      'Multi-region failover and automatic load partitioning',
-      'Secure, containerized API gateways and data micro-layers',
-      'Detailed, cost-optimized monthly footprint pre-calculations',
-      'DDoS shield integration and strict IAM user configuration'
+      'AI integration & workflow automation',
+      'Remote technical support & monitoring',
+      'Secure network architecture & maintenance',
+      'Cloud solutions & virtualization'
     ]
   },
   {
-    id: 'infrastructure-management',
-    title: 'IT Infrastructure Management',
-    tagline: 'Constant vigilance, with an artisanal touch.',
-    description: 'Continuous monitoring of your pipelines and servers. When an alert rings, we respond individually with bespoke remedies, not generic scripts.',
+    id: 'web-development',
+    title: 'Web Development',
+    tagline: 'High-performance digital experiences.',
+    description: 'Custom web solutions designed for speed, security, and exceptional user experience.',
     bullets: [
-      'Live server performance monitoring and active logging',
-      'Proactive hotfix deployments and security rule patches',
-      'Daily encryptions, backups, and off-site cloud vault storage',
-      '24/7 dedicated lead architect on-call support tier'
+      'Responsive frontend architecture',
+      'Scalable backend systems',
+      'E-commerce & custom web apps',
+      'Ongoing maintenance & performance optimization'
     ]
   },
   {
-    id: 'hardware-software-install',
-    title: 'Hardware & Software Setup',
-    tagline: 'Plugs, wires, and silicon, cleanly aligned.',
-    description: 'From physical office enterprise network configurations to high-speed workspace server cabinets, we plug every cable with aesthetic neatness.',
+    id: 'cloud-solutions',
+    title: 'Cloud Solutions',
+    tagline: 'Elastic, secure, and always accessible.',
+    description: 'Modernize your workflow with cloud-native architectures that scale with your business.',
     bullets: [
-      'High-performance on-premise networking (Wi-Fi 7 / Fiber setup)',
-      'Secure workstation local backups and hardware firewall links',
-      'Licensed enterprise operational suite configuration',
-      'Neat, minimalist cable management and diagnostic label maps'
+      'AWS, GCP & Azure migrations',
+      'Cloud-based backup & disaster recovery',
+      'Serverless computing & microservices',
+      'Cost-optimized cloud footprints'
+    ]
+  },
+  {
+    id: 'software-development',
+    title: 'Software Development',
+    tagline: 'Bespoke tools for complex challenges.',
+    description: 'Engineered software solutions tailored precisely to your internal business processes.',
+    bullets: [
+      'Custom business logic & internal tools',
+      'API development & integration',
+      'Mobile-first software solutions',
+      'Legacy system modernization'
     ]
   }
 ];
@@ -63,19 +75,11 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     minQty: 10
   },
   {
-    id: 'notebooks',
-    label: 'Jotters & Notebooks',
-    description: 'Hardcover hand-bound grid notebooks with durable canvas spines and recycled cream stock.',
-    basePrice: 6.00,
-    unitLabel: 'Notebooks',
-    minQty: 25
-  },
-  {
-    id: 'receipts',
-    label: 'Receipt & Invoice Booklets',
-    description: 'Carbonless duplicate pads meticulously typed and bound with heavy cardboard backing.',
-    basePrice: 8.50,
-    unitLabel: 'Booklets',
+    id: 'caps',
+    label: 'Custom Branded Caps',
+    description: 'High-quality headwear featuring custom embroidery or precision prints.',
+    basePrice: 12.00,
+    unitLabel: 'Caps',
     minQty: 15
   },
   {
@@ -95,20 +99,28 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     minQty: 100
   },
   {
-    id: 'souvenirs',
-    label: 'Souvenirs & Merchandise',
-    description: 'Handcrafted ceramic mugs, organic tote bags, or heavy brass enamel keyrings.',
-    basePrice: 3.50,
-    unitLabel: 'Items',
-    minQty: 30
+    id: 'mugs',
+    label: 'Branded Mugs & Drinkware',
+    description: 'Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.',
+    basePrice: 5.50,
+    unitLabel: 'Mugs',
+    minQty: 20
   },
   {
-    id: 'pens',
-    label: 'Pens & Fine Writing Tools',
-    description: 'Sleek matte metal-barrel ballpoint pens laser-engraved with your typography.',
-    basePrice: 1.10,
-    unitLabel: 'Pens',
-    minQty: 50
+    id: 'notebooks',
+    label: 'Notebooks & Note pads',
+    description: 'Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.',
+    basePrice: 6.00,
+    unitLabel: 'Notebooks',
+    minQty: 25
+  },
+  {
+    id: 'menus',
+    label: 'Menus & Restaurant Stationery',
+    description: 'Water-resistant, beautifully typeset menu cards and table talkers for hospitality.',
+    basePrice: 4.50,
+    unitLabel: 'Menus',
+    minQty: 10
   },
   {
     id: 'custom',
