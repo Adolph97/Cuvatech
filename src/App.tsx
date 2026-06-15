@@ -152,9 +152,9 @@ function LandingPage() {
                     Optimizing Businesses.
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: '100%' }}
+                      animate={{ width: '75%' }}
                       transition={{ delay: 1, duration: 0.8 }}
-                      className="absolute left-0 bottom-2 h-4 bg-primary/30 -z-10 rounded-full" 
+                      className="absolute left-0 bottom-0 h-4 bg-primary/30 -z-10 rounded-full" 
                     />
                   </span>
                 </h1>
