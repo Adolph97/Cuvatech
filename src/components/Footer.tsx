@@ -77,8 +77,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             </button>
 
             <p className="font-sans text-base text-charcoal/50 leading-relaxed max-w-sm">
-              Artisanal systems and beautiful typography under one roof. We design and coordinate digital frameworks, 
-              branded paper prints, and search growth campaigns for high-intent niches.
+            We use technology to improve performance and productivity making sure there is alignment in the business goals and technology requirements for every business
             </p>
 
             {/*<span className="font-hand text-2xl text-primary font-bold opacity-80 rotate-[-2deg] inline-block">

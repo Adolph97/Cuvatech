@@ -18,7 +18,7 @@ const staggerContainer = {
 };
 
 export default function DigitalMarketing() {
-  const [activeTab, setActiveTab] = useState<'seo' | 'ads' | 'social'>('seo');
+  const [activeTab, setActiveTab] = useState<'seo' | 'ads' | 'social' | 'analytics'>('seo');
 
   // Interactive state for SEO checker
   const [keywordInput, setKeywordInput] = useState('');
@@ -81,7 +81,7 @@ export default function DigitalMarketing() {
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-3">
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6 text-center">
+          <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6 text-center">
             Digital Marketing and Business Insights
           </h2>
           <p className="font-sans text-lg text-charcoal/60 leading-relaxed text-center max-w-2xl mx-auto">
@@ -115,7 +115,13 @@ export default function DigitalMarketing() {
             </motion.button>
           ))}
         </motion.div>
-...
+        {/* Tab Canvas Content */}
+        <motion.div
+          variants={fadeInUp}
+          className="bg-white border border-charcoal/5 rounded-[2rem] sm:rounded-[3rem] shadow-2xl shadow-charcoal/5 p-6 sm:p-8 md:p-12 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] overflow-hidden relative"
+        >
+          
+          <AnimatePresence mode="wait">
             {/* ANALYTICS & EMAIL SECTION */}
             {activeTab === 'analytics' && (
               <motion.div
@@ -198,14 +204,6 @@ export default function DigitalMarketing() {
               </div>
               </motion.div>
             )}
-
-        {/* Tab Canvas Content */}
-        <motion.div 
-          variants={fadeInUp}
-          className="bg-white border border-charcoal/5 rounded-[3rem] shadow-2xl shadow-charcoal/5 p-8 sm:p-12 min-h-[500px] overflow-hidden relative"
-        >
-          
-          <AnimatePresence mode="wait">
             {/* SEO SECTION */}
             {activeTab === 'seo' && (
               <motion.div

@@ -169,14 +169,14 @@ export default function AboutUs() {
                 className="bg-white border border-charcoal/5 rounded-[2.5rem] overflow-hidden flex flex-col cursor-default shadow-2xl shadow-charcoal/5 transition-all"
               >
                 {/* Profile Image container */}
-                <div className="h-96 w-full overflow-hidden border-b border-charcoal/5 bg-bg flex items-center justify-center relative">
+                <div className="h-64 sm:h-80 md:h-96 w-full overflow-hidden border-b border-charcoal/5 bg-bg flex items-center justify-center relative">
                   <img
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-700 scale-[1.02]"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute bottom-6 left-6 bg-white/80 backdrop-blur-md border border-charcoal/5 px-6 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full">
+                  <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 bg-white/80 backdrop-blur-md border border-charcoal/5 px-4 py-1.5 sm:px-6 sm:py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] rounded-full">
                     {member.role.split(' ')[0]}
                   </div>
                 </div>

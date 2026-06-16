@@ -219,7 +219,7 @@ export default function ContactForm() {
           </motion.div>
 
           {/* Right Side: Inquiry Contact Form */}
-          <motion.div variants={fadeInUp} className="lg:col-span-7 bg-white border border-charcoal/5 p-8 sm:p-12 rounded-3xl shadow-lg">
+          <motion.div variants={fadeInUp} className="lg:col-span-7 bg-white border border-charcoal/5 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg w-full overflow-hidden">
             
             {submitted ? (
               <div id="contact-success-state" className="py-12 text-center space-y-8">
@@ -341,56 +341,21 @@ export default function ContactForm() {
                 </div>
 
                 {/* Dropdown service switcher */}
-                <div className="flex flex-col gap-2 w-full">
-                  <label 
-                    htmlFor="contact-form-enquiry" 
-                    className="font-sans text-xs font-bold text-charcoal mb-2 ml-1"
+                <div className="flex flex-col">
+                  <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Service area of choice</label>
+                  <select
+                    id="contact-form-enquiry"
+                    name="enquiryType"
+                    value={formInputs.enquiryType}
+                    onChange={handleInputChange}
+                    className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal cursor-pointer"
                   >
-                    Service area of choice
-                  </label>
-                  
-                  <div className="relative w-full">
-                    <select
-                      id="contact-form-enquiry"
-                      name="enquiryType"
-                      value={formInputs.enquiryType}
-                      onChange={handleInputChange}
-                      className="w-full appearance-none bg-bg border border-charcoal/10 p-3.5 pr-10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm cursor-pointer"
-                    >
-                      <option value="IT Systems">
-                        IT Cloud Systems (AWS, GCP, Net setups)
-                      </option>
-                      <option value="Logo & Brand specs">
-                        Bespoke Logo & Brand Specs
-                      </option>
-                      <option value="Fine Printing configs">
-                        Custom Paper & Fine Printing
-                      </option>
-                      <option value="Search SEO">
-                        Growth Marketing & Local SEO
-                      </option>
-                      <option value="Mixed custom brief">
-                        Mixed Custom Media Brief
-                      </option>
-                    </select>
-                    
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-charcoal/30">
-                      <svg 
-                        className="w-4 h-4" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24" 
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth="2" 
-                          d="M19 9l-7 7-7-7" 
-                        />
-                      </svg>
-                    </div>
-                  </div>
+                    <option value="IT Systems">IT Cloud Systems (AWS, GCP, Net setups)</option>
+                    <option value="Logo & Brand specs">Bespoke Logo & Brand Guidelines</option>
+                    <option value="Fine Printing configs">Custom Paperworks & Fine Printing</option>
+                    <option value="Search SEO">Growth Marketing & Local Search checks</option>
+                    <option value="Mixed custom brief">Mixed custom multi-service request</option>
+                  </select>
                 </div>
 
                 {/* Message text area */}

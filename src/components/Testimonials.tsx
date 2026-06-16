@@ -122,11 +122,11 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Trustpilot Scoreboard Header */}
-        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-6 sm:p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center space-x-6">
             {/* Trustpilot custom visual design */}
-            <div className="bg-[#00b67a] p-6 rounded-2xl shadow-md flex flex-col items-center justify-center shrink-0">
-              <span className="text-white text-3xl font-bold tracking-tighter leading-none select-none font-display">Trustpilot</span>
+            <div className="bg-[#00b67a] p-4 sm:p-6 rounded-2xl shadow-md flex flex-col items-center justify-center shrink-0">
+              <span className="text-white text-2xl sm:text-3xl font-bold tracking-tighter leading-none select-none font-display">Trustpilot</span>
               <div className="flex space-x-1 mt-2.5">
                 {[...Array(5)].map((_, i) => (
                   <span key={i} className="bg-white p-1 rounded-sm">
@@ -314,7 +314,7 @@ export default function Testimonials() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-bg border border-charcoal/10 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative"
+              className="bg-bg border border-charcoal/10 w-full max-w-[calc(100vw-2rem)] sm:max-w-md rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden relative"
             >
               {/* Header */}
               <div className="bg-primary/10 border-b border-charcoal/5 p-6 flex items-center justify-between">
@@ -346,8 +346,8 @@ export default function Testimonials() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmitReview} className="p-8 space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmitReview} className="p-6 sm:p-8 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col">
                       <label className="font-sans text-xs font-bold text-charcoal mb-1.5 ml-1">Your Name</label>
                       <input
@@ -399,7 +399,7 @@ export default function Testimonials() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Rating Selector */}
                     <div className="flex flex-col">
                       <label className="font-sans text-xs font-bold text-charcoal mb-1.5 ml-1">Rating Score</label>

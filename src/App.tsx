@@ -74,8 +74,11 @@ function LandingPage() {
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setActiveSection(sectionId);
+      // Small delay ensures mobile drawer has started closing and layout is stable
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setActiveSection(sectionId);
+      }, 50);
     }
   };
 
@@ -101,7 +104,7 @@ function LandingPage() {
   };
 
   return (
-    <div className="bg-bg text-charcoal min-h-screen font-sans antialiased selection:bg-primary/20 selection:text-primary">
+    <div className="bg-bg text-charcoal min-h-screen font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
       
       {/* Dynamic Navigation Bar */}
       <Navbar
@@ -113,11 +116,11 @@ function LandingPage() {
       {/* HERO SECTION */}
       <header
         id="hero"
-        className="pt-32 pb-20 sm:pb-32 bg-bg relative overflow-hidden"
+        className="pt-24 sm:pt-32 pb-16 sm:pb-32 bg-bg relative overflow-hidden"
       >
         {/* Ambient brand color glows (Primary) matching new identity */}
-        <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-primary/10 blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute -bottom-16 -left-16 w-96 h-96 rounded-full bg-primary/5 blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute top-8 right-6 sm:top-12 sm:right-12 w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-primary/10 blur-[80px] sm:blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute -bottom-12 -left-8 sm:-bottom-16 sm:-left-16 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-primary/5 blur-[80px] sm:blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
@@ -147,14 +150,14 @@ function LandingPage() {
                 variants={fadeInUp}
                 className="space-y-6 relative"
               >
-                <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
-                  <span className="relative inline-block">
+                <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
+                  <span className="relative inline-block pb-2">
                     Optimizing Businesses.
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: '75%' }}
+                      animate={{ width: '100%' }}
                       transition={{ delay: 1, duration: 0.8 }}
-                      className="absolute left-0 bottom-0 h-4 bg-primary/30 -z-10 rounded-full" 
+                      className="absolute left-0 bottom-0 h-[15%] min-h-[8px] max-h-[16px] bg-primary/30 -z-10 rounded-full" 
                     />
                   </span>
                 </h1>
@@ -197,7 +200,7 @@ function LandingPage() {
               {/* Stats like in image */}
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center space-x-12 pt-10"
+                className="flex items-center space-x-6 sm:space-x-12 pt-10"
               >
                 <div>
                   <div className="text-4xl font-extrabold text-charcoal">120+</div>
@@ -228,30 +231,30 @@ function LandingPage() {
             </motion.div>
 
             {/* Hero Right Content: ORBITAL 3D REVOLVING GRAPHIC */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 flex justify-center w-full relative h-[500px] items-center"
+              className="lg:col-span-5 flex justify-center w-full relative h-[300px] sm:h-[400px] md:h-[500px] items-center"
             >
               {/* Background Decorative Glows */}
-              <motion.div 
+              <motion.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 bg-primary/10 rounded-full blur-[100px] -z-10" 
+                className="absolute inset-0 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -z-10"
               />
 
               {/* Main Central Illustration */}
-              <div className="relative z-10 w-full max-w-[400px] drop-shadow-[0_20px_50px_rgba(229,139,109,0.15)]">
-                <MasterHeroIllustration 
-                  className="w-full h-auto" 
-                  activePillar={activeSketch} 
+              <div className="relative z-10 w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px]">
+                <MasterHeroIllustration
+                  className="w-full h-auto"
+                  activePillar={activeSketch}
                 />
               </div>
 
               {/* Orbital Icons Layer */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                
+
                 <AnimatePresence mode="popLayout">
                   {/* Orbit 1 */}
                   <motion.div
@@ -265,16 +268,16 @@ function LandingPage() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="absolute w-[350px] h-[350px] border border-charcoal/[0.03] rounded-full"
+                      className="absolute w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] border border-charcoal/[0.03] rounded-full"
                     >
-                      <motion.div 
+                      <motion.div
                         animate={{ rotate: -360 }}
                         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
+                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
                       >
-                        {activeSketch === 'it' && <Server className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'print' && <Shirt className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <Search className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'it' && <Server className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'print' && <Shirt className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <Search className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                       </motion.div>
                     </motion.div>
                   </motion.div>
@@ -292,17 +295,16 @@ function LandingPage() {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
                       style={{ rotate: 120 }}
-                      className="absolute w-[420px] h-[420px] border border-charcoal/[0.02] rounded-full"
+                      className="absolute w-[260px] h-[260px] sm:w-[350px] sm:h-[350px] md:w-[420px] md:h-[420px] border border-charcoal/[0.02] rounded-full"
                     >
-                      <motion.div 
+                      <motion.div
                         animate={{ rotate: -360 }}
                         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                        style={{ rotate: -120 }}
-                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
+                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
                       >
-                        {activeSketch === 'it' && <Cpu className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'print' && <PenTool className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <BarChart className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'it' && <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'print' && <PenTool className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <BarChart className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                       </motion.div>
                     </motion.div>
                   </motion.div>
@@ -320,17 +322,16 @@ function LandingPage() {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
                       style={{ rotate: 240 }}
-                      className="absolute w-[380px] h-[380px] border border-charcoal/[0.025] rounded-full"
+                      className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] border border-charcoal/[0.025] rounded-full"
                     >
-                      <motion.div 
+                      <motion.div
                         animate={{ rotate: -360 }}
                         transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                        style={{ rotate: -240 }}
-                        className="absolute -top-6 left-1/2 -translate-x-1/2 p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
+                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
                       >
-                        {activeSketch === 'it' && <Cloud className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'print' && <Type className="w-6 h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <Megaphone className="w-6 h-6 text-primary" />}
+                        {activeSketch === 'it' && <Cloud className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'print' && <Type className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
+                        {activeSketch === 'marketing' && <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                       </motion.div>
                     </motion.div>
                   </motion.div>
@@ -339,14 +340,14 @@ function LandingPage() {
               </div>
 
               {/* Bottom Caption & Selector UI Overlay */}
-              <div className="absolute bottom-[-20px] left-0 right-0 flex flex-col items-center space-y-6 z-20">
-                <div className="flex bg-white/80 backdrop-blur-md border border-charcoal/5 rounded-full p-1.5 shadow-xl">
+              <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center space-y-4 sm:space-y-6 z-20 px-4">
+                <div className="flex bg-white/80 backdrop-blur-md border border-charcoal/5 rounded-full p-1.5 shadow-xl flex-wrap justify-center">
                   {['it', 'print', 'marketing'].map((p) => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => setActiveSketch(p as any)}
-                      className={`px-6 py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition-all cursor-pointer ${
+                      className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap ${
                         activeSketch === p
                           ? 'bg-charcoal text-white shadow-lg'
                           : 'text-charcoal/30 hover:bg-bg hover:text-charcoal'
@@ -393,7 +394,7 @@ function LandingPage() {
               className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ SYSTEMS ]</span>
+               {/* <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ SYSTEMS ]</span> */}
                 <h3 className="font-display text-2xl font-bold text-charcoal mb-4">IT Solutions</h3>
                 <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   Onsite servers migrated seamlessly to AWS & GCP cloud meshes, configured with multi-region backup structures.
@@ -415,7 +416,6 @@ function LandingPage() {
               className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ MATERIAL ]</span>
                 <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Branding & Print</h3>
                 <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   Logo design, Print Shop (T-shirts, Caps, Menus, etc.), and Free Consultations for your brand identity.
@@ -437,7 +437,6 @@ function LandingPage() {
               className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
             >
               <div>
-                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ GROWTH ]</span>
                 <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Digital Marketing</h3>
                 <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
                   On-page SEO diagnostics, semantic keyword maps, Meta & Google Ad sandbox campaigns focused on CPA.
@@ -479,9 +478,9 @@ function LandingPage() {
 
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="font-sans text-xs font-bold text-primary tracking-widest uppercase block mb-3">
+           {/* <span className="font-sans text-xs font-bold text-primary tracking-widest uppercase block mb-3">
               02 / Material Layer
-            </span>
+            </span>*/}
             <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
               Branding, Logos & Print
             </h2>

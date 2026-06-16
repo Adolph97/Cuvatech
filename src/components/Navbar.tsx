@@ -99,7 +99,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
           </button>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -171,8 +171,8 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                   id={`mobile-nav-${item.id}`}
                   key={item.id}
                   onClick={() => {
-                    onNavigate(item.id);
                     setIsOpen(false);
+                    onNavigate(item.id);
                   }}
                   className={`text-left px-3 py-2 text-base font-bold border border-transparent rounded transition-all cursor-pointer ${
                     activeSection === item.id
