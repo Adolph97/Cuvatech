@@ -1,5 +1,21 @@
 [
   {
+    "type": "Branding",
+    "customerName": "Logo Upload",
+    "customerEmail": "logo@upload.cuvatech.com",
+    "details": {
+      "logoFile": "67943775-E1F0-4B48-A949-E292F7677EC3_1_201_a 2.jpeg",
+      "logoUrl": "/uploads/wr437y6vn0h8x4oqpl2jcuz9h.jpeg",
+      "fileType": "image/jpeg"
+    },
+    "id": "ORD-5711",
+    "status": "Pending",
+    "createdAt": "2026-07-05T16:20:17.432Z",
+    "notifications": [
+      "New Branding request received from landing page"
+    ]
+  },
+  {
     "type": "Print",
     "customerName": "Jane Doe (Test)",
     "customerEmail": "jane@test.cuvatech.com",
