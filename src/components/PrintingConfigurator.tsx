@@ -393,6 +393,7 @@ export default function PrintingConfigurator() {
   const [selectedProduct, setSelectedProduct] = useState<PrintingProduct>(PRINTING_PRODUCTS[0]);
   const [quantity, setQuantity] = useState<number>(PRINTING_PRODUCTS[0].minQty);
   const [customDimension, setCustomDimension] = useState('');
+  const [artworkDescription, setArtworkDescription] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
 
   // Custom Product open field
@@ -486,6 +487,10 @@ export default function PrintingConfigurator() {
     setUploadError('');
     setRawFile(file);
 
+    if (designFile?.previewUrl) {
+      URL.revokeObjectURL(designFile.previewUrl);
+    }
+
     setDesignFile({
       name: file.name,
       size: Math.round(file.size / 1024),
@@ -550,8 +555,8 @@ export default function PrintingConfigurator() {
     if (currentStep === 1) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (!designFile) {
-        setUploadError('An attached design file or layout sketch is required to compile print registers.');
+      if (!designFile && !artworkDescription.trim()) {
+        setUploadError('Describe the logo/design you want or attach a design file.');
         return;
       }
       // Check minimum weight requirement - use dynamic value from API
@@ -609,6 +614,7 @@ export default function PrintingConfigurator() {
           deliveryFee: deliveryFee,
           estimatedWeightKg: estimatedWeightKg,
           dimensions: customDimension,
+          artworkDescription: artworkDescription.trim(),
           notes: additionalNotes,
           fileName: fileName || designFile?.name,
           fileUrl: fileUrl,
@@ -686,8 +692,9 @@ export default function PrintingConfigurator() {
             onClick={() => {
               setCurrentStep(1);
               setOrderComplete(false);
-              setDesignFile(null);
+              handleRemoveFile();
               setCustomDimension('');
+              setArtworkDescription('');
               setAdditionalNotes('');
               setCustomProductLabel('');
             }}
@@ -805,9 +812,29 @@ export default function PrintingConfigurator() {
                 </div>
 
                 {/* DRAG AND DROP VECTOR UPLOAD */}
+                <div className="space-y-2">
+                  <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">
+                    Logo or artwork description
+                  </label>
+                  <textarea
+                    id="config-artwork-description"
+                    rows={3}
+                    value={artworkDescription}
+                    onChange={(e) => {
+                      setArtworkDescription(e.target.value);
+                      if (uploadError && e.target.value.trim()) setUploadError('');
+                    }}
+                    placeholder="E.g., Use our blue logo on the left chest, or create a simple circular badge with bold black type."
+                    className="w-full bg-white border border-charcoal/5 p-5 sm:p-6 rounded-[1.5rem] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none shadow-sm font-medium text-charcoal"
+                  />
+                  <p className="font-sans text-xs text-charcoal/35 font-medium ml-1">
+                    You can describe the design, attach a ready file, or send both.
+                  </p>
+                </div>
+
                 <div className="space-y-4">
                   <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1 block">
-                    Upload Design Brief
+                    Attach Design File
                   </label>
 
                   <DesignUpload

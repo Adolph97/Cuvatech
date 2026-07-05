@@ -67,10 +67,15 @@ export default function AdminDashboard() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Tab switching
-  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products'>('Overview');
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products' | 'Graphics'>('Overview');
 
   // Products state
   const [products, setProducts] = useState<any[]>([]);
+
+  // Uploads state (graphics library)
+  const [uploads, setUploads] = useState<any[]>([]);
+  const [uploadsLoading, setUploadsLoading] = useState(false);
+  const [uploadSearch, setUploadSearch] = useState('');
   const [productsLoading, setProductsLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [showAddProduct, setShowAddProduct] = useState(false);
@@ -140,7 +145,7 @@ export default function AdminDashboard() {
   // Status update loading
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // Load settings once authenticated
+  // Load settings/products once authenticated
   useEffect(() => {
     if (isAuthenticated) {
       fetch('/api/admin/settings')
@@ -163,6 +168,18 @@ export default function AdminDashboard() {
         .catch(err => console.error('Error loading products:', err));
     }
   }, [isAuthenticated]);
+
+  // Load uploads when Graphics tab is active
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'Graphics') {
+      setUploadsLoading(true);
+      fetch('/api/uploads')
+        .then(res => res.json())
+        .then(data => setUploads(data))
+        .catch(err => console.error('Error loading uploads:', err))
+        .finally(() => setUploadsLoading(false));
+    }
+  }, [isAuthenticated, activeTab]);
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
@@ -497,10 +514,45 @@ export default function AdminDashboard() {
 
   const isImageFile = (url?: string, type?: string) => {
     if (!url) return false;
+    if (url.startsWith('data:image/')) return true;
     if (type && type.startsWith('image/')) return true;
     const ext = url.split('.').pop()?.toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '');
   };
+
+  const getOrderAttachment = (details: any) => {
+    if (!details) return null;
+
+    const url = details.fileUrl || details.logoUrl || details.designUrl || details.imageUrl || details.fileData;
+    if (!url) return null;
+
+    const dataUrlType = typeof url === 'string' && url.startsWith('data:')
+      ? url.slice(5, url.indexOf(';'))
+      : '';
+
+    return {
+      url,
+      name: details.fileName || details.logoFile || details.designFile || details.imageFile || 'Attached design',
+      type: details.fileType || details.logoType || dataUrlType,
+      label: details.logoUrl ? 'Attached Logo File' : 'Attached Design File'
+    };
+  };
+
+  const hiddenDetailKeys = new Set([
+    'fileData',
+    'fileName',
+    'fileUrl',
+    'fileType',
+    'logoFile',
+    'logoUrl',
+    'logoType',
+    'designFile',
+    'designUrl',
+    'imageFile',
+    'imageUrl'
+  ]);
+
+  const selectedAttachment = selectedOrder ? getOrderAttachment(selectedOrder.details) : null;
 
   // ─────────────────────────────────────────────────────────────────────────
   // LOGIN SCREEN
@@ -603,7 +655,15 @@ export default function AdminDashboard() {
               className="relative max-w-4xl max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={lightboxUrl} alt="Design Upload" className="max-h-[80vh] object-contain rounded-2xl shadow-2xl" />
+              {isImageFile(lightboxUrl) ? (
+                <img src={lightboxUrl} alt="Design Upload" className="max-h-[80vh] object-contain rounded-2xl shadow-2xl" />
+              ) : (
+                <div className="bg-white rounded-2xl p-12 text-center">
+                  <FileText className="w-16 h-16 text-primary mx-auto mb-4" />
+                  <p className="font-bold text-charcoal mb-2">Document Preview</p>
+                  <p className="text-sm text-charcoal/60">Click download below to view the file</p>
+                </div>
+              )}
               <button
                 onClick={() => setLightboxUrl(null)}
                 className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-xl hover:bg-red-50 transition-colors"
@@ -649,6 +709,7 @@ export default function AdminDashboard() {
               { id: 'Analytics', label: 'Analytics', icon: <BarChart className="w-4 h-4" /> },
               { id: 'Notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
               { id: 'Products', label: 'Products', icon: <Layers className="w-4 h-4" /> },
+              { id: 'Graphics', label: 'Graphics', icon: <ImageIcon className="w-4 h-4" /> },
               { id: 'Settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
             ].map((item) => (
               <button
@@ -714,6 +775,7 @@ export default function AdminDashboard() {
               {activeTab === 'Analytics' && 'System Analytics'}
               {activeTab === 'Notifications' && 'System Notification Logs'}
               {activeTab === 'Products' && 'Product Catalog Management'}
+              {activeTab === 'Graphics' && 'Graphics Library'}
               {activeTab === 'Settings' && 'Console & Integration Settings'}
             </h1>
             <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
@@ -722,6 +784,7 @@ export default function AdminDashboard() {
               {activeTab === 'Analytics' && 'Aggregated revenue and service volume metrics.'}
               {activeTab === 'Notifications' && 'Complete audit trail of all system events.'}
               {activeTab === 'Products' && 'Add, edit, and remove products from the catalog.'}
+              {activeTab === 'Graphics' && 'View and manage all uploaded logo and design files.'}
               {activeTab === 'Settings' && 'Update credentials, Stripe, PayPal and Canva API keys.'}
             </p>
           </div>
@@ -891,17 +954,17 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Attached image */}
-                    {selectedOrder.details?.fileUrl && (
+                    {selectedAttachment && (
                       <div className="space-y-2">
-                        <span className="text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.2em] block">Attached Design File</span>
-                        {isImageFile(selectedOrder.details.fileUrl, selectedOrder.details.fileType) ? (
+                        <span className="text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.2em] block">{selectedAttachment.label}</span>
+                        {isImageFile(selectedAttachment.url, selectedAttachment.type) ? (
                           <div
                             className="border border-charcoal/5 rounded-2xl overflow-hidden bg-bg cursor-pointer relative group shadow-inner"
-                            onClick={() => setLightboxUrl(selectedOrder.details.fileUrl)}
+                            onClick={() => setLightboxUrl(selectedAttachment.url)}
                           >
                             <img
-                              src={selectedOrder.details.fileUrl}
-                              alt="Design Upload"
+                              src={selectedAttachment.url}
+                              alt={selectedAttachment.name}
                               className="w-full max-h-48 object-contain p-2"
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
@@ -913,15 +976,15 @@ export default function AdminDashboard() {
                           </div>
                         ) : (
                           <a
-                            href={selectedOrder.details.fileUrl}
-                            download={selectedOrder.details.fileName || 'download'}
+                            href={selectedAttachment.url}
+                            download={selectedAttachment.name}
                             className="flex items-center space-x-4 border border-charcoal/5 bg-bg p-4 rounded-2xl hover:bg-white hover:border-primary/20 transition-all cursor-pointer group shadow-inner"
                           >
                             <div className="p-3 bg-white rounded-xl text-primary shadow-sm">
                               <FileText className="w-5 h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <span className="text-xs font-bold text-charcoal truncate block">{selectedOrder.details.fileName || 'Attached Document'}</span>
+                              <span className="text-xs font-bold text-charcoal truncate block">{selectedAttachment.name}</span>
                               <span className="text-[9px] text-charcoal/40 font-bold uppercase tracking-widest block mt-0.5">Click to download</span>
                             </div>
                             <Download className="w-4 h-4 text-charcoal/30 group-hover:text-primary transition-colors" />
@@ -935,7 +998,7 @@ export default function AdminDashboard() {
                       <span className="text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.2em] block">Order Specifications</span>
                       <div className="bg-bg rounded-2xl p-4 space-y-3 max-h-[180px] overflow-y-auto">
                         {Object.entries(selectedOrder.details)
-                          .filter(([key]) => !['fileData', 'fileUrl', 'fileType'].includes(key))
+                          .filter(([key, value]) => !hiddenDetailKeys.has(key) && value !== '' && value !== null && value !== undefined)
                           .map(([key, value]) => (
                             <div key={key} className="flex justify-between items-start text-xs">
                               <span className="text-charcoal/40 font-bold uppercase tracking-widest mr-4 shrink-0">
@@ -1605,6 +1668,101 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: GRAPHICS LIBRARY ───────────────────────────────────────────── */}
+        {activeTab === 'Graphics' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="font-display text-3xl font-extrabold">Graphics Library</h1>
+                <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
+                  View and manage all uploaded logo and design files.
+                </p>
+              </div>
+              <div className="relative">
+                <Search className="w-4 h-4 text-charcoal/20 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search uploads..."
+                  value={uploadSearch}
+                  onChange={(e) => setUploadSearch(e.target.value)}
+                  className="bg-white border border-charcoal/5 pl-11 pr-6 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all w-56 shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 overflow-hidden">
+              <div className="p-8 border-b border-charcoal/5">
+                <h2 className="font-display text-xl font-bold">Uploaded Files ({uploads.length})</h2>
+              </div>
+
+              {uploadsLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <span className="text-charcoal/40 font-medium">Loading graphics...</span>
+                </div>
+              ) : uploads.length === 0 ? (
+                <div className="p-16 text-center">
+                  <div className="inline-block p-6 bg-primary/5 rounded-full mb-6">
+                    <ImageIcon className="w-10 h-10 text-primary/40" />
+                  </div>
+                  <p className="font-sans text-charcoal/40 font-medium">No uploaded files yet. Upload images via the Canva Integration or Print Configurator.</p>
+                </div>
+              ) : (
+                <div className="p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                  {uploads
+                    .filter((u: any) => u.filename.toLowerCase().includes(uploadSearch.toLowerCase()))
+                    .map((upload: any) => (
+                      <div key={upload.filename} className="group bg-bg border border-charcoal/5 rounded-2xl p-4 hover:bg-white transition-all">
+                        <div
+                          onClick={() => setLightboxUrl(upload.url)}
+                          className="aspect-square bg-white border border-charcoal/5 rounded-xl overflow-hidden cursor-pointer mb-3"
+                        >
+                          {upload.type.startsWith('image/') ? (
+                            <img
+                              src={upload.url}
+                              alt={upload.filename}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <FileText className="w-8 h-8 text-charcoal/20" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          <p className="font-mono text-xs font-bold text-charcoal truncate" title={upload.filename}>
+                            {upload.filename}
+                          </p>
+                          <p className="text-[9px] text-charcoal/30 font-bold">
+                            {upload.sizeKB} KB • {new Date(upload.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete ${upload.filename}?`)) {
+                              try {
+                                const res = await fetch(`/api/uploads/${upload.filename}`, { method: 'DELETE' });
+                                if (res.ok) {
+                                  setUploads(uploads.filter((u: any) => u.filename !== upload.filename));
+                                }
+                              } catch (err) {
+                                alert('Failed to delete file');
+                              }
+                            }
+                          }}
+                          className="mt-2 w-full bg-red-50 text-red-500 py-1.5 rounded-lg text-[9px] font-bold hover:bg-red-100 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
