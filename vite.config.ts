@@ -4,6 +4,8 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  const apiTarget = process.env.VITE_API_TARGET || 'http://localhost:3001';
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -14,11 +16,11 @@ export default defineConfig(() => {
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
+          target: apiTarget,
           changeOrigin: true,
         },
         '/uploads': {
-          target: 'http://localhost:3001',
+          target: apiTarget,
           changeOrigin: true,
         },
       },
