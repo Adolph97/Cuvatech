@@ -61,3 +61,21 @@ export interface QuoteRequest {
   serviceType: string;
   formData: Record<string, string>;
 }
+
+export interface DeliveryInfo {
+  minOrderWeightKg: number;
+  standardFee: number;
+  premiumFee: number;
+  premiumClients: string[];
+  deliveryNotes: {
+    general: string;
+    premium: string;
+  };
+}
+
+export interface DeliverySettings {
+  deliveryFee: number;
+  premiumDeliveryFee: number;
+  minOrderWeightKg: number;
+  premiumClients: string[];
+}

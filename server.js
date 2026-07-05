@@ -15,6 +15,7 @@ app.use(express.json({ limit: "50mb" }));
 var DB_FILE = path.join(__dirname, "orders.json");
 var CONFIG_FILE = path.join(__dirname, "config.json");
 var UPLOADS_DIR = path.join(__dirname, "uploads");
+var PRODUCTS_FILE = path.join(__dirname, "products.json");
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
@@ -28,13 +29,23 @@ var readConfig = () => {
         stripeSecretKey: "",
         paypalClientId: "",
         canvaApiKey: "",
-        paymentMode: "sandbox"
+        paymentMode: "sandbox",
+        // Delivery fee settings
+        deliveryFee: 35,
+        premiumDeliveryFee: 45,
+        minOrderWeightKg: 10,
+        premiumClients: ["Jastel Water", "Surjen Healthcare"]
       };
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
       return defaultConfig;
     }
     const data = fs.readFileSync(CONFIG_FILE, "utf8");
-    return JSON.parse(data);
+    const config = JSON.parse(data);
+    if (!config.deliveryFee) config.deliveryFee = 35;
+    if (!config.premiumDeliveryFee) config.premiumDeliveryFee = 45;
+    if (!config.minOrderWeightKg) config.minOrderWeightKg = 10;
+    if (!config.premiumClients) config.premiumClients = ["Jastel Water", "Surjen Healthcare"];
+    return config;
   } catch (err) {
     console.error("Error reading config file:", err);
     return { username: "admin", password: "password" };
@@ -114,13 +125,27 @@ app.get("/api/admin/settings", (req, res) => {
   res.json(safeSettings);
 });
 app.post("/api/admin/settings", (req, res) => {
-  const { stripePublishableKey, stripeSecretKey, paypalClientId, canvaApiKey, paymentMode } = req.body;
+  const {
+    stripePublishableKey,
+    stripeSecretKey,
+    paypalClientId,
+    canvaApiKey,
+    paymentMode,
+    deliveryFee,
+    premiumDeliveryFee,
+    minOrderWeightKg,
+    premiumClients
+  } = req.body;
   const config = readConfig();
   config.stripePublishableKey = stripePublishableKey || "";
   config.stripeSecretKey = stripeSecretKey || "";
   config.paypalClientId = paypalClientId || "";
   config.canvaApiKey = canvaApiKey || "";
   config.paymentMode = paymentMode || "sandbox";
+  if (deliveryFee !== void 0) config.deliveryFee = Number(deliveryFee);
+  if (premiumDeliveryFee !== void 0) config.premiumDeliveryFee = Number(premiumDeliveryFee);
+  if (minOrderWeightKg !== void 0) config.minOrderWeightKg = Number(minOrderWeightKg);
+  if (premiumClients !== void 0) config.premiumClients = premiumClients;
   writeConfig(config);
   const { password, ...safeSettings } = config;
   res.json(safeSettings);
@@ -130,7 +155,12 @@ app.get("/api/settings/public", (req, res) => {
   res.json({
     stripePublishableKey: config.stripePublishableKey || "",
     paypalClientId: config.paypalClientId || "",
-    paymentMode: config.paymentMode || "sandbox"
+    paymentMode: config.paymentMode || "sandbox",
+    // Delivery fee settings for frontend
+    deliveryFee: config.deliveryFee || 35,
+    premiumDeliveryFee: config.premiumDeliveryFee || 45,
+    minOrderWeightKg: config.minOrderWeightKg || 10,
+    premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"]
   });
 });
 app.post("/api/upload", (req, res) => {
@@ -251,6 +281,94 @@ app.delete("/api/orders/:id", (req, res) => {
   orders.splice(orderIndex, 1);
   writeOrders(orders);
   res.json({ success: true, message: `Order ${id} deleted` });
+});
+var readProducts = () => {
+  try {
+    if (!fs.existsSync(PRODUCTS_FILE)) {
+      const initialProducts = [
+        { id: "t-shirts", label: "T-shirts / Branded Apparel", description: "Ultra-soft organic cotton garments silkscreened with water-based eco-inks.", basePrice: 16.5, unitLabel: "Garments", minQty: 10, category: "printing" },
+        { id: "caps", label: "Custom Branded Caps", description: "High-quality headwear featuring custom embroidery or precision prints.", basePrice: 12, unitLabel: "Caps", minQty: 15, category: "printing" },
+        { id: "banners", label: "Banners (Roll-up, Pull-up)", description: "Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.", basePrice: 48, unitLabel: "Banners", minQty: 1, category: "printing" },
+        { id: "stickers", label: "Stickers & Die-Cut Labels", description: "Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.", basePrice: 0.22, unitLabel: "Labels", minQty: 100, category: "printing" },
+        { id: "mugs", label: "Branded Mugs & Drinkware", description: "Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.", basePrice: 5.5, unitLabel: "Mugs", minQty: 20, category: "printing" },
+        { id: "notebooks", label: "Notebooks & Note pads", description: "Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.", basePrice: 6, unitLabel: "Notebooks", minQty: 25, category: "printing" },
+        { id: "menus", label: "Menus & Restaurant Stationery", description: "Water-resistant, beautifully typeset menu cards and table talkers for hospitality.", basePrice: 4.5, unitLabel: "Menus", minQty: 10, category: "printing" },
+        { id: "custom", label: "Other Custom Printing (Bespoke)", description: "Got an unusual canvas, card, or box? Describe your dimension and material dreams below.", basePrice: 15, unitLabel: "Pieces", minQty: 5, category: "printing" }
+      ];
+      fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2));
+      return initialProducts;
+    }
+    const data = fs.readFileSync(PRODUCTS_FILE, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error("Error reading products file:", err);
+    return [];
+  }
+};
+var writeProducts = (products) => {
+  try {
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+  } catch (err) {
+    console.error("Error writing products file:", err);
+  }
+};
+app.get("/api/products", (req, res) => {
+  const products = readProducts();
+  res.json(products);
+});
+app.post("/api/products", (req, res) => {
+  const products = readProducts();
+  const { id, label, description, basePrice, unitLabel, minQty, category } = req.body;
+  if (!id || !label || basePrice === void 0 || !unitLabel) {
+    return res.status(400).json({ error: "Missing required fields: id, label, basePrice, unitLabel" });
+  }
+  const existingProduct = products.find((p) => p.id === id);
+  if (existingProduct) {
+    return res.status(400).json({ error: "Product ID already exists" });
+  }
+  const newProduct = {
+    id,
+    label,
+    description: description || "",
+    basePrice: Number(basePrice),
+    unitLabel,
+    minQty: Number(minQty) || 1,
+    category: category || "printing"
+  };
+  products.push(newProduct);
+  writeProducts(products);
+  res.status(201).json(newProduct);
+});
+app.put("/api/products/:id", (req, res) => {
+  const products = readProducts();
+  const { id } = req.params;
+  const { label, description, basePrice, unitLabel, minQty, category } = req.body;
+  const productIndex = products.findIndex((p) => p.id === id);
+  if (productIndex === -1) {
+    return res.status(404).json({ error: "Product not found" });
+  }
+  products[productIndex] = {
+    ...products[productIndex],
+    label: label ?? products[productIndex].label,
+    description: description ?? products[productIndex].description,
+    basePrice: basePrice !== void 0 ? Number(basePrice) : products[productIndex].basePrice,
+    unitLabel: unitLabel ?? products[productIndex].unitLabel,
+    minQty: minQty !== void 0 ? Number(minQty) : products[productIndex].minQty,
+    category: category ?? products[productIndex].category
+  };
+  writeProducts(products);
+  res.json(products[productIndex]);
+});
+app.delete("/api/products/:id", (req, res) => {
+  const products = readProducts();
+  const { id } = req.params;
+  const productIndex = products.findIndex((p) => p.id === id);
+  if (productIndex === -1) {
+    return res.status(404).json({ error: "Product not found" });
+  }
+  products.splice(productIndex, 1);
+  writeProducts(products);
+  res.json({ success: true, message: `Product ${id} deleted` });
 });
 var distPath = path.join(__dirname, "dist");
 if (fs.existsSync(distPath)) {
