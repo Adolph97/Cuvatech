@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PRINTING_PRODUCTS } from '../data';
 import { PrintingProduct, DesignFile } from '../types';
-import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle, Coffee, Utensils } from 'lucide-react';
+import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle, Coffee, Utensils, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOrders } from '../OrderStore';
 
@@ -81,11 +81,13 @@ const ProductSelector: React.FC<{
 // Product Detail Card Component
 const ProductDetailCard: React.FC<{
   product: PrintingProduct;
-}> = ({ product }) => {
+  deliveryFee: number;
+  minOrderWeightKg: number;
+}> = ({ product, deliveryFee, minOrderWeightKg }) => {
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
-      case 'caps': return <Shirt className="w-5 h-5 text-primary" />; // Fallback or generic
+      case 'caps': return <Shirt className="w-5 h-5 text-primary" />;
       case 'notebooks': return <Album className="w-5 h-5 text-charcoal" />;
       case 'receipts': return <BookOpen className="w-5 h-5 text-charcoal" />;
       case 'banners': return <Flag className="w-5 h-5 text-primary" />;
@@ -129,6 +131,15 @@ const ProductDetailCard: React.FC<{
 
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Setup Fee</span>
           <span className="text-charcoal font-extrabold text-right">${product.id === 'custom' ? '25.00' : '15.00'}</span>
+        </div>
+
+        {/* Delivery Info */}
+        <div className="bg-primary/5 border border-primary/10 p-4 rounded-2xl grid grid-cols-2 gap-y-3 text-xs font-sans">
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Min Weight</span>
+          <span className="text-primary font-extrabold text-right">{minOrderWeightKg}kg</span>
+
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Delivery Fee</span>
+          <span className="text-charcoal font-extrabold text-right">${deliveryFee}</span>
         </div>
       </div>
     </div>
@@ -236,9 +247,11 @@ const PriceSummary: React.FC<{
   quantity: number;
   setupFee: number;
   total: number;
+  deliveryFee: number;
+  grandTotal: number;
   showCheckoutBtn?: boolean;
   onCheckout?: () => void;
-}> = ({ productLabel, unitPrice, quantity, setupFee, total, showCheckoutBtn, onCheckout }) => {
+}> = ({ productLabel, unitPrice, quantity, setupFee, total, deliveryFee, grandTotal, showCheckoutBtn, onCheckout }) => {
   const bulkFactor = quantity >= 500 ? 0.8 : quantity >= 200 ? 0.9 : 1.0;
 
   return (
@@ -277,6 +290,10 @@ const PriceSummary: React.FC<{
             <span className="text-charcoal/40 uppercase tracking-widest">Plate Fee</span>
             <span className="text-charcoal font-bold">${setupFee.toFixed(2)}</span>
           </div>
+          <div className="flex justify-between font-medium">
+            <span className="text-charcoal/40 uppercase tracking-widest">Delivery Fee</span>
+            <span className="text-charcoal font-bold">${deliveryFee.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 
@@ -284,7 +301,7 @@ const PriceSummary: React.FC<{
         <div className="flex justify-between items-baseline mb-8">
           <span className="font-display font-bold text-charcoal/20 text-sm uppercase tracking-widest">Total</span>
           <span className="font-display font-extrabold text-charcoal text-4xl sm:text-5xl">
-            ${total.toFixed(2)}
+            ${grandTotal.toFixed(2)}
           </span>
         </div>
 
@@ -300,6 +317,73 @@ const PriceSummary: React.FC<{
         )}
       </div>
     </div>
+  );
+};
+
+// Delivery Info Modal Component
+const DeliveryInfoModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  deliveryFee: number;
+  premiumDeliveryFee: number;
+  minOrderWeightKg: number;
+  premiumClients: string[];
+}> = ({ isOpen, onClose, deliveryFee, premiumDeliveryFee, minOrderWeightKg, premiumClients }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
+          >
+            <div className="bg-primary/5 border-b border-charcoal/5 p-6 flex items-center justify-between">
+              <div>
+                <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-widest">Delivery Info</span>
+                <h3 className="font-display text-xl font-bold text-charcoal leading-none">Delivery Policy</h3>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-white/50 text-charcoal rounded-full transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div>
+                <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-widest">Minimum Order Weight</span>
+                <p className="font-display text-lg font-bold text-charcoal mt-1">
+                  {minOrderWeightKg}kg minimum required
+                </p>
+                <p className="font-sans text-xs text-charcoal/60 mt-2">
+                  All print orders must meet our minimum {minOrderWeightKg}kg weight requirement for delivery logistics efficiency.
+                </p>
+              </div>
+
+              <div>
+                <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-widest">Delivery Fee</span>
+                <p className="font-display text-lg font-bold text-charcoal mt-1">
+                  ${deliveryFee} standard delivery
+                </p>
+                <p className="font-sans text-xs text-charcoal/60 mt-1">
+                  Premium clients ({premiumClients.join(', ')}): ${premiumDeliveryFee}
+                </p>
+              </div>
+
+              <div>
+                <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-widest">Delivery Timeline</span>
+                <p className="font-sans text-sm text-charcoal mt-1">
+                  Delivery within 5-7 business days after proof approval. All orders must meet minimum {minOrderWeightKg}kg requirement.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -333,8 +417,15 @@ export default function PrintingConfigurator() {
   const [publicSettings, setPublicSettings] = useState({
     stripePublishableKey: '',
     paypalClientId: '',
-    paymentMode: 'sandbox'
+    paymentMode: 'sandbox',
+    deliveryFee: 35,
+    premiumDeliveryFee: 45,
+    minOrderWeightKg: 10,
+    premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
+
+  // Delivery info modal state
+  const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings/public')
@@ -412,6 +503,24 @@ export default function PrintingConfigurator() {
     setRawFile(null);
   };
 
+  // Fetch products from API
+  const [apiProducts, setApiProducts] = useState<PrintingProduct[]>(PRINTING_PRODUCTS);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setApiProducts(data);
+          setSelectedProduct(data[0]);
+        }
+      })
+      .catch(err => console.error('Error loading products:', err));
+  }, []);
+
+  // Use API products or fallback to hardcoded
+  const productsToUse = apiProducts.length > 0 ? apiProducts : PRINTING_PRODUCTS;
+
   // Pricing calculations
   const actualProductLabel = selectedProduct.id === 'custom' && customProductLabel.trim()
     ? customProductLabel
@@ -427,12 +536,27 @@ export default function PrintingConfigurator() {
   const setupFee = selectedProduct.id === 'custom' ? 25.00 : 15.00;
   const total = Math.round((subtotal + setupFee) * 100) / 100;
 
+  // Delivery fee calculation - use dynamic values from API
+  const deliveryFee = selectedProduct.id === 'custom' ? 25.00 : publicSettings.deliveryFee;
+  const grandTotal = Math.round((total + deliveryFee) * 100) / 100;
+
+  // Weight estimation (rough estimate based on product type)
+  const estimatedWeightKg = selectedProduct.id === 't-shirts' ? quantity * 0.2 :
+                          selectedProduct.id === 'caps' ? quantity * 0.15 :
+                          selectedProduct.id === 'banners' ? quantity * 0.5 :
+                          quantity * 0.1;
+
   const handleNextStep = () => {
     if (currentStep === 1) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!designFile) {
         setUploadError('An attached design file or layout sketch is required to compile print registers.');
+        return;
+      }
+      // Check minimum weight requirement - use dynamic value from API
+      if (estimatedWeightKg < publicSettings.minOrderWeightKg) {
+        setUploadError(`Minimum order weight is ${publicSettings.minOrderWeightKg}kg. Current estimate: ${estimatedWeightKg.toFixed(1)}kg. Please increase quantity.`);
         return;
       }
       setCurrentStep(3);
@@ -480,7 +604,10 @@ export default function PrintingConfigurator() {
         details: {
           product: actualProductLabel,
           quantity: quantity,
-          total: total,
+          total: grandTotal,
+          subtotal: total,
+          deliveryFee: deliveryFee,
+          estimatedWeightKg: estimatedWeightKg,
           dimensions: customDimension,
           notes: additionalNotes,
           fileName: fileName || designFile?.name,
@@ -594,7 +721,7 @@ export default function PrintingConfigurator() {
                     {/* Left Column: Product Grid - now 2 columns */}
                     <div className="w-full xl:w-1/2">
                       <ProductSelector
-                        products={PRINTING_PRODUCTS}
+                        products={productsToUse}
                         selectedProduct={selectedProduct}
                         onSelect={handleProductChange}
                       />
@@ -602,7 +729,11 @@ export default function PrintingConfigurator() {
 
                     {/* Right Column: Spec card */}
                     <div className="flex-1 xl:pl-6">
-                      <ProductDetailCard product={selectedProduct} />
+                      <ProductDetailCard
+                        product={selectedProduct}
+                        deliveryFee={publicSettings.deliveryFee}
+                        minOrderWeightKg={publicSettings.minOrderWeightKg}
+                      />
                     </div>
                   </div>
 
@@ -705,6 +836,24 @@ export default function PrintingConfigurator() {
                     className="w-full bg-white border border-charcoal/5 p-5 sm:p-6 rounded-[1.5rem] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none shadow-sm font-medium text-charcoal"
                   />
                 </div>
+
+                {/* Delivery Info Button */}
+                <div className="pt-4 flex items-center justify-between bg-primary/5 border border-primary/10 p-4 rounded-[1.5rem]">
+                  <div>
+                    <span className="font-sans text-xs font-bold text-charcoal/40 uppercase tracking-widest">Delivery Policy</span>
+                    <p className="font-sans text-sm text-charcoal mt-1">
+                      Min. {publicSettings.minOrderWeightKg}kg • ${publicSettings.deliveryFee} fee
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeliveryInfo(true)}
+                    className="p-2.5 bg-white rounded-full hover:bg-charcoal/5 transition-all cursor-pointer"
+                    title="View delivery details"
+                  >
+                    <Info className="w-5 h-5 text-primary" />
+                  </button>
+                </div>
                 </motion.div>
               )}
 
@@ -802,7 +951,7 @@ export default function PrintingConfigurator() {
                   {submittingOrder ? (
                     <><svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
                   ) : (
-                    <><Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /><span>Confirm Order: ${total.toFixed(2)}</span></>
+                    <><Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /><span>Confirm Order: ${grandTotal.toFixed(2)}</span></>
                   )}
                 </button>
               </form>
@@ -832,12 +981,24 @@ export default function PrintingConfigurator() {
               quantity={quantity}
               setupFee={setupFee}
               total={total}
+              deliveryFee={deliveryFee}
+              grandTotal={grandTotal}
               showCheckoutBtn={currentStep === 2}
               onCheckout={handleNextStep}
             />
           )}
         </div>
       )}
+
+      {/* Delivery Info Modal */}
+      <DeliveryInfoModal
+        isOpen={showDeliveryInfo}
+        onClose={() => setShowDeliveryInfo(false)}
+        deliveryFee={publicSettings.deliveryFee}
+        premiumDeliveryFee={publicSettings.premiumDeliveryFee}
+        minOrderWeightKg={publicSettings.minOrderWeightKg}
+        premiumClients={publicSettings.premiumClients}
+      />
     </motion.div>
   );
 }

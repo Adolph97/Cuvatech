@@ -33,7 +33,11 @@ import {
   Download,
   ArrowUpRight,
   X,
-  Edit2
+  Edit2,
+  Plus,
+  Tag,
+  Box,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -63,7 +67,22 @@ export default function AdminDashboard() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Tab switching
-  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings'>('Overview');
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products'>('Overview');
+
+  // Products state
+  const [products, setProducts] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [productForm, setProductForm] = useState({
+    id: '',
+    label: '',
+    description: '',
+    basePrice: '',
+    unitLabel: 'Units',
+    minQty: '1',
+    category: 'printing'
+  });
 
   // Order selection / search
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -95,7 +114,19 @@ export default function AdminDashboard() {
     stripeSecretKey: '',
     paypalClientId: '',
     canvaApiKey: '',
-    paymentMode: 'sandbox'
+    paymentMode: 'sandbox',
+    deliveryFee: 35,
+    premiumDeliveryFee: 45,
+    minOrderWeightKg: 10,
+    premiumClients: ['Jastel Water', 'Surjen Healthcare']
+  });
+
+  // Delivery settings state (separate for focused editing)
+  const [deliverySettings, setDeliverySettings] = useState({
+    deliveryFee: 35,
+    premiumDeliveryFee: 45,
+    minOrderWeightKg: 10,
+    premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
 
   // Password form
@@ -114,8 +145,22 @@ export default function AdminDashboard() {
     if (isAuthenticated) {
       fetch('/api/admin/settings')
         .then(res => res.json())
-        .then(data => setSettings(data))
+        .then(data => {
+          setSettings(data);
+          setDeliverySettings({
+            deliveryFee: data.deliveryFee || 35,
+            premiumDeliveryFee: data.premiumDeliveryFee || 45,
+            minOrderWeightKg: data.minOrderWeightKg || 10,
+            premiumClients: data.premiumClients || ['Jastel Water', 'Surjen Healthcare']
+          });
+        })
         .catch(err => console.error('Error loading settings:', err));
+
+      // Load products
+      fetch('/api/products')
+        .then(res => res.json())
+        .then(data => setProducts(data))
+        .catch(err => console.error('Error loading products:', err));
     }
   }, [isAuthenticated]);
 
@@ -154,6 +199,84 @@ export default function AdminDashboard() {
     setPasswordInput('');
   };
 
+  // ── Product Management ───────────────────────────────────────────────────
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: productForm.id,
+          label: productForm.label,
+          description: productForm.description,
+          basePrice: Number(productForm.basePrice),
+          unitLabel: productForm.unitLabel,
+          minQty: Number(productForm.minQty),
+          category: productForm.category
+        })
+      });
+
+      if (res.ok) {
+        const newProduct = await res.json();
+        setProducts([...products, newProduct]);
+        setShowAddProduct(false);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to add product');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    try {
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          label: productForm.label,
+          description: productForm.description,
+          basePrice: Number(productForm.basePrice),
+          unitLabel: productForm.unitLabel,
+          minQty: Number(productForm.minQty),
+          category: productForm.category
+        })
+      });
+
+      if (res.ok) {
+        const updatedProduct = await res.json();
+        setProducts(products.map((p: any) => p.id === editingProduct.id ? updatedProduct : p));
+        setEditingProduct(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to update product');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm(`Delete product ${id}? This cannot be undone.`)) return;
+
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setProducts(products.filter((p: any) => p.id !== id));
+      } else {
+        alert('Failed to delete product');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
   // ── Settings ──────────────────────────────────────────────────────────────
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +290,32 @@ export default function AdminDashboard() {
         alert('Integration settings saved successfully.');
       } else {
         alert('Failed to save settings.');
+      }
+    } catch {
+      alert('Error connecting to backend settings.');
+    }
+  };
+
+  // ── Delivery Settings ──────────────────────────────────────────────────
+  const handleSaveDeliverySettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deliveryFee: deliverySettings.deliveryFee,
+          premiumDeliveryFee: deliverySettings.premiumDeliveryFee,
+          minOrderWeightKg: deliverySettings.minOrderWeightKg,
+          premiumClients: deliverySettings.premiumClients
+        })
+      });
+      if (res.ok) {
+        const updatedSettings = await res.json();
+        setSettings({ ...settings, ...updatedSettings });
+        alert('Delivery settings saved successfully.');
+      } else {
+        alert('Failed to save delivery settings.');
       }
     } catch {
       alert('Error connecting to backend settings.');
@@ -499,6 +648,7 @@ export default function AdminDashboard() {
               { id: 'Customers', label: 'Customers', icon: <User className="w-4 h-4" /> },
               { id: 'Analytics', label: 'Analytics', icon: <BarChart className="w-4 h-4" /> },
               { id: 'Notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
+              { id: 'Products', label: 'Products', icon: <Layers className="w-4 h-4" /> },
               { id: 'Settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
             ].map((item) => (
               <button
@@ -563,6 +713,7 @@ export default function AdminDashboard() {
               {activeTab === 'Customers' && 'Registered Customers'}
               {activeTab === 'Analytics' && 'System Analytics'}
               {activeTab === 'Notifications' && 'System Notification Logs'}
+              {activeTab === 'Products' && 'Product Catalog Management'}
               {activeTab === 'Settings' && 'Console & Integration Settings'}
             </h1>
             <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
@@ -570,6 +721,7 @@ export default function AdminDashboard() {
               {activeTab === 'Customers' && 'Unique client registrations, order history and contract status.'}
               {activeTab === 'Analytics' && 'Aggregated revenue and service volume metrics.'}
               {activeTab === 'Notifications' && 'Complete audit trail of all system events.'}
+              {activeTab === 'Products' && 'Add, edit, and remove products from the catalog.'}
               {activeTab === 'Settings' && 'Update credentials, Stripe, PayPal and Canva API keys.'}
             </p>
           </div>
@@ -1148,7 +1300,7 @@ export default function AdminDashboard() {
 
         {/* ── TAB: SETTINGS ─────────────────────────────────────────────────── */}
         {activeTab === 'Settings' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
             {/* API Keys */}
             <div className="bg-white border border-charcoal/5 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
@@ -1271,8 +1423,344 @@ export default function AdminDashboard() {
                 </button>
               </form>
             </div>
+
+            {/* Delivery Settings */}
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+              <div className="flex items-center space-x-3 border-b border-charcoal/5 pb-6">
+                <div className="bg-primary/10 p-3 rounded-xl text-primary"><Coins className="w-5 h-5" /></div>
+                <h3 className="font-display text-xl font-bold">Delivery Fees</h3>
+              </div>
+
+              <form onSubmit={handleSaveDeliverySettings} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Standard Delivery Fee ($)</label>
+                  <input
+                    type="number"
+                    required
+                    step="0.01"
+                    min="0"
+                    value={deliverySettings.deliveryFee}
+                    onChange={(e) => setDeliverySettings({ ...deliverySettings, deliveryFee: Number(e.target.value) })}
+                    placeholder="35.00"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Premium Delivery Fee ($)</label>
+                  <input
+                    type="number"
+                    required
+                    step="0.01"
+                    min="0"
+                    value={deliverySettings.premiumDeliveryFee}
+                    onChange={(e) => setDeliverySettings({ ...deliverySettings, premiumDeliveryFee: Number(e.target.value) })}
+                    placeholder="45.00"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Min Order Weight (kg)</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={deliverySettings.minOrderWeightKg}
+                    onChange={(e) => setDeliverySettings({ ...deliverySettings, minOrderWeightKg: Number(e.target.value) })}
+                    placeholder="10"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Premium Clients</label>
+                  <input
+                    type="text"
+                    value={deliverySettings.premiumClients.join(', ')}
+                    onChange={(e) => setDeliverySettings({
+                      ...deliverySettings,
+                      premiumClients: e.target.value.split(',').map(c => c.trim()).filter(c => c)
+                    })}
+                    placeholder="Jastel Water, Surjen Healthcare"
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                  <p className="text-[9px] text-charcoal/30 font-medium">Comma-separated client names for premium delivery rates</p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
+                >
+                  Save Delivery Settings
+                </button>
+              </form>
+            </div>
           </div>
         )}
+
+        {/* ── TAB: PRODUCTS ───────────────────────────────────────────────────── */}
+        {activeTab === 'Products' && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="font-display text-3xl font-extrabold">Product Catalog</h1>
+                <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
+                  Manage printing products, pricing, and specifications.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddProduct(true);
+                  setProductForm({
+                    id: '',
+                    label: '',
+                    description: '',
+                    basePrice: '',
+                    unitLabel: 'Units',
+                    minQty: '1',
+                    category: 'printing'
+                  });
+                }}
+                className="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 flex items-center space-x-2 cursor-pointer hover:scale-[1.02] transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Product</span>
+              </button>
+            </div>
+
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 overflow-hidden">
+              <div className="p-8 border-b border-charcoal/5">
+                <h2 className="font-display text-xl font-bold">Printing Products ({products.length})</h2>
+              </div>
+
+              {productsLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <span className="text-charcoal/40 font-medium">Loading products...</span>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em] bg-bg/50">
+                        <th className="px-6 py-4">Product ID</th>
+                        <th className="px-6 py-4">Label</th>
+                        <th className="px-6 py-4">Price</th>
+                        <th className="px-6 py-4">Unit</th>
+                        <th className="px-6 py-4">Min Qty</th>
+                        <th className="px-6 py-4">Category</th>
+                        <th className="px-6 py-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-charcoal/5 text-sm font-sans">
+                      {products.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="text-center py-12 text-charcoal/30 font-medium">No products found.</td>
+                        </tr>
+                      ) : (
+                        products.map((product: any) => (
+                          <tr key={product.id} className="hover:bg-bg/50 transition-all">
+                            <td className="px-6 py-4 font-mono text-xs">{product.id}</td>
+                            <td className="px-6 py-4 font-bold">{product.label}</td>
+                            <td className="px-6 py-4 font-bold">${product.basePrice.toFixed(2)}</td>
+                            <td className="px-6 py-4">{product.unitLabel}</td>
+                            <td className="px-6 py-4">{product.minQty}</td>
+                            <td className="px-6 py-4">
+                              <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-primary/10 text-primary">
+                                {product.category}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingProduct(product);
+                                    setProductForm({
+                                      id: product.id,
+                                      label: product.label,
+                                      description: product.description,
+                                      basePrice: String(product.basePrice),
+                                      unitLabel: product.unitLabel,
+                                      minQty: String(product.minQty),
+                                      category: product.category
+                                    });
+                                  }}
+                                  className="p-2 rounded-lg bg-bg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
+                                  title="Edit product"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProduct(product.id)}
+                                  className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition-all cursor-pointer"
+                                  title="Delete product"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Add/Edit Product Modal */}
+        <AnimatePresence>
+          {(showAddProduct || editingProduct) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-8"
+              onClick={() => {
+                setShowAddProduct(false);
+                setEditingProduct(null);
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                className="bg-white rounded-[2.5rem] p-10 max-w-lg w-full shadow-2xl space-y-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-2xl font-bold">
+                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowAddProduct(false);
+                      setEditingProduct(null);
+                    }}
+                    className="p-2 rounded-full hover:bg-bg transition-all cursor-pointer"
+                  >
+                    <X className="w-5 h-5 text-charcoal/40" />
+                  </button>
+                </div>
+
+                <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Product ID</label>
+                      <input
+                        type="text"
+                        required
+                        value={productForm.id}
+                        onChange={(e) => setProductForm({ ...productForm, id: e.target.value })}
+                        disabled={!!editingProduct}
+                        placeholder="e.g., custom-shirts"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none disabled:opacity-50"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Category</label>
+                      <select
+                        value={productForm.category}
+                        onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none font-bold"
+                      >
+                        <option value="printing">Printing</option>
+                        <option value="it">IT Services</option>
+                        <option value="branding">Branding</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Label</label>
+                    <input
+                      type="text"
+                      required
+                      value={productForm.label}
+                      onChange={(e) => setProductForm({ ...productForm, label: e.target.value })}
+                      placeholder="Product name"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Description</label>
+                    <textarea
+                      rows={2}
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                      placeholder="Product description"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Price ($)</label>
+                      <input
+                        type="number"
+                        required
+                        step="0.01"
+                        value={productForm.basePrice}
+                        onChange={(e) => setProductForm({ ...productForm, basePrice: e.target.value })}
+                        placeholder="16.50"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Unit Label</label>
+                      <input
+                        type="text"
+                        required
+                        value={productForm.unitLabel}
+                        onChange={(e) => setProductForm({ ...productForm, unitLabel: e.target.value })}
+                        placeholder="Items"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Min Qty</label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        value={productForm.minQty}
+                        onChange={(e) => setProductForm({ ...productForm, minQty: e.target.value })}
+                        placeholder="10"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all cursor-pointer"
+                    >
+                      {editingProduct ? 'Update Product' : 'Add Product'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddProduct(false);
+                        setEditingProduct(null);
+                      }}
+                      className="bg-bg border border-charcoal/10 text-charcoal py-4 px-6 rounded-2xl font-bold text-sm hover:bg-white transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Delete Confirmation Modal */}
