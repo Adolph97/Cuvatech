@@ -1,16 +1,38 @@
 [
   {
     "type": "Branding",
+    "customerName": "Chris",
+    "customerEmail": "sack@gmail.com",
+    "details": {
+      "requestType": "Canva studio brief with attachment",
+      "canvaConnection": "Connected workspace",
+      "selectedCanvaDraft": "Nordic Grid Lettermark",
+      "selectedDraftCategory": "Minimal Editorial",
+      "brandGoal": "Something sexy",
+      "paletteVibe": "Minimal black and white",
+      "logoFile": "ChatGPT Image Feb 16, 2026 at 01_09_12 AM.png",
+      "logoUrl": "/uploads/dnzbg4oc33773fm2x6jw783xb.png",
+      "fileType": "image/png"
+    },
+    "id": "ORD-9083",
+    "status": "Pending",
+    "createdAt": "2026-07-05T17:47:34.630Z",
+    "notifications": [
+      "New Branding request received from landing page"
+    ]
+  },
+  {
+    "type": "Branding",
     "customerName": "Logo Upload",
     "customerEmail": "logo@upload.cuvatech.com",
     "details": {
-      "logoFile": "67943775-E1F0-4B48-A949-E292F7677EC3_1_201_a 2.jpeg",
-      "logoUrl": "/uploads/wr437y6vn0h8x4oqpl2jcuz9h.jpeg",
+      "logoFile": "67943775-E1F0-4B48-A949-E292F7677EC3_1_201_a.jpeg",
+      "logoUrl": "/uploads/j3dbj1qbuejx04peet2r590ju.jpeg",
       "fileType": "image/jpeg"
     },
-    "id": "ORD-5711",
+    "id": "ORD-1307",
     "status": "Pending",
-    "createdAt": "2026-07-05T16:20:17.432Z",
+    "createdAt": "2026-07-05T17:11:46.135Z",
     "notifications": [
       "New Branding request received from landing page"
     ]
