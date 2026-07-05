@@ -370,6 +370,43 @@ app.delete("/api/products/:id", (req, res) => {
   writeProducts(products);
   res.json({ success: true, message: `Product ${id} deleted` });
 });
+app.get("/api/uploads", (req, res) => {
+  try {
+    const files = fs.readdirSync(UPLOADS_DIR);
+    const fileDetails = files.map((filename) => {
+      const filepath = path.join(UPLOADS_DIR, filename);
+      const stat = fs.statSync(filepath);
+      const ext = filename.slice(filename.lastIndexOf(".")).toLowerCase();
+      const isImage = ["jpg", "jpeg", "png", "gif", "svg", "webp"].includes(ext.replace(".", ""));
+      return {
+        filename,
+        size: stat.size,
+        sizeKB: Math.round(stat.size / 1024),
+        url: `/uploads/${filename}`,
+        type: isImage ? `image/${ext.replace(".", "")}` : "application/octet-stream",
+        uploadedAt: stat.mtime
+      };
+    });
+    res.json(fileDetails);
+  } catch (err) {
+    console.error("Error listing uploads:", err);
+    res.status(500).json({ error: "Failed to list uploaded files" });
+  }
+});
+app.delete("/api/uploads/:filename", (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filepath = path.join(UPLOADS_DIR, filename);
+    if (!fs.existsSync(filepath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    fs.unlinkSync(filepath);
+    res.json({ success: true, message: `File ${filename} deleted` });
+  } catch (err) {
+    console.error("Error deleting upload:", err);
+    res.status(500).json({ error: "Failed to delete file" });
+  }
+});
 var distPath = path.join(__dirname, "dist");
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
