@@ -259,8 +259,15 @@ if (preg_match('/^orders\/([^\/]+)$/', $path, $matches) && $_SERVER['REQUEST_MET
     foreach ($orders as $key => $order) {
         if ($order['id'] === $order_id) {
             // Clean up uploaded file if exists
+            $upload_url = '';
             if (isset($order['details']['fileUrl']) && $order['details']['fileUrl']) {
-                $file_path = __DIR__ . $order['details']['fileUrl'];
+                $upload_url = $order['details']['fileUrl'];
+            } elseif (isset($order['details']['logoUrl']) && $order['details']['logoUrl']) {
+                $upload_url = $order['details']['logoUrl'];
+            }
+
+            if ($upload_url) {
+                $file_path = __DIR__ . $upload_url;
                 if (file_exists($file_path)) {
                     @unlink($file_path);
                 }
@@ -279,6 +286,59 @@ if (preg_match('/^orders\/([^\/]+)$/', $path, $matches) && $_SERVER['REQUEST_MET
     } else {
         http_response_code(404);
         echo json_encode(["error" => "Order not found"]);
+    }
+    exit();
+}
+
+// Route: uploads (GET - list uploaded graphics)
+if ($path === 'uploads' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $upload_dir = __DIR__ . '/uploads/';
+    $image_exts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+    $files = [];
+
+    if (is_dir($upload_dir)) {
+        foreach (scandir($upload_dir) as $filename) {
+            if ($filename === '.' || $filename === '..') {
+                continue;
+            }
+
+            $file_path = $upload_dir . $filename;
+            if (!is_file($file_path)) {
+                continue;
+            }
+
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $files[] = [
+                "filename" => $filename,
+                "size" => filesize($file_path),
+                "sizeKB" => round(filesize($file_path) / 1024),
+                "url" => "/uploads/" . $filename,
+                "type" => in_array($ext, $image_exts) ? "image/" . $ext : "application/octet-stream",
+                "uploadedAt" => date(DATE_ISO8601, filemtime($file_path))
+            ];
+        }
+    }
+
+    echo json_encode($files);
+    exit();
+}
+
+// Route: uploads/:filename (DELETE - remove uploaded graphic)
+if (preg_match('/^uploads\/([^\/]+)$/', $path, $matches) && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $filename = basename($matches[1]);
+    $file_path = __DIR__ . '/uploads/' . $filename;
+
+    if (!file_exists($file_path)) {
+        http_response_code(404);
+        echo json_encode(["error" => "File not found"]);
+        exit();
+    }
+
+    if (@unlink($file_path)) {
+        echo json_encode(["success" => true, "message" => "File " . $filename . " deleted"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to delete file"]);
     }
     exit();
 }
