@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -40,4 +40,4 @@ jobs:
           # Where to upload on cPanel (usually /public_html/ or an addon domain folder)
           server-dir: /public_html/
           # Which files to upload. (See 'The Next.js Gotcha' below)
-          local-dir: ./out/
+          local-dir: ./dist/
