@@ -41,3 +41,11 @@ jobs:
           server-dir: /public_html/
           # Which files to upload. (See 'The Next.js Gotcha' below)
           local-dir: ./dist/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            products.json
+            orders.json
+            config.json
+            uploads/**

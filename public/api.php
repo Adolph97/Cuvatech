@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Database paths
 $db_file = __DIR__ . '/orders.json';
 $config_file = __DIR__ . '/config.json';
+$products_file = __DIR__ . '/products.json';
 
 // Initialize files if they don't exist
 if (!file_exists($db_file)) {
@@ -44,12 +45,103 @@ if (!file_exists($config_file)) {
       file_put_contents($config_file, json_encode($default_config, JSON_PRETTY_PRINT));
 }
 
+if (!file_exists($products_file)) {
+    $initial_products = [
+        [
+            "id" => "t-shirts",
+            "label" => "T-shirts / Branded Apparel",
+            "description" => "Ultra-soft organic cotton garments silkscreened with water-based eco-inks.",
+            "basePrice" => 20,
+            "unitLabel" => "Garments",
+            "minQty" => 10,
+            "category" => "printing"
+        ],
+        [
+            "id" => "caps",
+            "label" => "Custom Branded Caps",
+            "description" => "High-quality headwear featuring custom embroidery or precision prints.",
+            "basePrice" => 12,
+            "unitLabel" => "Caps",
+            "minQty" => 15,
+            "category" => "printing"
+        ],
+        [
+            "id" => "banners",
+            "label" => "Banners (Roll-up, Pull-up)",
+            "description" => "Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.",
+            "basePrice" => 48,
+            "unitLabel" => "Banners",
+            "minQty" => 1,
+            "category" => "printing"
+        ],
+        [
+            "id" => "stickers",
+            "label" => "Stickers & Die-Cut Labels",
+            "description" => "Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.",
+            "basePrice" => 0.22,
+            "unitLabel" => "Labels",
+            "minQty" => 100,
+            "category" => "printing"
+        ],
+        [
+            "id" => "mugs",
+            "label" => "Branded Mugs & Drinkware",
+            "description" => "Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.",
+            "basePrice" => 5.5,
+            "unitLabel" => "Mugs",
+            "minQty" => 20,
+            "category" => "printing"
+        ],
+        [
+            "id" => "notebooks",
+            "label" => "Notebooks & Note pads",
+            "description" => "Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.",
+            "basePrice" => 6,
+            "unitLabel" => "Notebooks",
+            "minQty" => 25,
+            "category" => "printing"
+        ],
+        [
+            "id" => "menus",
+            "label" => "Menus & Restaurant Stationery",
+            "description" => "Water-resistant, beautifully typeset menu cards and table talkers for hospitality.",
+            "basePrice" => 4.5,
+            "unitLabel" => "Menus",
+            "minQty" => 10,
+            "category" => "printing"
+        ],
+        [
+            "id" => "custom",
+            "label" => "Other Custom Printing (Bespoke)",
+            "description" => "Got an unusual canvas, card, or box? Describe your dimension and material dreams below.",
+            "basePrice" => 15,
+            "unitLabel" => "Pieces",
+            "minQty" => 5,
+            "category" => "printing"
+        ]
+    ];
+    file_put_contents($products_file, json_encode($initial_products, JSON_PRETTY_PRINT));
+}
+
 // Routing based on the path parameter rewritten by .htaccess
 $path = isset($_GET['path']) ? $_GET['path'] : '';
 
 // Helper to read JSON inputs
 function getJsonInput() {
     return json_decode(file_get_contents('php://input'), true);
+}
+
+function readJsonFile($file, $fallback = []) {
+    if (!file_exists($file)) {
+        return $fallback;
+    }
+
+    $data = json_decode(file_get_contents($file), true);
+    return is_array($data) ? $data : $fallback;
+}
+
+function writeJsonFile($file, $data) {
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
 }
 
 // Route: admin/login
@@ -115,6 +207,112 @@ if ($path === 'settings/public') {
         "paypalClientId" => isset($config['paypalClientId']) ? $config['paypalClientId'] : '',
         "paymentMode" => isset($config['paymentMode']) ? $config['paymentMode'] : 'sandbox'
     ]);
+    exit();
+}
+
+// Route: products
+if ($path === 'products') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        echo file_get_contents($products_file);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = getJsonInput();
+        $products = readJsonFile($products_file);
+
+        $id = isset($input['id']) ? trim($input['id']) : '';
+        $label = isset($input['label']) ? trim($input['label']) : '';
+        $unit_label = isset($input['unitLabel']) ? trim($input['unitLabel']) : '';
+
+        if ($id === '' || $label === '' || !isset($input['basePrice']) || $unit_label === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Missing required fields: id, label, basePrice, unitLabel"]);
+            exit();
+        }
+
+        foreach ($products as $product) {
+            if (isset($product['id']) && $product['id'] === $id) {
+                http_response_code(400);
+                echo json_encode(["error" => "Product ID already exists"]);
+                exit();
+            }
+        }
+
+        $new_product = [
+            "id" => $id,
+            "label" => $label,
+            "description" => isset($input['description']) ? $input['description'] : '',
+            "basePrice" => floatval($input['basePrice']),
+            "unitLabel" => $unit_label,
+            "minQty" => isset($input['minQty']) ? intval($input['minQty']) : 1,
+            "category" => isset($input['category']) ? $input['category'] : 'printing'
+        ];
+
+        $products[] = $new_product;
+        writeJsonFile($products_file, $products);
+
+        http_response_code(201);
+        echo json_encode($new_product);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
+    exit();
+}
+
+// Route: products/:id
+if (preg_match('/^products\/([^\/]+)$/', $path, $matches)) {
+    $product_id = $matches[1];
+    $products = readJsonFile($products_file);
+
+    $product_index = -1;
+    foreach ($products as $index => $product) {
+        if (isset($product['id']) && $product['id'] === $product_id) {
+            $product_index = $index;
+            break;
+        }
+    }
+
+    if ($product_index === -1) {
+        http_response_code(404);
+        echo json_encode(["error" => "Product not found"]);
+        exit();
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $input = getJsonInput();
+        $product = $products[$product_index];
+
+        if (array_key_exists('label', $input)) {
+            $product['label'] = $input['label'];
+        }
+        if (array_key_exists('description', $input)) {
+            $product['description'] = $input['description'];
+        }
+        if (array_key_exists('basePrice', $input)) {
+            $product['basePrice'] = floatval($input['basePrice']);
+        }
+        if (array_key_exists('unitLabel', $input)) {
+            $product['unitLabel'] = $input['unitLabel'];
+        }
+        if (array_key_exists('minQty', $input)) {
+            $product['minQty'] = intval($input['minQty']);
+        }
+        if (array_key_exists('category', $input)) {
+            $product['category'] = $input['category'];
+        }
+
+        $products[$product_index] = $product;
+        writeJsonFile($products_file, $products);
+
+        echo json_encode($product);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        array_splice($products, $product_index, 1);
+        writeJsonFile($products_file, $products);
+
+        echo json_encode(["success" => true, "message" => "Product " . $product_id . " deleted"]);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
     exit();
 }
 
