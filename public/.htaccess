@@ -11,5 +11,4 @@ RewriteRule ^api/(.*)$ api.php?path=$1 [QSA,L]
 # HTML5 History API fallback for React Client Side Routing (SPA)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^admin$ index.html [L]
 RewriteRule ^(.*)$ index.html [L]
