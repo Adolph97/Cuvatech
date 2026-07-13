@@ -549,7 +549,13 @@ export default function PrintingConfigurator() {
   const estimatedWeightKg = selectedProduct.id === 't-shirts' ? quantity * 0.2 :
                           selectedProduct.id === 'caps' ? quantity * 0.15 :
                           selectedProduct.id === 'banners' ? quantity * 0.5 :
-                          quantity * 0.1;
+                          selectedProduct.id === 'mugs' ? quantity * 0.35 :
+                          selectedProduct.id === 'notebooks' ? quantity * 0.35 :
+                          selectedProduct.id === 'stickers' ? quantity * 0.015 :
+                          selectedProduct.id === 'menus' ? quantity * 0.05 :
+                          selectedProduct.id === 'souvenirs' ? quantity * 0.4 :
+                          selectedProduct.id === 'pens' ? quantity * 0.05 :
+                          quantity * 0.2; // Fallback for unknown products
 
   const handleNextStep = () => {
     if (currentStep === 1) {
