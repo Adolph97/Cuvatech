@@ -42,6 +42,14 @@ const ProductSelector: React.FC<{
     }
   };
 
+  const renderProductVisual = (product: PrintingProduct) => product.imageUrl ? (
+    <img
+      src={product.imageUrl}
+      alt=""
+      className="w-5 h-5 object-cover rounded-sm"
+    />
+  ) : getProductIcon(product.id);
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {products.map((prod) => {
@@ -61,7 +69,7 @@ const ProductSelector: React.FC<{
             }`}
           >
             <span className="p-2.5 bg-bg border border-charcoal/5 rounded-xl group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-              {getProductIcon(prod.id)}
+              {renderProductVisual(prod)}
             </span>
             <div className="min-w-0 flex-1">
               <span className="font-sans font-bold text-sm text-charcoal block leading-tight">
@@ -105,7 +113,13 @@ const ProductDetailCard: React.FC<{
       <div className="space-y-6">
         <div className="flex items-center space-x-4 pb-5 border-b border-charcoal/5">
           <span className="p-3 bg-bg border border-charcoal/5 rounded-[1.5rem] shrink-0">
-            {getProductIcon(product.id)}
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={`${product.label} product`}
+                className="w-10 h-10 object-cover rounded-xl"
+              />
+            ) : getProductIcon(product.id)}
           </span>
           <div>
             <span className="font-sans font-bold text-[10px] text-primary block tracking-[0.2em] uppercase mb-1">

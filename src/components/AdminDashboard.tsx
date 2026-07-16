@@ -37,7 +37,8 @@ import {
   Plus,
   Tag,
   Box,
-  Layers
+  Layers,
+  UploadCloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -86,8 +87,11 @@ export default function AdminDashboard() {
     basePrice: '',
     unitLabel: 'Units',
     minQty: '1',
-    category: 'printing'
+    category: 'printing',
+    imageUrl: ''
   });
+  const [productImageUploading, setProductImageUploading] = useState(false);
+  const [productImageError, setProductImageError] = useState('');
 
   // Order selection / search
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -231,7 +235,8 @@ export default function AdminDashboard() {
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
           minQty: Number(productForm.minQty),
-          category: productForm.category
+          category: productForm.category,
+          imageUrl: productForm.imageUrl || undefined
         })
       });
 
@@ -262,7 +267,8 @@ export default function AdminDashboard() {
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
           minQty: Number(productForm.minQty),
-          category: productForm.category
+          category: productForm.category,
+          imageUrl: productForm.imageUrl || undefined
         })
       });
 
@@ -276,6 +282,28 @@ export default function AdminDashboard() {
       }
     } catch {
       alert('Error connecting to server');
+    }
+  };
+
+  const handleProductImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setProductImageError('Choose a PNG, JPG, GIF, SVG, or WebP image.');
+      return;
+    }
+
+    setProductImageError('');
+    setProductImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Image upload failed');
+      setProductForm(current => ({ ...current, imageUrl: data.url }));
+    } catch (error) {
+      setProductImageError(error instanceof Error ? error.message : 'Image upload failed');
+    } finally {
+      setProductImageUploading(false);
     }
   };
 
@@ -1582,8 +1610,10 @@ export default function AdminDashboard() {
                     basePrice: '',
                     unitLabel: 'Units',
                     minQty: '1',
-                    category: 'printing'
+                    category: 'printing',
+                    imageUrl: ''
                   });
+                  setProductImageError('');
                 }}
                 className="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 flex items-center space-x-2 cursor-pointer hover:scale-[1.02] transition-all"
               >
@@ -1646,8 +1676,10 @@ export default function AdminDashboard() {
                                       basePrice: String(product.basePrice),
                                       unitLabel: product.unitLabel,
                                       minQty: String(product.minQty),
-                                      category: product.category
+                                      category: product.category,
+                                      imageUrl: product.imageUrl || ''
                                     });
+                                    setProductImageError('');
                                   }}
                                   className="p-2 rounded-lg bg-bg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
                                   title="Edit product"
@@ -1843,6 +1875,51 @@ export default function AdminDashboard() {
                       placeholder="Product name"
                       className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Product image</label>
+                    <div className="flex items-center gap-4 rounded-xl bg-bg p-3">
+                      {productForm.imageUrl ? (
+                        <img
+                          src={productForm.imageUrl}
+                          alt="Product image preview"
+                          className="h-16 w-16 rounded-lg border border-charcoal/10 object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-charcoal/20 bg-white">
+                          <ImageIcon className="w-5 h-5 text-charcoal/30" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition-colors hover:text-primary">
+                          <UploadCloud className="w-4 h-4" />
+                          <span>{productImageUploading ? 'Uploading...' : 'Upload image'}</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
+                            disabled={productImageUploading}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleProductImageUpload(file);
+                              e.currentTarget.value = '';
+                            }}
+                            className="sr-only"
+                          />
+                        </label>
+                        {productForm.imageUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setProductForm(current => ({ ...current, imageUrl: '' }))}
+                            className="ml-3 text-xs font-bold text-charcoal/50 hover:text-primary"
+                          >
+                            Use generic icon
+                          </button>
+                        )}
+                        <p className="mt-1 text-[10px] text-charcoal/40">Optional. The generic icon appears when no image is assigned.</p>
+                        {productImageError && <p role="alert" className="mt-1 text-[10px] font-bold text-red-500">{productImageError}</p>}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">

@@ -269,7 +269,8 @@ if ($path === 'products') {
             "basePrice" => floatval($input['basePrice']),
             "unitLabel" => $unit_label,
             "minQty" => isset($input['minQty']) ? intval($input['minQty']) : 1,
-            "category" => isset($input['category']) ? $input['category'] : 'printing'
+            "category" => isset($input['category']) ? $input['category'] : 'printing',
+            "imageUrl" => isset($input['imageUrl']) && $input['imageUrl'] ? $input['imageUrl'] : null
         ];
 
         $products[] = $new_product;
@@ -324,6 +325,13 @@ if (preg_match('/^products\/([^\/]+)$/', $path, $matches)) {
         }
         if (array_key_exists('category', $input)) {
             $product['category'] = $input['category'];
+        }
+        if (array_key_exists('imageUrl', $input)) {
+            if ($input['imageUrl']) {
+                $product['imageUrl'] = $input['imageUrl'];
+            } else {
+                unset($product['imageUrl']);
+            }
         }
 
         $products[$product_index] = $product;

@@ -26,6 +26,7 @@ export interface PrintingProduct {
   basePrice: number;
   unitLabel: string;
   minQty: number;
+  imageUrl?: string;
 }
 
 export interface DesignFile {

@@ -389,7 +389,7 @@ app.get('/api/products', (req, res) => {
 // Create new product
 app.post('/api/products', (req, res) => {
   const products = readProducts();
-  const { id, label, description, basePrice, unitLabel, minQty, category } = req.body;
+  const { id, label, description, basePrice, unitLabel, minQty, category, imageUrl } = req.body;
 
   if (!id || !label || basePrice === undefined || !unitLabel) {
     return res.status(400).json({ error: 'Missing required fields: id, label, basePrice, unitLabel' });
@@ -407,7 +407,8 @@ app.post('/api/products', (req, res) => {
     basePrice: Number(basePrice),
     unitLabel,
     minQty: Number(minQty) || 1,
-    category: category || 'printing'
+    category: category || 'printing',
+    ...(imageUrl ? { imageUrl } : {})
   };
 
   products.push(newProduct);
@@ -420,7 +421,7 @@ app.post('/api/products', (req, res) => {
 app.put('/api/products/:id', (req, res) => {
   const products = readProducts();
   const { id } = req.params;
-  const { label, description, basePrice, unitLabel, minQty, category } = req.body;
+  const { label, description, basePrice, unitLabel, minQty, category, imageUrl } = req.body;
 
   const productIndex = products.findIndex((p: any) => p.id === id);
   if (productIndex === -1) {
@@ -434,7 +435,8 @@ app.put('/api/products/:id', (req, res) => {
     basePrice: basePrice !== undefined ? Number(basePrice) : products[productIndex].basePrice,
     unitLabel: unitLabel ?? products[productIndex].unitLabel,
     minQty: minQty !== undefined ? Number(minQty) : products[productIndex].minQty,
-    category: category ?? products[productIndex].category
+    category: category ?? products[productIndex].category,
+    imageUrl: imageUrl || undefined
   };
 
   writeProducts(products);
