@@ -1,9 +1,16 @@
-name: Deploy Next.js to Namecheap cPanel
+name: Deploy Cuva Tech to cPanel
 
 on:
   push:
     branches:
       - main # This triggers the workflow on pushes to the main branch
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -28,8 +35,31 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Next.js Project
+      - name: Type-check client and server
+        run: pnpm run lint
+
+      - name: Build production artifact
         run: pnpm run build
+
+      - name: Verify production PHP API contract
+        run: pnpm run test:production-api -- dist/api.php
+
+      - name: Verify built PHP API response
+        run: |
+          php -S 127.0.0.1:8080 -t dist > /tmp/cuva-php.log 2>&1 &
+          php_pid=$!
+          trap 'kill "$php_pid"' EXIT
+          for attempt in {1..10}; do
+            if curl --fail --silent http://127.0.0.1:8080/api.php?path=settings/public > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              cat /tmp/cuva-php.log
+              exit 1
+            fi
+            sleep 1
+          done
+          PRODUCTION_API_URL=http://127.0.0.1:8080/api.php?path=settings/public pnpm run test:production-api
 
       - name: Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -49,3 +79,4 @@ jobs:
             orders.json
             config.json
             uploads/**
+          dangerous-clean-slate: false
