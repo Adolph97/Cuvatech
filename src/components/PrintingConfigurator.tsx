@@ -430,8 +430,11 @@ export default function PrintingConfigurator() {
 
   useEffect(() => {
     fetch('/api/settings/public')
-      .then(res => res.json())
-      .then(data => setPublicSettings(data))
+      .then(res => {
+        if (!res.ok) throw new Error(`Public settings request failed: ${res.status}`);
+        return res.json();
+      })
+      .then(data => setPublicSettings(current => ({ ...current, ...data })))
       .catch(err => console.error("Error loading public settings:", err));
   }, []);
 

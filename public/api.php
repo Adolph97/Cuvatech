@@ -40,7 +40,11 @@ if (!file_exists($config_file)) {
         "stripeSecretKey" => "",
         "paypalClientId" => "",
         "canvaApiKey" => "",
-        "paymentMode" => "sandbox"
+        "paymentMode" => "sandbox",
+        "deliveryFee" => 35,
+        "premiumDeliveryFee" => 45,
+        "minOrderWeightKg" => 10,
+        "premiumClients" => ["Jastel Water", "Surjen Healthcare"]
       ];
       file_put_contents($config_file, json_encode($default_config, JSON_PRETTY_PRINT));
 }
@@ -131,6 +135,20 @@ function getJsonInput() {
     return json_decode(file_get_contents('php://input'), true);
 }
 
+function getConfigWithDeliveryDefaults($config_file) {
+    $config = json_decode(file_get_contents($config_file), true);
+    if (!is_array($config)) {
+        $config = [];
+    }
+
+    if (!array_key_exists('deliveryFee', $config)) $config['deliveryFee'] = 35;
+    if (!array_key_exists('premiumDeliveryFee', $config)) $config['premiumDeliveryFee'] = 45;
+    if (!array_key_exists('minOrderWeightKg', $config)) $config['minOrderWeightKg'] = 10;
+    if (!array_key_exists('premiumClients', $config)) $config['premiumClients'] = ['Jastel Water', 'Surjen Healthcare'];
+
+    return $config;
+}
+
 function readJsonFile($file, $fallback = []) {
     if (!file_exists($file)) {
         return $fallback;
@@ -179,18 +197,22 @@ if ($path === 'admin/change-password') {
 // Route: admin/settings
 if ($path === 'admin/settings') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $config = json_decode(file_get_contents($config_file), true);
+        $config = getConfigWithDeliveryDefaults($config_file);
         unset($config['password']); // Safety first
         echo json_encode($config);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $input = getJsonInput();
-        $config = json_decode(file_get_contents($config_file), true);
+        $input = getJsonInput() ?: [];
+        $config = getConfigWithDeliveryDefaults($config_file);
         
         $config['stripePublishableKey'] = isset($input['stripePublishableKey']) ? $input['stripePublishableKey'] : '';
         $config['stripeSecretKey'] = isset($input['stripeSecretKey']) ? $input['stripeSecretKey'] : '';
         $config['paypalClientId'] = isset($input['paypalClientId']) ? $input['paypalClientId'] : '';
         $config['canvaApiKey'] = isset($input['canvaApiKey']) ? $input['canvaApiKey'] : '';
         $config['paymentMode'] = isset($input['paymentMode']) ? $input['paymentMode'] : 'sandbox';
+        if (array_key_exists('deliveryFee', $input)) $config['deliveryFee'] = floatval($input['deliveryFee']);
+        if (array_key_exists('premiumDeliveryFee', $input)) $config['premiumDeliveryFee'] = floatval($input['premiumDeliveryFee']);
+        if (array_key_exists('minOrderWeightKg', $input)) $config['minOrderWeightKg'] = floatval($input['minOrderWeightKg']);
+        if (array_key_exists('premiumClients', $input) && is_array($input['premiumClients'])) $config['premiumClients'] = $input['premiumClients'];
         
         file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
         unset($config['password']);
@@ -201,11 +223,15 @@ if ($path === 'admin/settings') {
 
 // Route: settings/public
 if ($path === 'settings/public') {
-    $config = json_decode(file_get_contents($config_file), true);
+    $config = getConfigWithDeliveryDefaults($config_file);
     echo json_encode([
         "stripePublishableKey" => isset($config['stripePublishableKey']) ? $config['stripePublishableKey'] : '',
         "paypalClientId" => isset($config['paypalClientId']) ? $config['paypalClientId'] : '',
-        "paymentMode" => isset($config['paymentMode']) ? $config['paymentMode'] : 'sandbox'
+        "paymentMode" => isset($config['paymentMode']) ? $config['paymentMode'] : 'sandbox',
+        "deliveryFee" => $config['deliveryFee'],
+        "premiumDeliveryFee" => $config['premiumDeliveryFee'],
+        "minOrderWeightKg" => $config['minOrderWeightKg'],
+        "premiumClients" => $config['premiumClients']
     ]);
     exit();
 }
