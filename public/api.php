@@ -58,6 +58,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 20,
             "unitLabel" => "Garments",
             "minQty" => 10,
+            "weightPerUnitKg" => 0.2,
             "category" => "printing"
         ],
         [
@@ -67,6 +68,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 12,
             "unitLabel" => "Caps",
             "minQty" => 15,
+            "weightPerUnitKg" => 0.15,
             "category" => "printing"
         ],
         [
@@ -76,6 +78,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 48,
             "unitLabel" => "Banners",
             "minQty" => 1,
+            "weightPerUnitKg" => 0.5,
             "category" => "printing"
         ],
         [
@@ -85,6 +88,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 0.22,
             "unitLabel" => "Labels",
             "minQty" => 100,
+            "weightPerUnitKg" => 0.015,
             "category" => "printing"
         ],
         [
@@ -94,6 +98,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 5.5,
             "unitLabel" => "Mugs",
             "minQty" => 20,
+            "weightPerUnitKg" => 0.35,
             "category" => "printing"
         ],
         [
@@ -103,6 +108,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 6,
             "unitLabel" => "Notebooks",
             "minQty" => 25,
+            "weightPerUnitKg" => 0.35,
             "category" => "printing"
         ],
         [
@@ -112,6 +118,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 4.5,
             "unitLabel" => "Menus",
             "minQty" => 10,
+            "weightPerUnitKg" => 0.05,
             "category" => "printing"
         ],
         [
@@ -121,6 +128,7 @@ if (!file_exists($products_file)) {
             "basePrice" => 15,
             "unitLabel" => "Pieces",
             "minQty" => 5,
+            "weightPerUnitKg" => 0.2,
             "category" => "printing"
         ]
     ];
@@ -204,11 +212,26 @@ if ($path === 'admin/settings') {
         $input = getJsonInput() ?: [];
         $config = getConfigWithDeliveryDefaults($config_file);
         
-        $config['stripePublishableKey'] = isset($input['stripePublishableKey']) ? $input['stripePublishableKey'] : '';
-        $config['stripeSecretKey'] = isset($input['stripeSecretKey']) ? $input['stripeSecretKey'] : '';
-        $config['paypalClientId'] = isset($input['paypalClientId']) ? $input['paypalClientId'] : '';
-        $config['canvaApiKey'] = isset($input['canvaApiKey']) ? $input['canvaApiKey'] : '';
-        $config['paymentMode'] = isset($input['paymentMode']) ? $input['paymentMode'] : 'sandbox';
+        if (array_key_exists('stripePublishableKey', $input)) $config['stripePublishableKey'] = $input['stripePublishableKey'];
+        if (array_key_exists('stripeSecretKey', $input)) $config['stripeSecretKey'] = $input['stripeSecretKey'];
+        if (array_key_exists('paypalClientId', $input)) $config['paypalClientId'] = $input['paypalClientId'];
+        if (array_key_exists('canvaApiKey', $input)) $config['canvaApiKey'] = $input['canvaApiKey'];
+        if (array_key_exists('paymentMode', $input)) $config['paymentMode'] = $input['paymentMode'];
+        if (array_key_exists('deliveryFee', $input) && (!is_numeric($input['deliveryFee']) || floatval($input['deliveryFee']) < 0)) {
+            http_response_code(400);
+            echo json_encode(["error" => "deliveryFee must be zero or greater"]);
+            exit();
+        }
+        if (array_key_exists('premiumDeliveryFee', $input) && (!is_numeric($input['premiumDeliveryFee']) || floatval($input['premiumDeliveryFee']) < 0)) {
+            http_response_code(400);
+            echo json_encode(["error" => "premiumDeliveryFee must be zero or greater"]);
+            exit();
+        }
+        if (array_key_exists('minOrderWeightKg', $input) && (!is_numeric($input['minOrderWeightKg']) || floatval($input['minOrderWeightKg']) <= 0)) {
+            http_response_code(400);
+            echo json_encode(["error" => "minOrderWeightKg must be greater than zero"]);
+            exit();
+        }
         if (array_key_exists('deliveryFee', $input)) $config['deliveryFee'] = floatval($input['deliveryFee']);
         if (array_key_exists('premiumDeliveryFee', $input)) $config['premiumDeliveryFee'] = floatval($input['premiumDeliveryFee']);
         if (array_key_exists('minOrderWeightKg', $input)) $config['minOrderWeightKg'] = floatval($input['minOrderWeightKg']);
@@ -248,9 +271,13 @@ if ($path === 'products') {
         $label = isset($input['label']) ? trim($input['label']) : '';
         $unit_label = isset($input['unitLabel']) ? trim($input['unitLabel']) : '';
 
-        if ($id === '' || $label === '' || !isset($input['basePrice']) || $unit_label === '') {
+        $base_price = isset($input['basePrice']) && is_numeric($input['basePrice']) ? floatval($input['basePrice']) : 0;
+        $min_qty = isset($input['minQty']) && is_numeric($input['minQty']) ? floatval($input['minQty']) : 0;
+        $weight_per_unit_kg = isset($input['weightPerUnitKg']) && is_numeric($input['weightPerUnitKg']) ? floatval($input['weightPerUnitKg']) : 0;
+
+        if ($id === '' || $label === '' || $unit_label === '' || $base_price <= 0 || $min_qty < 1 || floor($min_qty) != $min_qty || $weight_per_unit_kg <= 0) {
             http_response_code(400);
-            echo json_encode(["error" => "Missing required fields: id, label, basePrice, unitLabel"]);
+            echo json_encode(["error" => "Missing or invalid required fields: id, label, basePrice, unitLabel, weightPerUnitKg"]);
             exit();
         }
 
@@ -266,9 +293,10 @@ if ($path === 'products') {
             "id" => $id,
             "label" => $label,
             "description" => isset($input['description']) ? $input['description'] : '',
-            "basePrice" => floatval($input['basePrice']),
+            "basePrice" => $base_price,
             "unitLabel" => $unit_label,
-            "minQty" => isset($input['minQty']) ? intval($input['minQty']) : 1,
+            "minQty" => intval($min_qty),
+            "weightPerUnitKg" => $weight_per_unit_kg,
             "category" => isset($input['category']) ? $input['category'] : 'printing',
             "imageUrl" => isset($input['imageUrl']) && $input['imageUrl'] ? $input['imageUrl'] : null
         ];
@@ -315,13 +343,33 @@ if (preg_match('/^products\/([^\/]+)$/', $path, $matches)) {
             $product['description'] = $input['description'];
         }
         if (array_key_exists('basePrice', $input)) {
+            if (!is_numeric($input['basePrice']) || floatval($input['basePrice']) <= 0) {
+                http_response_code(400);
+                echo json_encode(["error" => "basePrice must be greater than zero"]);
+                exit();
+            }
             $product['basePrice'] = floatval($input['basePrice']);
         }
         if (array_key_exists('unitLabel', $input)) {
             $product['unitLabel'] = $input['unitLabel'];
         }
         if (array_key_exists('minQty', $input)) {
-            $product['minQty'] = intval($input['minQty']);
+            $min_qty = is_numeric($input['minQty']) ? floatval($input['minQty']) : 0;
+            if ($min_qty < 1 || floor($min_qty) != $min_qty) {
+                http_response_code(400);
+                echo json_encode(["error" => "minQty must be a positive integer"]);
+                exit();
+            }
+            $product['minQty'] = intval($min_qty);
+        }
+        if (array_key_exists('weightPerUnitKg', $input)) {
+            $weight_per_unit_kg = is_numeric($input['weightPerUnitKg']) ? floatval($input['weightPerUnitKg']) : 0;
+            if ($weight_per_unit_kg <= 0) {
+                http_response_code(400);
+                echo json_encode(["error" => "weightPerUnitKg must be greater than zero"]);
+                exit();
+            }
+            $product['weightPerUnitKg'] = $weight_per_unit_kg;
         }
         if (array_key_exists('category', $input)) {
             $product['category'] = $input['category'];
