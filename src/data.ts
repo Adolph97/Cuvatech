@@ -70,9 +70,10 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     id: 't-shirts',
     label: 'T-shirts / Branded Apparel',
     description: 'Ultra-soft organic cotton garments silkscreened with water-based eco-inks.',
-    basePrice: 16.50,
+    basePrice: 20.00,
     unitLabel: 'Garments',
-    minQty: 10
+    minQty: 10,
+    weightPerUnitKg: 0.2
   },
   {
     id: 'caps',
@@ -80,7 +81,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'High-quality headwear featuring custom embroidery or precision prints.',
     basePrice: 12.00,
     unitLabel: 'Caps',
-    minQty: 15
+    minQty: 15,
+    weightPerUnitKg: 0.15
   },
   {
     id: 'banners',
@@ -88,7 +90,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.',
     basePrice: 48.00,
     unitLabel: 'Banners',
-    minQty: 1
+    minQty: 1,
+    weightPerUnitKg: 0.5
   },
   {
     id: 'stickers',
@@ -96,7 +99,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.',
     basePrice: 0.22,
     unitLabel: 'Labels',
-    minQty: 100
+    minQty: 100,
+    weightPerUnitKg: 0.015
   },
   {
     id: 'mugs',
@@ -104,7 +108,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.',
     basePrice: 5.50,
     unitLabel: 'Mugs',
-    minQty: 20
+    minQty: 20,
+    weightPerUnitKg: 0.35
   },
   {
     id: 'notebooks',
@@ -112,7 +117,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.',
     basePrice: 6.00,
     unitLabel: 'Notebooks',
-    minQty: 25
+    minQty: 25,
+    weightPerUnitKg: 0.35
   },
   {
     id: 'menus',
@@ -120,7 +126,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Water-resistant, beautifully typeset menu cards and table talkers for hospitality.',
     basePrice: 4.50,
     unitLabel: 'Menus',
-    minQty: 10
+    minQty: 10,
+    weightPerUnitKg: 0.05
   },
   {
     id: 'custom',
@@ -128,7 +135,8 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Got an unusual canvas, card, or box? Describe your dimension and material dreams below.',
     basePrice: 15.00,
     unitLabel: 'Pieces',
-    minQty: 5
+    minQty: 5,
+    weightPerUnitKg: 0.2
   }
 ];
 

@@ -20,12 +20,13 @@ export type PrintingProductCategory =
   | 'custom';
 
 export interface PrintingProduct {
-  id: PrintingProductCategory;
+  id: string;
   label: string;
   description: string;
   basePrice: number;
   unitLabel: string;
   minQty: number;
+  weightPerUnitKg?: number;
   imageUrl?: string;
 }
 
