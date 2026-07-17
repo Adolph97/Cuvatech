@@ -41,6 +41,7 @@ import {
   UploadCloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductWeightPerUnitKg } from '../printingWeight';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 15 },
@@ -87,6 +88,7 @@ export default function AdminDashboard() {
     basePrice: '',
     unitLabel: 'Units',
     minQty: '1',
+    weightPerUnitKg: '0.2',
     category: 'printing',
     imageUrl: ''
   });
@@ -157,9 +159,9 @@ export default function AdminDashboard() {
         .then(data => {
           setSettings(data);
           setDeliverySettings({
-            deliveryFee: data.deliveryFee || 35,
-            premiumDeliveryFee: data.premiumDeliveryFee || 45,
-            minOrderWeightKg: data.minOrderWeightKg || 10,
+            deliveryFee: data.deliveryFee ?? 35,
+            premiumDeliveryFee: data.premiumDeliveryFee ?? 45,
+            minOrderWeightKg: data.minOrderWeightKg ?? 10,
             premiumClients: data.premiumClients || ['Jastel Water', 'Surjen Healthcare']
           });
         })
@@ -235,6 +237,7 @@ export default function AdminDashboard() {
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
           minQty: Number(productForm.minQty),
+          weightPerUnitKg: Number(productForm.weightPerUnitKg),
           category: productForm.category,
           imageUrl: productForm.imageUrl || undefined
         })
@@ -267,6 +270,7 @@ export default function AdminDashboard() {
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
           minQty: Number(productForm.minQty),
+          weightPerUnitKg: Number(productForm.weightPerUnitKg),
           category: productForm.category,
           imageUrl: productForm.imageUrl || undefined
         })
@@ -1556,7 +1560,8 @@ export default function AdminDashboard() {
                   <input
                     type="number"
                     required
-                    min="1"
+                    min="0.001"
+                    step="0.001"
                     value={deliverySettings.minOrderWeightKg}
                     onChange={(e) => setDeliverySettings({ ...deliverySettings, minOrderWeightKg: Number(e.target.value) })}
                     placeholder="10"
@@ -1580,14 +1585,15 @@ export default function AdminDashboard() {
                 </div>
 
                 <button
-                  type="submit"
-                  className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
-                >
-                  Save Delivery Settings
-                </button>
-              </form>
-            </div>
-          </div>
+                type="submit"
+                className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
+              >
+                Save Delivery Settings
+              </button>
+            </form>
+        </div>
+
+        </div>
         )}
 
         {/* ── TAB: PRODUCTS ───────────────────────────────────────────────────── */}
@@ -1610,6 +1616,7 @@ export default function AdminDashboard() {
                     basePrice: '',
                     unitLabel: 'Units',
                     minQty: '1',
+                    weightPerUnitKg: '0.2',
                     category: 'printing',
                     imageUrl: ''
                   });
@@ -1642,6 +1649,7 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Price</th>
                         <th className="px-6 py-4">Unit</th>
                         <th className="px-6 py-4">Min Qty</th>
+                        <th className="px-6 py-4">Weight / Unit</th>
                         <th className="px-6 py-4">Category</th>
                         <th className="px-6 py-4">Actions</th>
                       </tr>
@@ -1649,7 +1657,7 @@ export default function AdminDashboard() {
                     <tbody className="divide-y divide-charcoal/5 text-sm font-sans">
                       {products.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="text-center py-12 text-charcoal/30 font-medium">No products found.</td>
+                          <td colSpan={8} className="text-center py-12 text-charcoal/30 font-medium">No products found.</td>
                         </tr>
                       ) : (
                         products.map((product: any) => (
@@ -1659,6 +1667,7 @@ export default function AdminDashboard() {
                             <td className="px-6 py-4 font-bold">${product.basePrice.toFixed(2)}</td>
                             <td className="px-6 py-4">{product.unitLabel}</td>
                             <td className="px-6 py-4">{product.minQty}</td>
+                            <td className="px-6 py-4 font-bold">{getProductWeightPerUnitKg(product).toFixed(3)} kg</td>
                             <td className="px-6 py-4">
                               <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-primary/10 text-primary">
                                 {product.category}
@@ -1676,6 +1685,7 @@ export default function AdminDashboard() {
                                       basePrice: String(product.basePrice),
                                       unitLabel: product.unitLabel,
                                       minQty: String(product.minQty),
+                                      weightPerUnitKg: String(getProductWeightPerUnitKg(product)),
                                       category: product.category,
                                       imageUrl: product.imageUrl || ''
                                     });
@@ -1933,13 +1943,14 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Price ($)</label>
                       <input
                         type="number"
                         required
                         step="0.01"
+                        min="0.01"
                         value={productForm.basePrice}
                         onChange={(e) => setProductForm({ ...productForm, basePrice: e.target.value })}
                         placeholder="16.50"
@@ -1965,9 +1976,25 @@ export default function AdminDashboard() {
                         type="number"
                         required
                         min="1"
+                        step="1"
                         value={productForm.minQty}
                         onChange={(e) => setProductForm({ ...productForm, minQty: e.target.value })}
                         placeholder="10"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="product-weight-per-unit" className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Weight / Unit (kg)</label>
+                      <input
+                        id="product-weight-per-unit"
+                        type="number"
+                        required
+                        min="0.001"
+                        step="0.001"
+                        value={productForm.weightPerUnitKg}
+                        onChange={(e) => setProductForm({ ...productForm, weightPerUnitKg: e.target.value })}
+                        placeholder="0.200"
                         className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
                       />
                     </div>
