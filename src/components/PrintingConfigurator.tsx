@@ -4,6 +4,11 @@ import { PrintingProduct, DesignFile } from '../types';
 import { Shirt, Album, BookOpen, Flag, Grid, Gift, Pin, FileQuestion, UploadCloud, Trash2, ArrowRight, ArrowLeft, CreditCard, Lock, CheckCircle, AlertTriangle, Coffee, Utensils, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOrders } from '../OrderStore';
+import {
+  calculatePrintingOrder,
+  getMinimumPrintingQuantity,
+  getProductWeightPerUnitKg
+} from '../printingWeight';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -24,8 +29,9 @@ const staggerContainer = {
 const ProductSelector: React.FC<{
   products: PrintingProduct[];
   selectedProduct: PrintingProduct;
+  minOrderWeightKg: number;
   onSelect: (prod: PrintingProduct) => void;
-}> = ({ products, selectedProduct, onSelect }) => {
+}> = ({ products, selectedProduct, minOrderWeightKg, onSelect }) => {
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
@@ -76,7 +82,7 @@ const ProductSelector: React.FC<{
                 {prod.label.split(' / ')[0]}
               </span>
               <span className="font-sans text-[9px] text-charcoal/30 block mt-1 uppercase font-bold tracking-widest">
-                Min: {prod.minQty}
+                Min: {getMinimumPrintingQuantity(prod, minOrderWeightKg)}
               </span>
             </div>
           </motion.button>
@@ -92,6 +98,8 @@ const ProductDetailCard: React.FC<{
   deliveryFee: number;
   minOrderWeightKg: number;
 }> = ({ product, deliveryFee, minOrderWeightKg }) => {
+  const minimumOrderQuantity = getMinimumPrintingQuantity(product, minOrderWeightKg);
+
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
@@ -142,6 +150,15 @@ const ProductDetailCard: React.FC<{
 
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Batch Volume</span>
           <span className="text-charcoal font-extrabold text-right">{product.minQty} {product.unitLabel}</span>
+
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Weight / Unit</span>
+          <span className="text-charcoal font-extrabold text-right">{getProductWeightPerUnitKg(product).toFixed(3)}kg</span>
+
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Minimum Batch Weight</span>
+          <span className="text-charcoal font-extrabold text-right">{(getProductWeightPerUnitKg(product) * product.minQty).toFixed(3)}kg</span>
+
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Minimum Order Quantity</span>
+          <span className="text-charcoal font-extrabold text-right">{minimumOrderQuantity} {product.unitLabel}</span>
 
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Setup Fee</span>
           <span className="text-charcoal font-extrabold text-right">${product.id === 'custom' ? '25.00' : '15.00'}</span>
@@ -259,15 +276,14 @@ const PriceSummary: React.FC<{
   productLabel: string;
   unitPrice: number;
   quantity: number;
+  subtotal: number;
   setupFee: number;
-  total: number;
   deliveryFee: number;
+  estimatedWeightKg: number;
   grandTotal: number;
   showCheckoutBtn?: boolean;
   onCheckout?: () => void;
-}> = ({ productLabel, unitPrice, quantity, setupFee, total, deliveryFee, grandTotal, showCheckoutBtn, onCheckout }) => {
-  const bulkFactor = quantity >= 500 ? 0.8 : quantity >= 200 ? 0.9 : 1.0;
-
+}> = ({ productLabel, unitPrice, quantity, subtotal, setupFee, deliveryFee, estimatedWeightKg, grandTotal, showCheckoutBtn, onCheckout }) => {
   return (
     <div className="w-full lg:w-[380px] bg-white p-8 sm:p-10 flex flex-col justify-between shadow-inner">
       <div className="space-y-8">
@@ -300,6 +316,14 @@ const PriceSummary: React.FC<{
               <span>-{quantity >= 500 ? '20%' : '10%'}</span>
             </div>
           )}
+          <div className="flex justify-between font-medium">
+            <span className="text-charcoal/40 uppercase tracking-widest">Print Subtotal</span>
+            <span className="text-charcoal font-bold">${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-medium">
+            <span className="text-charcoal/40 uppercase tracking-widest">Estimated Weight</span>
+            <span className="text-charcoal font-bold">{estimatedWeightKg.toFixed(3)}kg</span>
+          </div>
           <div className="flex justify-between border-t border-charcoal/5 pt-4 font-medium">
             <span className="text-charcoal/40 uppercase tracking-widest">Plate Fee</span>
             <span className="text-charcoal font-bold">${setupFee.toFixed(2)}</span>
@@ -459,13 +483,17 @@ export default function PrintingConfigurator() {
 
   const handleProductChange = (prod: PrintingProduct) => {
     setSelectedProduct(prod);
-    setQuantity(prod.minQty);
+    setQuantity(getMinimumPrintingQuantity(prod, publicSettings.minOrderWeightKg));
     setUploadError('');
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value) || 0;
-    setQuantity(val);
+    const value = Number.parseInt(e.target.value, 10);
+    const minimumQuantity = getMinimumPrintingQuantity(
+      selectedProduct,
+      publicSettings.minOrderWeightKg
+    );
+    setQuantity(Number.isFinite(value) ? Math.max(minimumQuantity, value) : minimumQuantity);
   };
 
   // Drag-and-drop simulated file uploaded
@@ -540,6 +568,15 @@ export default function PrintingConfigurator() {
       .catch(err => console.error('Error loading products:', err));
   }, []);
 
+  useEffect(() => {
+    setQuantity(getMinimumPrintingQuantity(selectedProduct, publicSettings.minOrderWeightKg));
+  }, [
+    publicSettings.minOrderWeightKg,
+    selectedProduct.id,
+    selectedProduct.minQty,
+    selectedProduct.weightPerUnitKg
+  ]);
+
   // Use API products or fallback to hardcoded
   const productsToUse = apiProducts.length > 0 ? apiProducts : PRINTING_PRODUCTS;
 
@@ -548,31 +585,26 @@ export default function PrintingConfigurator() {
     ? customProductLabel
     : selectedProduct.label;
 
-  const unitPrice = selectedProduct.basePrice;
-  const rawSubtotal = unitPrice * Math.max(quantity, selectedProduct.minQty);
-
-  // Custom bulk discounts
-  const bulkFactor = quantity >= 500 ? 0.8 : quantity >= 200 ? 0.9 : 1.0;
-  const subtotal = Math.round(rawSubtotal * bulkFactor * 100) / 100;
-
-  const setupFee = selectedProduct.id === 'custom' ? 25.00 : 15.00;
-  const total = Math.round((subtotal + setupFee) * 100) / 100;
-
-  // Delivery fee calculation - use dynamic values from API
-  const deliveryFee = selectedProduct.id === 'custom' ? 25.00 : publicSettings.deliveryFee;
-  const grandTotal = Math.round((total + deliveryFee) * 100) / 100;
-
-  // Weight estimation (rough estimate based on product type)
-  const estimatedWeightKg = selectedProduct.id === 't-shirts' ? quantity * 0.2 :
-                          selectedProduct.id === 'caps' ? quantity * 0.15 :
-                          selectedProduct.id === 'banners' ? quantity * 0.5 :
-                          selectedProduct.id === 'mugs' ? quantity * 0.35 :
-                          selectedProduct.id === 'notebooks' ? quantity * 0.35 :
-                          selectedProduct.id === 'stickers' ? quantity * 0.015 :
-                          selectedProduct.id === 'menus' ? quantity * 0.05 :
-                          selectedProduct.id === 'souvenirs' ? quantity * 0.4 :
-                          selectedProduct.id === 'pens' ? quantity * 0.05 :
-                          quantity * 0.2; // Fallback for unknown products
+  const orderCalculation = calculatePrintingOrder({
+    product: selectedProduct,
+    requestedQuantity: quantity,
+    deliveryFee: publicSettings.deliveryFee,
+    minOrderWeightKg: publicSettings.minOrderWeightKg
+  });
+  const {
+    quantity: effectiveQuantity,
+    unitPrice,
+    subtotal,
+    setupFee,
+    totalBeforeDelivery: total,
+    deliveryFee,
+    grandTotal,
+    estimatedWeightKg
+  } = orderCalculation;
+  const minimumOrderQuantity = getMinimumPrintingQuantity(
+    selectedProduct,
+    publicSettings.minOrderWeightKg
+  );
 
   const handleNextStep = () => {
     if (currentStep === 1) {
@@ -631,9 +663,11 @@ export default function PrintingConfigurator() {
         customerEmail: customerEmail || 'customer@payment.co',
         details: {
           product: actualProductLabel,
-          quantity: quantity,
+          quantity: effectiveQuantity,
           total: grandTotal,
-          subtotal: total,
+          subtotal,
+          setupFee,
+          totalBeforeDelivery: total,
           deliveryFee: deliveryFee,
           estimatedWeightKg: estimatedWeightKg,
           dimensions: customDimension,
@@ -753,6 +787,7 @@ export default function PrintingConfigurator() {
                       <ProductSelector
                         products={productsToUse}
                         selectedProduct={selectedProduct}
+                        minOrderWeightKg={publicSettings.minOrderWeightKg}
                         onSelect={handleProductChange}
                       />
                     </div>
@@ -805,12 +840,12 @@ export default function PrintingConfigurator() {
                   <div className="space-y-2">
                     <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1 flex justify-between">
                       <span>Order Quantity</span>
-                      <span className="text-primary">Min: {selectedProduct.minQty}</span>
+                      <span className="text-primary">Min: {minimumOrderQuantity}</span>
                     </label>
                     <input
                       id="config-print-qty"
                       type="number"
-                      min={selectedProduct.minQty}
+                      min={minimumOrderQuantity}
                       value={quantity}
                       onChange={handleQuantityChange}
                       className="w-full bg-white border border-charcoal/5 px-5 py-4 sm:px-6 sm:py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal"
@@ -1028,10 +1063,11 @@ export default function PrintingConfigurator() {
             <PriceSummary
               productLabel={actualProductLabel}
               unitPrice={unitPrice}
-              quantity={quantity}
+              quantity={effectiveQuantity}
+              subtotal={subtotal}
               setupFee={setupFee}
-              total={total}
               deliveryFee={deliveryFee}
+              estimatedWeightKg={estimatedWeightKg}
               grandTotal={grandTotal}
               showCheckoutBtn={currentStep === 2}
               onCheckout={handleNextStep}
