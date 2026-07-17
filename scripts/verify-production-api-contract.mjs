@@ -14,6 +14,11 @@ const requiredFields = [
   'minOrderWeightKg',
   'premiumClients'
 ];
+const requiredProductFields = [
+  'basePrice',
+  'minQty',
+  'weightPerUnitKg'
+];
 const endpoint = process.env.PRODUCTION_API_URL;
 
 let missingFields;
@@ -45,6 +50,27 @@ if (missingFields.length > 0) {
   throw new Error(
     `PHP public settings API is missing required fields: ${missingFields.join(', ')}`
   );
+}
+
+if (!endpoint) {
+  const apiSource = fs.readFileSync(apiPath, 'utf8');
+  const productsRouteStart = apiSource.indexOf("// Route: products");
+  const productsRouteEnd = apiSource.indexOf("// Route: orders", productsRouteStart);
+
+  if (productsRouteStart === -1 || productsRouteEnd === -1) {
+    throw new Error('Could not locate the PHP products routes.');
+  }
+
+  const productsRoutes = apiSource.slice(productsRouteStart, productsRouteEnd);
+  const missingProductFields = requiredProductFields.filter(
+    (field) => !productsRoutes.includes(field)
+  );
+
+  if (missingProductFields.length > 0) {
+    throw new Error(
+      `PHP products API is missing required fields: ${missingProductFields.join(', ')}`
+    );
+  }
 }
 
 console.log('PHP public settings API contract is complete.');
