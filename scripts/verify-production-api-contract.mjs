@@ -11,12 +11,11 @@ const requiredFields = [
   'paymentMode',
   'deliveryFee',
   'premiumDeliveryFee',
-  'minOrderWeightKg',
   'premiumClients'
 ];
 const requiredProductFields = [
   'basePrice',
-  'minQty',
+  'minOrderWeightKg',
   'weightPerUnitKg'
 ];
 const endpoint = process.env.PRODUCTION_API_URL;
