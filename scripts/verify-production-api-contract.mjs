@@ -70,6 +70,44 @@ if (!endpoint) {
       `PHP products API is missing required fields: ${missingProductFields.join(', ')}`
     );
   }
+
+  // Portfolio route must contain the required field marker `title`
+  const portfolioRouteStart = apiSource.indexOf('// Route: portfolio');
+  const portfolioRouteEnd = apiSource.indexOf('// Route: blog', portfolioRouteStart);
+  if (portfolioRouteStart !== -1 && portfolioRouteEnd !== -1) {
+    const portfolioRoutes = apiSource.slice(portfolioRouteStart, portfolioRouteEnd);
+    const missingPortfolioFields = ['title'].filter((field) => !portfolioRoutes.includes(field));
+    if (missingPortfolioFields.length > 0) {
+      throw new Error(
+        `PHP portfolio API is missing required fields: ${missingPortfolioFields.join(', ')}`
+      );
+    }
+  }
+
+  // Blog route must contain the required field marker `content`
+  const blogRouteStart = apiSource.indexOf('// Route: blog');
+  const blogRouteEnd = apiSource.indexOf('// Route: site-info', blogRouteStart);
+  if (blogRouteStart !== -1 && blogRouteEnd !== -1) {
+    const blogRoutes = apiSource.slice(blogRouteStart, blogRouteEnd);
+    const missingBlogFields = ['content'].filter((field) => !blogRoutes.includes(field));
+    if (missingBlogFields.length > 0) {
+      throw new Error(
+        `PHP blog API is missing required fields: ${missingBlogFields.join(', ')}`
+      );
+    }
+  }
+
+  // Site-info route must contain the required field marker `phone`
+  const siteInfoRouteStart = apiSource.indexOf('// Route: site-info');
+  if (siteInfoRouteStart !== -1) {
+    const siteInfoRoutes = apiSource.slice(siteInfoRouteStart);
+    const missingSiteInfoFields = ['phone'].filter((field) => !siteInfoRoutes.includes(field));
+    if (missingSiteInfoFields.length > 0) {
+      throw new Error(
+        `PHP site-info API is missing required fields: ${missingSiteInfoFields.join(', ')}`
+      );
+    }
+  }
 }
 
 console.log('PHP public settings API contract is complete.');
