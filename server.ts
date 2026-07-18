@@ -23,6 +23,9 @@ const DB_FILE = path.join(__dirname, 'orders.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
+const PORTFOLIO_FILE = path.join(__dirname, 'portfolio.json');
+const BLOG_FILE = path.join(__dirname, 'blog.json');
+const SITE_INFO_FILE = path.join(__dirname, 'site-info.json');
 
 // Ensure uploads directory exists
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -40,6 +43,7 @@ const readConfig = () => {
         stripeSecretKey: '',
         paypalClientId: '',
         canvaApiKey: '',
+        canva: { createUrl: 'https://www.canva.com/', templates: [] },
         paymentMode: 'sandbox',
         // Delivery fee settings
         deliveryFee: 35,
@@ -55,6 +59,7 @@ const readConfig = () => {
     if (config.deliveryFee === undefined) config.deliveryFee = 35;
     if (config.premiumDeliveryFee === undefined) config.premiumDeliveryFee = 45;
     if (!config.premiumClients) config.premiumClients = ['Jastel Water', 'Surjen Healthcare'];
+    if (!config.canva) config.canva = { createUrl: 'https://www.canva.com/', templates: [] };
     return config;
   } catch (err) {
     console.error('Error reading config file:', err);
@@ -174,6 +179,7 @@ app.post('/api/admin/settings', (req, res) => {
   if (deliveryFee !== undefined) config.deliveryFee = Number(deliveryFee);
   if (premiumDeliveryFee !== undefined) config.premiumDeliveryFee = Number(premiumDeliveryFee);
   if (premiumClients !== undefined) config.premiumClients = premiumClients;
+  if (req.body.canva !== undefined) config.canva = req.body.canva;
 
   writeConfig(config);
 
@@ -192,7 +198,8 @@ app.get('/api/settings/public', (req, res) => {
     // Delivery fee settings for frontend
     deliveryFee: config.deliveryFee ?? 35,
     premiumDeliveryFee: config.premiumDeliveryFee ?? 45,
-    premiumClients: config.premiumClients || ['Jastel Water', 'Surjen Healthcare']
+    premiumClients: config.premiumClients || ['Jastel Water', 'Surjen Healthcare'],
+    canva: config.canva || { createUrl: 'https://www.canva.com/', templates: [] }
   });
 });
 
@@ -485,6 +492,332 @@ app.delete('/api/products/:id', (req, res) => {
   writeProducts(products);
 
   res.json({ success: true, message: `Product ${id} deleted` });
+});
+
+// ─── Admin auth middleware (real token validation) ────────────────────────────
+
+const ADMIN_TOKEN = 'cuva_admin_secure_session_token';
+
+const requireAdmin = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : '';
+  if (token !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+};
+
+// Slugify helper for portfolio ids and blog slugs
+const slugify = (text: string): string =>
+  text.toString().toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+// ─── Portfolio (Recent Printing Jobs) helpers ──────────────────────────────────
+
+const readPortfolio = (): any[] => {
+  try {
+    if (!fs.existsSync(PORTFOLIO_FILE)) {
+      fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify([], null, 2));
+      return [];
+    }
+    return JSON.parse(fs.readFileSync(PORTFOLIO_FILE, 'utf8'));
+  } catch (err) {
+    console.error('Error reading portfolio file:', err);
+    return [];
+  }
+};
+
+const writePortfolio = (items: any[]) => {
+  try { fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(items, null, 2)); }
+  catch (err) { console.error('Error writing portfolio file:', err); }
+};
+
+// ─── Blog helpers ──────────────────────────────────────────────────────────────
+
+const readBlog = (): any[] => {
+  try {
+    if (!fs.existsSync(BLOG_FILE)) {
+      fs.writeFileSync(BLOG_FILE, JSON.stringify([], null, 2));
+      return [];
+    }
+    return JSON.parse(fs.readFileSync(BLOG_FILE, 'utf8'));
+  } catch (err) {
+    console.error('Error reading blog file:', err);
+    return [];
+  }
+};
+
+const writeBlog = (posts: any[]) => {
+  try { fs.writeFileSync(BLOG_FILE, JSON.stringify(posts, null, 2)); }
+  catch (err) { console.error('Error writing blog file:', err); }
+};
+
+// ─── Site Info helpers ─────────────────────────────────────────────────────────
+
+const DEFAULT_SITE_INFO = {
+  phone: '',
+  email: '',
+  address: '',
+  openingHours: '',
+  closingHours: '',
+  socials: { x: '', tiktok: '', instagram: '', linkedin: '' },
+  brandTagline: ''
+};
+
+const readSiteInfo = (): any => {
+  try {
+    if (!fs.existsSync(SITE_INFO_FILE)) {
+      fs.writeFileSync(SITE_INFO_FILE, JSON.stringify(DEFAULT_SITE_INFO, null, 2));
+      return DEFAULT_SITE_INFO;
+    }
+    const info = JSON.parse(fs.readFileSync(SITE_INFO_FILE, 'utf8'));
+    return {
+      ...DEFAULT_SITE_INFO,
+      ...info,
+      socials: { ...DEFAULT_SITE_INFO.socials, ...(info.socials || {}) }
+    };
+  } catch (err) {
+    console.error('Error reading site-info file:', err);
+    return DEFAULT_SITE_INFO;
+  }
+};
+
+const writeSiteInfo = (info: any) => {
+  try { fs.writeFileSync(SITE_INFO_FILE, JSON.stringify(info, null, 2)); }
+  catch (err) { console.error('Error writing site-info file:', err); }
+};
+
+// ─── Portfolio (Recent Printing Jobs) CRUD ─────────────────────────────────────
+
+app.get('/api/portfolio', (req, res) => {
+  res.json(readPortfolio());
+});
+
+app.post('/api/portfolio', requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id, title, description, imageUrl, link, category, order } = req.body;
+
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    return res.status(400).json({ error: 'title is required' });
+  }
+
+  const itemId = (id && typeof id === 'string' && id.trim()) ? slugify(id) : slugify(title);
+  if (items.find((p: any) => p.id === itemId)) {
+    return res.status(400).json({ error: 'Portfolio item id already exists' });
+  }
+
+  const newItem = {
+    id: itemId,
+    title: title.trim(),
+    description: description || '',
+    imageUrl: imageUrl || null,
+    link: link || '',
+    category: category || '',
+    order: Number.isFinite(Number(order)) ? Number(order) : 0,
+    createdAt: new Date().toISOString()
+  };
+
+  items.push(newItem);
+  writePortfolio(items);
+  res.status(201).json(newItem);
+});
+
+app.put('/api/portfolio/:id', requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id } = req.params;
+  const idx = items.findIndex((p: any) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Portfolio item not found' });
+  }
+
+  const { title, description, imageUrl, link, category, order } = req.body;
+  items[idx] = {
+    ...items[idx],
+    title: title ?? items[idx].title,
+    description: description ?? items[idx].description,
+    imageUrl: imageUrl !== undefined ? (imageUrl || null) : items[idx].imageUrl,
+    link: link ?? items[idx].link,
+    category: category ?? items[idx].category,
+    order: order !== undefined
+      ? (Number.isFinite(Number(order)) ? Number(order) : items[idx].order)
+      : items[idx].order
+  };
+
+  writePortfolio(items);
+  res.json(items[idx]);
+});
+
+app.delete('/api/portfolio/:id', requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id } = req.params;
+  const idx = items.findIndex((p: any) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Portfolio item not found' });
+  }
+
+  const removed = items[idx];
+  if (removed.imageUrl) {
+    const filepath = path.join(UPLOADS_DIR, path.basename(removed.imageUrl));
+    if (fs.existsSync(filepath)) {
+      try { fs.unlinkSync(filepath); } catch (e) { /* ignore */ }
+    }
+  }
+
+  items.splice(idx, 1);
+  writePortfolio(items);
+  res.json({ success: true, message: `Portfolio item ${id} deleted` });
+});
+
+// ─── Blog CRUD ─────────────────────────────────────────────────────────────────
+
+app.get('/api/blog', (req, res) => {
+  const posts = readBlog();
+  if (req.query.status === 'published') {
+    return res.json(posts.filter((p: any) => p.status === 'published'));
+  }
+  res.json(posts);
+});
+
+app.get('/api/blog/:slug', (req, res) => {
+  const posts = readBlog();
+  const post = posts.find((p: any) => p.slug === req.params.slug && p.status === 'published');
+  if (!post) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+  res.json(post);
+});
+
+app.post('/api/blog', requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { title, content, excerpt, coverImageUrl, author, tags, status, slug } = req.body;
+
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    return res.status(400).json({ error: 'title is required' });
+  }
+  if (!content || typeof content !== 'string' || !content.trim()) {
+    return res.status(400).json({ error: 'content is required' });
+  }
+
+  const baseSlug = (slug && typeof slug === 'string' && slug.trim()) ? slugify(slug) : slugify(title);
+  let finalSlug = baseSlug;
+  let n = 2;
+  while (posts.find((p: any) => p.slug === finalSlug)) {
+    finalSlug = `${baseSlug}-${n}`;
+    n++;
+  }
+
+  const newPost = {
+    id: `blog-${Date.now()}`,
+    slug: finalSlug,
+    title: title.trim(),
+    excerpt: excerpt || '',
+    content,
+    coverImageUrl: coverImageUrl || null,
+    author: author || '',
+    tags: Array.isArray(tags) ? tags : [],
+    status: status === 'published' ? 'published' : 'draft',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  posts.push(newPost);
+  writeBlog(posts);
+  res.status(201).json(newPost);
+});
+
+app.put('/api/blog/:id', requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { id } = req.params;
+  const idx = posts.findIndex((p: any) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+
+  const { title, content, excerpt, coverImageUrl, author, tags, status, slug } = req.body;
+  const post = posts[idx];
+
+  const resolveSlug = (source: string) => {
+    let base = slugify(source);
+    let candidate = base;
+    let n = 2;
+    while (posts.find((p: any) => p.slug === candidate && p.id !== id)) {
+      candidate = `${base}-${n}`;
+      n++;
+    }
+    return candidate;
+  };
+
+  if (slug && typeof slug === 'string' && slug.trim()) {
+    post.slug = resolveSlug(slug);
+  } else if (title && title !== post.title) {
+    post.slug = resolveSlug(title);
+  }
+
+  post.title = title ?? post.title;
+  post.content = content ?? post.content;
+  post.excerpt = excerpt ?? post.excerpt;
+  post.coverImageUrl = coverImageUrl !== undefined ? (coverImageUrl || null) : post.coverImageUrl;
+  post.author = author ?? post.author;
+  post.tags = tags !== undefined ? (Array.isArray(tags) ? tags : []) : post.tags;
+  post.status = status ?? post.status;
+  post.updatedAt = new Date().toISOString();
+
+  writeBlog(posts);
+  res.json(post);
+});
+
+app.delete('/api/blog/:id', requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { id } = req.params;
+  const idx = posts.findIndex((p: any) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+
+  const removed = posts[idx];
+  if (removed.coverImageUrl) {
+    const filepath = path.join(UPLOADS_DIR, path.basename(removed.coverImageUrl));
+    if (fs.existsSync(filepath)) {
+      try { fs.unlinkSync(filepath); } catch (e) { /* ignore */ }
+    }
+  }
+
+  posts.splice(idx, 1);
+  writeBlog(posts);
+  res.json({ success: true, message: `Post ${id} deleted` });
+});
+
+// ─── Site Info CRUD ────────────────────────────────────────────────────────────
+
+const SITE_INFO_FIELDS = ['phone', 'email', 'address', 'openingHours', 'closingHours', 'brandTagline'];
+const SITE_INFO_SOCIALS = ['x', 'tiktok', 'instagram', 'linkedin'];
+
+app.get('/api/site-info', (req, res) => {
+  res.json(readSiteInfo());
+});
+
+app.put('/api/site-info', requireAdmin, (req, res) => {
+  const current = readSiteInfo();
+  const body = req.body || {};
+  const updated: any = { ...current };
+
+  for (const field of SITE_INFO_FIELDS) {
+    if (body[field] !== undefined) updated[field] = body[field];
+  }
+
+  const socials: any = { ...(current.socials || {}) };
+  for (const s of SITE_INFO_SOCIALS) {
+    if (body.socials && body.socials[s] !== undefined) socials[s] = body.socials[s];
+  }
+  updated.socials = socials;
+
+  writeSiteInfo(updated);
+  res.json(updated);
 });
 
 // ─── Uploaded Files Management Routes ──────────────────────────────────────────
