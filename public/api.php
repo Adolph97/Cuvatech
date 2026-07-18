@@ -43,7 +43,6 @@ if (!file_exists($config_file)) {
         "paymentMode" => "sandbox",
         "deliveryFee" => 35,
         "premiumDeliveryFee" => 45,
-        "minOrderWeightKg" => 10,
         "premiumClients" => ["Jastel Water", "Surjen Healthcare"]
       ];
       file_put_contents($config_file, json_encode($default_config, JSON_PRETTY_PRINT));
@@ -57,7 +56,7 @@ if (!file_exists($products_file)) {
             "description" => "Ultra-soft organic cotton garments silkscreened with water-based eco-inks.",
             "basePrice" => 20,
             "unitLabel" => "Garments",
-            "minQty" => 10,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.2,
             "category" => "printing"
         ],
@@ -67,7 +66,7 @@ if (!file_exists($products_file)) {
             "description" => "High-quality headwear featuring custom embroidery or precision prints.",
             "basePrice" => 12,
             "unitLabel" => "Caps",
-            "minQty" => 15,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.15,
             "category" => "printing"
         ],
@@ -77,7 +76,7 @@ if (!file_exists($products_file)) {
             "description" => "Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.",
             "basePrice" => 48,
             "unitLabel" => "Banners",
-            "minQty" => 1,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.5,
             "category" => "printing"
         ],
@@ -87,7 +86,7 @@ if (!file_exists($products_file)) {
             "description" => "Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.",
             "basePrice" => 0.22,
             "unitLabel" => "Labels",
-            "minQty" => 100,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.015,
             "category" => "printing"
         ],
@@ -97,7 +96,7 @@ if (!file_exists($products_file)) {
             "description" => "Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.",
             "basePrice" => 5.5,
             "unitLabel" => "Mugs",
-            "minQty" => 20,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.35,
             "category" => "printing"
         ],
@@ -107,7 +106,7 @@ if (!file_exists($products_file)) {
             "description" => "Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.",
             "basePrice" => 6,
             "unitLabel" => "Notebooks",
-            "minQty" => 25,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.35,
             "category" => "printing"
         ],
@@ -117,7 +116,7 @@ if (!file_exists($products_file)) {
             "description" => "Water-resistant, beautifully typeset menu cards and table talkers for hospitality.",
             "basePrice" => 4.5,
             "unitLabel" => "Menus",
-            "minQty" => 10,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.05,
             "category" => "printing"
         ],
@@ -127,7 +126,7 @@ if (!file_exists($products_file)) {
             "description" => "Got an unusual canvas, card, or box? Describe your dimension and material dreams below.",
             "basePrice" => 15,
             "unitLabel" => "Pieces",
-            "minQty" => 5,
+            "minOrderWeightKg" => 10,
             "weightPerUnitKg" => 0.2,
             "category" => "printing"
         ]
@@ -151,7 +150,6 @@ function getConfigWithDeliveryDefaults($config_file) {
 
     if (!array_key_exists('deliveryFee', $config)) $config['deliveryFee'] = 35;
     if (!array_key_exists('premiumDeliveryFee', $config)) $config['premiumDeliveryFee'] = 45;
-    if (!array_key_exists('minOrderWeightKg', $config)) $config['minOrderWeightKg'] = 10;
     if (!array_key_exists('premiumClients', $config)) $config['premiumClients'] = ['Jastel Water', 'Surjen Healthcare'];
 
     return $config;
@@ -227,14 +225,8 @@ if ($path === 'admin/settings') {
             echo json_encode(["error" => "premiumDeliveryFee must be zero or greater"]);
             exit();
         }
-        if (array_key_exists('minOrderWeightKg', $input) && (!is_numeric($input['minOrderWeightKg']) || floatval($input['minOrderWeightKg']) <= 0)) {
-            http_response_code(400);
-            echo json_encode(["error" => "minOrderWeightKg must be greater than zero"]);
-            exit();
-        }
         if (array_key_exists('deliveryFee', $input)) $config['deliveryFee'] = floatval($input['deliveryFee']);
         if (array_key_exists('premiumDeliveryFee', $input)) $config['premiumDeliveryFee'] = floatval($input['premiumDeliveryFee']);
-        if (array_key_exists('minOrderWeightKg', $input)) $config['minOrderWeightKg'] = floatval($input['minOrderWeightKg']);
         if (array_key_exists('premiumClients', $input) && is_array($input['premiumClients'])) $config['premiumClients'] = $input['premiumClients'];
         
         file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
@@ -253,7 +245,6 @@ if ($path === 'settings/public') {
         "paymentMode" => isset($config['paymentMode']) ? $config['paymentMode'] : 'sandbox',
         "deliveryFee" => $config['deliveryFee'],
         "premiumDeliveryFee" => $config['premiumDeliveryFee'],
-        "minOrderWeightKg" => $config['minOrderWeightKg'],
         "premiumClients" => $config['premiumClients']
     ]);
     exit();
@@ -272,12 +263,12 @@ if ($path === 'products') {
         $unit_label = isset($input['unitLabel']) ? trim($input['unitLabel']) : '';
 
         $base_price = isset($input['basePrice']) && is_numeric($input['basePrice']) ? floatval($input['basePrice']) : 0;
-        $min_qty = isset($input['minQty']) && is_numeric($input['minQty']) ? floatval($input['minQty']) : 0;
+        $min_order_weight_kg = isset($input['minOrderWeightKg']) && is_numeric($input['minOrderWeightKg']) ? floatval($input['minOrderWeightKg']) : 0;
         $weight_per_unit_kg = isset($input['weightPerUnitKg']) && is_numeric($input['weightPerUnitKg']) ? floatval($input['weightPerUnitKg']) : 0;
 
-        if ($id === '' || $label === '' || $unit_label === '' || $base_price <= 0 || $min_qty < 1 || floor($min_qty) != $min_qty || $weight_per_unit_kg <= 0) {
+        if ($id === '' || $label === '' || $unit_label === '' || $base_price <= 0 || $min_order_weight_kg <= 0 || $weight_per_unit_kg <= 0) {
             http_response_code(400);
-            echo json_encode(["error" => "Missing or invalid required fields: id, label, basePrice, unitLabel, weightPerUnitKg"]);
+            echo json_encode(["error" => "Missing or invalid required fields: id, label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg"]);
             exit();
         }
 
@@ -295,7 +286,7 @@ if ($path === 'products') {
             "description" => isset($input['description']) ? $input['description'] : '',
             "basePrice" => $base_price,
             "unitLabel" => $unit_label,
-            "minQty" => intval($min_qty),
+            "minOrderWeightKg" => floatval($min_order_weight_kg),
             "weightPerUnitKg" => $weight_per_unit_kg,
             "category" => isset($input['category']) ? $input['category'] : 'printing',
             "imageUrl" => isset($input['imageUrl']) && $input['imageUrl'] ? $input['imageUrl'] : null
@@ -353,14 +344,14 @@ if (preg_match('/^products\/([^\/]+)$/', $path, $matches)) {
         if (array_key_exists('unitLabel', $input)) {
             $product['unitLabel'] = $input['unitLabel'];
         }
-        if (array_key_exists('minQty', $input)) {
-            $min_qty = is_numeric($input['minQty']) ? floatval($input['minQty']) : 0;
-            if ($min_qty < 1 || floor($min_qty) != $min_qty) {
+        if (array_key_exists('minOrderWeightKg', $input)) {
+            $min_order_weight_kg = is_numeric($input['minOrderWeightKg']) ? floatval($input['minOrderWeightKg']) : 0;
+            if ($min_order_weight_kg <= 0) {
                 http_response_code(400);
-                echo json_encode(["error" => "minQty must be a positive integer"]);
+                echo json_encode(["error" => "minOrderWeightKg must be greater than zero"]);
                 exit();
             }
-            $product['minQty'] = intval($min_qty);
+            $product['minOrderWeightKg'] = floatval($min_order_weight_kg);
         }
         if (array_key_exists('weightPerUnitKg', $input)) {
             $weight_per_unit_kg = is_numeric($input['weightPerUnitKg']) ? floatval($input['weightPerUnitKg']) : 0;

@@ -33,7 +33,6 @@ var readConfig = () => {
         // Delivery fee settings
         deliveryFee: 35,
         premiumDeliveryFee: 45,
-        minOrderWeightKg: 10,
         premiumClients: ["Jastel Water", "Surjen Healthcare"]
       };
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
@@ -43,7 +42,6 @@ var readConfig = () => {
     const config = JSON.parse(data);
     if (config.deliveryFee === void 0) config.deliveryFee = 35;
     if (config.premiumDeliveryFee === void 0) config.premiumDeliveryFee = 45;
-    if (config.minOrderWeightKg === void 0) config.minOrderWeightKg = 10;
     if (!config.premiumClients) config.premiumClients = ["Jastel Water", "Surjen Healthcare"];
     return config;
   } catch (err) {
@@ -133,7 +131,6 @@ app.post("/api/admin/settings", (req, res) => {
     paymentMode,
     deliveryFee,
     premiumDeliveryFee,
-    minOrderWeightKg,
     premiumClients
   } = req.body;
   const config = readConfig();
@@ -143,9 +140,6 @@ app.post("/api/admin/settings", (req, res) => {
   if (premiumDeliveryFee !== void 0 && (!Number.isFinite(Number(premiumDeliveryFee)) || Number(premiumDeliveryFee) < 0)) {
     return res.status(400).json({ error: "premiumDeliveryFee must be zero or greater" });
   }
-  if (minOrderWeightKg !== void 0 && (!Number.isFinite(Number(minOrderWeightKg)) || Number(minOrderWeightKg) <= 0)) {
-    return res.status(400).json({ error: "minOrderWeightKg must be greater than zero" });
-  }
   if (stripePublishableKey !== void 0) config.stripePublishableKey = stripePublishableKey;
   if (stripeSecretKey !== void 0) config.stripeSecretKey = stripeSecretKey;
   if (paypalClientId !== void 0) config.paypalClientId = paypalClientId;
@@ -153,7 +147,6 @@ app.post("/api/admin/settings", (req, res) => {
   if (paymentMode !== void 0) config.paymentMode = paymentMode;
   if (deliveryFee !== void 0) config.deliveryFee = Number(deliveryFee);
   if (premiumDeliveryFee !== void 0) config.premiumDeliveryFee = Number(premiumDeliveryFee);
-  if (minOrderWeightKg !== void 0) config.minOrderWeightKg = Number(minOrderWeightKg);
   if (premiumClients !== void 0) config.premiumClients = premiumClients;
   writeConfig(config);
   const { password, ...safeSettings } = config;
@@ -168,7 +161,6 @@ app.get("/api/settings/public", (req, res) => {
     // Delivery fee settings for frontend
     deliveryFee: config.deliveryFee ?? 35,
     premiumDeliveryFee: config.premiumDeliveryFee ?? 45,
-    minOrderWeightKg: config.minOrderWeightKg ?? 10,
     premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"]
   });
 });
@@ -295,20 +287,27 @@ var readProducts = () => {
   try {
     if (!fs.existsSync(PRODUCTS_FILE)) {
       const initialProducts = [
-        { id: "t-shirts", label: "T-shirts / Branded Apparel", description: "Ultra-soft organic cotton garments silkscreened with water-based eco-inks.", basePrice: 20, unitLabel: "Garments", minQty: 10, weightPerUnitKg: 0.2, category: "printing" },
-        { id: "caps", label: "Custom Branded Caps", description: "High-quality headwear featuring custom embroidery or precision prints.", basePrice: 12, unitLabel: "Caps", minQty: 15, weightPerUnitKg: 0.15, category: "printing" },
-        { id: "banners", label: "Banners (Roll-up, Pull-up)", description: "Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.", basePrice: 48, unitLabel: "Banners", minQty: 1, weightPerUnitKg: 0.5, category: "printing" },
-        { id: "stickers", label: "Stickers & Die-Cut Labels", description: "Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.", basePrice: 0.22, unitLabel: "Labels", minQty: 100, weightPerUnitKg: 0.015, category: "printing" },
-        { id: "mugs", label: "Branded Mugs & Drinkware", description: "Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.", basePrice: 5.5, unitLabel: "Mugs", minQty: 20, weightPerUnitKg: 0.35, category: "printing" },
-        { id: "notebooks", label: "Notebooks & Note pads", description: "Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.", basePrice: 6, unitLabel: "Notebooks", minQty: 25, weightPerUnitKg: 0.35, category: "printing" },
-        { id: "menus", label: "Menus & Restaurant Stationery", description: "Water-resistant, beautifully typeset menu cards and table talkers for hospitality.", basePrice: 4.5, unitLabel: "Menus", minQty: 10, weightPerUnitKg: 0.05, category: "printing" },
-        { id: "custom", label: "Other Custom Printing (Bespoke)", description: "Got an unusual canvas, card, or box? Describe your dimension and material dreams below.", basePrice: 15, unitLabel: "Pieces", minQty: 5, weightPerUnitKg: 0.2, category: "printing" }
+        { id: "t-shirts", label: "T-shirts / Branded Apparel", description: "Ultra-soft organic cotton garments silkscreened with water-based eco-inks.", basePrice: 20, unitLabel: "Garments", minOrderWeightKg: 10, weightPerUnitKg: 0.2, category: "printing" },
+        { id: "caps", label: "Custom Branded Caps", description: "High-quality headwear featuring custom embroidery or precision prints.", basePrice: 12, unitLabel: "Caps", minOrderWeightKg: 10, weightPerUnitKg: 0.15, category: "printing" },
+        { id: "banners", label: "Banners (Roll-up, Pull-up)", description: "Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.", basePrice: 48, unitLabel: "Banners", minOrderWeightKg: 10, weightPerUnitKg: 0.5, category: "printing" },
+        { id: "stickers", label: "Stickers & Die-Cut Labels", description: "Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.", basePrice: 0.22, unitLabel: "Labels", minOrderWeightKg: 10, weightPerUnitKg: 0.015, category: "printing" },
+        { id: "mugs", label: "Branded Mugs & Drinkware", description: "Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.", basePrice: 5.5, unitLabel: "Mugs", minOrderWeightKg: 10, weightPerUnitKg: 0.35, category: "printing" },
+        { id: "notebooks", label: "Notebooks & Note pads", description: "Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.", basePrice: 6, unitLabel: "Notebooks", minOrderWeightKg: 10, weightPerUnitKg: 0.35, category: "printing" },
+        { id: "menus", label: "Menus & Restaurant Stationery", description: "Water-resistant, beautifully typeset menu cards and table talkers for hospitality.", basePrice: 4.5, unitLabel: "Menus", minOrderWeightKg: 10, weightPerUnitKg: 0.05, category: "printing" },
+        { id: "custom", label: "Other Custom Printing (Bespoke)", description: "Got an unusual canvas, card, or box? Describe your dimension and material dreams below.", basePrice: 15, unitLabel: "Pieces", minOrderWeightKg: 10, weightPerUnitKg: 0.2, category: "printing" }
       ];
       fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2));
       return initialProducts;
     }
     const data = fs.readFileSync(PRODUCTS_FILE, "utf8");
-    return JSON.parse(data);
+    const products = JSON.parse(data);
+    for (const product of products) {
+      if (typeof product.minOrderWeightKg !== "number" || product.minOrderWeightKg <= 0) {
+        product.minOrderWeightKg = Number.isFinite(product.minQty) && product.minQty > 0 && product.weightPerUnitKg > 0 ? Math.ceil(product.minQty * product.weightPerUnitKg) : 10;
+      }
+      delete product.minQty;
+    }
+    return products;
   } catch (err) {
     console.error("Error reading products file:", err);
     return [];
@@ -327,12 +326,12 @@ app.get("/api/products", (req, res) => {
 });
 app.post("/api/products", (req, res) => {
   const products = readProducts();
-  const { id, label, description, basePrice, unitLabel, minQty, weightPerUnitKg, category, imageUrl } = req.body;
+  const { id, label, description, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg, category, imageUrl } = req.body;
   const numericBasePrice = Number(basePrice);
-  const numericMinQty = Number(minQty);
+  const numericMinOrderWeightKg = Number(minOrderWeightKg);
   const numericWeightPerUnitKg = Number(weightPerUnitKg);
-  if (!id || !label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isInteger(numericMinQty) || numericMinQty < 1 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
-    return res.status(400).json({ error: "Missing or invalid required fields: id, label, basePrice, unitLabel, weightPerUnitKg" });
+  if (!id || !label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isFinite(numericMinOrderWeightKg) || numericMinOrderWeightKg <= 0 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
+    return res.status(400).json({ error: "Missing or invalid required fields: id, label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg" });
   }
   const existingProduct = products.find((p) => p.id === id);
   if (existingProduct) {
@@ -344,7 +343,7 @@ app.post("/api/products", (req, res) => {
     description: description || "",
     basePrice: numericBasePrice,
     unitLabel,
-    minQty: numericMinQty,
+    minOrderWeightKg: numericMinOrderWeightKg,
     weightPerUnitKg: numericWeightPerUnitKg,
     category: category || "printing",
     ...imageUrl ? { imageUrl } : {}
@@ -356,7 +355,7 @@ app.post("/api/products", (req, res) => {
 app.put("/api/products/:id", (req, res) => {
   const products = readProducts();
   const { id } = req.params;
-  const { label, description, basePrice, unitLabel, minQty, weightPerUnitKg, category, imageUrl } = req.body;
+  const { label, description, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg, category, imageUrl } = req.body;
   const productIndex = products.findIndex((p) => p.id === id);
   if (productIndex === -1) {
     return res.status(404).json({ error: "Product not found" });
@@ -364,8 +363,8 @@ app.put("/api/products/:id", (req, res) => {
   if (basePrice !== void 0 && (!Number.isFinite(Number(basePrice)) || Number(basePrice) <= 0)) {
     return res.status(400).json({ error: "basePrice must be greater than zero" });
   }
-  if (minQty !== void 0 && (!Number.isInteger(Number(minQty)) || Number(minQty) < 1)) {
-    return res.status(400).json({ error: "minQty must be a positive integer" });
+  if (minOrderWeightKg !== void 0 && (!Number.isFinite(Number(minOrderWeightKg)) || Number(minOrderWeightKg) <= 0)) {
+    return res.status(400).json({ error: "minOrderWeightKg must be greater than zero" });
   }
   if (weightPerUnitKg !== void 0 && (!Number.isFinite(Number(weightPerUnitKg)) || Number(weightPerUnitKg) <= 0)) {
     return res.status(400).json({ error: "weightPerUnitKg must be greater than zero" });
@@ -376,7 +375,7 @@ app.put("/api/products/:id", (req, res) => {
     description: description ?? products[productIndex].description,
     basePrice: basePrice !== void 0 ? Number(basePrice) : products[productIndex].basePrice,
     unitLabel: unitLabel ?? products[productIndex].unitLabel,
-    minQty: minQty !== void 0 ? Number(minQty) : products[productIndex].minQty,
+    minOrderWeightKg: minOrderWeightKg !== void 0 ? Number(minOrderWeightKg) : products[productIndex].minOrderWeightKg,
     weightPerUnitKg: weightPerUnitKg !== void 0 ? Number(weightPerUnitKg) : products[productIndex].weightPerUnitKg,
     category: category ?? products[productIndex].category,
     imageUrl: imageUrl || void 0
