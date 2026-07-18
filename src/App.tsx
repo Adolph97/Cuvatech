@@ -16,7 +16,10 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Admin System Imports
 import { OrderProvider, useOrders } from './OrderStore';
+import { SiteInfoProvider } from './SiteInfoStore';
 import AdminDashboard from './components/AdminDashboard';
+import BlogList from './components/BlogList';
+import BlogPost from './components/BlogPost';
 
 // Animation variants
 const fadeInUp = {
@@ -700,7 +703,12 @@ export default function App() {
 
   return (
     <OrderProvider>
-      {path === '/admin' ? <AdminDashboard /> : <LandingPage />}
+      <SiteInfoProvider>
+        {path === '/admin' ? <AdminDashboard /> :
+         path === '/blog' ? <BlogList /> :
+         path.startsWith('/blog/') ? <BlogPost /> :
+         <LandingPage />}
+      </SiteInfoProvider>
     </OrderProvider>
   );
 }

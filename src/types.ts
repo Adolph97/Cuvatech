@@ -79,3 +79,47 @@ export interface DeliverySettings {
   premiumDeliveryFee: number;
   premiumClients: string[];
 }
+
+export interface PortfolioItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl?: string | null;
+  link?: string;
+  category?: string;
+  order?: number;
+  createdAt?: string;
+}
+
+export type BlogStatus = 'draft' | 'published';
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  content: string;
+  coverImageUrl?: string | null;
+  author?: string;
+  tags?: string[];
+  status: BlogStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SiteInfoSocials {
+  x: string;
+  tiktok: string;
+  instagram: string;
+  linkedin: string;
+}
+
+export interface SiteInfo {
+  phone: string;
+  email: string;
+  address: string;
+  openingHours: string;
+  closingHours: string;
+  socials: SiteInfoSocials;
+  brandTagline: string;
+}
