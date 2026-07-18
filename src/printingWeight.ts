@@ -12,6 +12,7 @@ const LEGACY_WEIGHT_PER_UNIT_KG: Record<string, number> = {
 };
 
 const DEFAULT_WEIGHT_PER_UNIT_KG = 0.2;
+const DEFAULT_MIN_ORDER_WEIGHT_KG = 10;
 
 type WeightedProduct = {
   id: string;
@@ -20,7 +21,7 @@ type WeightedProduct = {
 
 type PricedProduct = WeightedProduct & {
   basePrice: number;
-  minQty: number;
+  minOrderWeightKg?: number;
 };
 
 export function getProductWeightPerUnitKg(product: WeightedProduct): number {
@@ -37,26 +38,32 @@ export function estimatePrintingWeightKg(product: WeightedProduct, quantity: num
 
 const roundCurrency = (value: number) => Math.round(value * 100) / 100;
 
-export function getMinimumPrintingQuantity(product: PricedProduct, minOrderWeightKg: number): number {
+export function getProductMinOrderWeightKg(product: WeightedProduct & { minOrderWeightKg?: number }): number {
+  if (Number.isFinite(product.minOrderWeightKg) && product.minOrderWeightKg! > 0) {
+    return product.minOrderWeightKg!;
+  }
+
+  return DEFAULT_MIN_ORDER_WEIGHT_KG;
+}
+
+export function getMinimumPrintingQuantity(product: WeightedProduct & { minOrderWeightKg?: number }): number {
   const minimumByWeight = Math.ceil(
-    Math.max(0, minOrderWeightKg) / getProductWeightPerUnitKg(product)
+    getProductMinOrderWeightKg(product) / getProductWeightPerUnitKg(product)
   );
 
-  return Math.max(product.minQty, minimumByWeight);
+  return Math.max(1, minimumByWeight);
 }
 
 export function calculatePrintingOrder({
   product,
   requestedQuantity,
-  deliveryFee,
-  minOrderWeightKg
+  deliveryFee
 }: {
   product: PricedProduct;
   requestedQuantity: number;
   deliveryFee: number;
-  minOrderWeightKg: number;
 }) {
-  const minimumQuantity = getMinimumPrintingQuantity(product, minOrderWeightKg);
+  const minimumQuantity = getMinimumPrintingQuantity(product);
   const quantity = Math.max(minimumQuantity, Math.floor(requestedQuantity || 0));
   const discountRate = quantity >= 500 ? 0.2 : quantity >= 200 ? 0.1 : 0;
   const subtotal = roundCurrency(product.basePrice * quantity * (1 - discountRate));

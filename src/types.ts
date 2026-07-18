@@ -25,7 +25,7 @@ export interface PrintingProduct {
   description: string;
   basePrice: number;
   unitLabel: string;
-  minQty: number;
+  minOrderWeightKg: number;
   weightPerUnitKg?: number;
   imageUrl?: string;
 }
@@ -65,7 +65,6 @@ export interface QuoteRequest {
 }
 
 export interface DeliveryInfo {
-  minOrderWeightKg: number;
   standardFee: number;
   premiumFee: number;
   premiumClients: string[];
@@ -78,6 +77,5 @@ export interface DeliveryInfo {
 export interface DeliverySettings {
   deliveryFee: number;
   premiumDeliveryFee: number;
-  minOrderWeightKg: number;
   premiumClients: string[];
 }

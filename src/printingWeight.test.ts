@@ -3,7 +3,8 @@ import test from 'node:test';
 import {
   calculatePrintingOrder,
   estimatePrintingWeightKg,
-  getProductWeightPerUnitKg
+  getProductWeightPerUnitKg,
+  getMinimumPrintingQuantity
 } from './printingWeight';
 
 test('uses the product weight configured by an admin', () => {
@@ -27,17 +28,27 @@ test('ignores invalid saved weights and prevents negative quantities', () => {
   assert.equal(estimatePrintingWeightKg({ id: 'caps', weightPerUnitKg: 0.25 }, -10), 0);
 });
 
+test('derives the minimum quantity from the product minimum order weight', () => {
+  assert.equal(
+    getMinimumPrintingQuantity({ id: 't-shirts', minOrderWeightKg: 10, weightPerUnitKg: 0.2 }),
+    50
+  );
+  assert.equal(
+    getMinimumPrintingQuantity({ id: 'stickers', minOrderWeightKg: 10, weightPerUnitKg: 0.015 }),
+    667
+  );
+});
+
 test('uses the product minimum quantity consistently for price and weight', () => {
   const totals = calculatePrintingOrder({
     product: {
       id: 't-shirts',
       basePrice: 20,
-      minQty: 10,
+      minOrderWeightKg: 10,
       weightPerUnitKg: 1
     },
     requestedQuantity: 5,
-    deliveryFee: 35,
-    minOrderWeightKg: 0.5
+    deliveryFee: 35
   });
 
   assert.deepEqual(totals, {
@@ -58,12 +69,11 @@ test('applies the 200-unit discount and configured delivery fee', () => {
     product: {
       id: 'caps',
       basePrice: 12,
-      minQty: 15,
+      minOrderWeightKg: 10,
       weightPerUnitKg: 0.15
     },
     requestedQuantity: 200,
-    deliveryFee: 40,
-    minOrderWeightKg: 0.5
+    deliveryFee: 40
   });
 
   assert.equal(totals.discountRate, 0.1);
@@ -77,30 +87,28 @@ test('uses the custom setup fee without overriding configured delivery', () => {
     product: {
       id: 'custom',
       basePrice: 15,
-      minQty: 5,
+      minOrderWeightKg: 10,
       weightPerUnitKg: 0.2
     },
     requestedQuantity: 5,
-    deliveryFee: 35,
-    minOrderWeightKg: 0.5
+    deliveryFee: 35
   });
 
   assert.equal(totals.setupFee, 25);
   assert.equal(totals.deliveryFee, 35);
-  assert.equal(totals.grandTotal, 135);
+  assert.equal(totals.grandTotal, 810);
 });
 
-test('raises the effective quantity when delivery weight requires more units', () => {
+test('raises the effective quantity when the product minimum weight requires more units', () => {
   const totals = calculatePrintingOrder({
     product: {
       id: 'custom',
       basePrice: 15,
-      minQty: 5,
+      minOrderWeightKg: 10,
       weightPerUnitKg: 0.2
     },
     requestedQuantity: 5,
-    deliveryFee: 35,
-    minOrderWeightKg: 10
+    deliveryFee: 35
   });
 
   assert.equal(totals.quantity, 50);

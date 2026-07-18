@@ -41,7 +41,7 @@ import {
   UploadCloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getProductWeightPerUnitKg } from '../printingWeight';
+import { getProductWeightPerUnitKg, getProductMinOrderWeightKg } from '../printingWeight';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 15 },
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
     description: '',
     basePrice: '',
     unitLabel: 'Units',
-    minQty: '1',
+    minOrderWeightKg: '10',
     weightPerUnitKg: '0.2',
     category: 'printing',
     imageUrl: ''
@@ -128,7 +128,6 @@ export default function AdminDashboard() {
     paymentMode: 'sandbox',
     deliveryFee: 35,
     premiumDeliveryFee: 45,
-    minOrderWeightKg: 10,
     premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
 
@@ -136,7 +135,6 @@ export default function AdminDashboard() {
   const [deliverySettings, setDeliverySettings] = useState({
     deliveryFee: 35,
     premiumDeliveryFee: 45,
-    minOrderWeightKg: 10,
     premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
 
@@ -236,7 +234,7 @@ export default function AdminDashboard() {
           description: productForm.description,
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
-          minQty: Number(productForm.minQty),
+          minOrderWeightKg: Number(productForm.minOrderWeightKg),
           weightPerUnitKg: Number(productForm.weightPerUnitKg),
           category: productForm.category,
           imageUrl: productForm.imageUrl || undefined
@@ -269,7 +267,7 @@ export default function AdminDashboard() {
           description: productForm.description,
           basePrice: Number(productForm.basePrice),
           unitLabel: productForm.unitLabel,
-          minQty: Number(productForm.minQty),
+          minOrderWeightKg: Number(productForm.minOrderWeightKg),
           weightPerUnitKg: Number(productForm.weightPerUnitKg),
           category: productForm.category,
           imageUrl: productForm.imageUrl || undefined
@@ -355,7 +353,6 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           deliveryFee: deliverySettings.deliveryFee,
           premiumDeliveryFee: deliverySettings.premiumDeliveryFee,
-          minOrderWeightKg: deliverySettings.minOrderWeightKg,
           premiumClients: deliverySettings.premiumClients
         })
       });
@@ -1556,20 +1553,6 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Min Order Weight (kg)</label>
-                  <input
-                    type="number"
-                    required
-                    min="0.001"
-                    step="0.001"
-                    value={deliverySettings.minOrderWeightKg}
-                    onChange={(e) => setDeliverySettings({ ...deliverySettings, minOrderWeightKg: Number(e.target.value) })}
-                    placeholder="10"
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Premium Clients</label>
                   <input
                     type="text"
@@ -1615,7 +1598,7 @@ export default function AdminDashboard() {
                     description: '',
                     basePrice: '',
                     unitLabel: 'Units',
-                    minQty: '1',
+                    minOrderWeightKg: '10',
                     weightPerUnitKg: '0.2',
                     category: 'printing',
                     imageUrl: ''
@@ -1648,7 +1631,7 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Label</th>
                         <th className="px-6 py-4">Price</th>
                         <th className="px-6 py-4">Unit</th>
-                        <th className="px-6 py-4">Min Qty</th>
+                        <th className="px-6 py-4">Min Weight</th>
                         <th className="px-6 py-4">Weight / Unit</th>
                         <th className="px-6 py-4">Category</th>
                         <th className="px-6 py-4">Actions</th>
@@ -1666,7 +1649,7 @@ export default function AdminDashboard() {
                             <td className="px-6 py-4 font-bold">{product.label}</td>
                             <td className="px-6 py-4 font-bold">${product.basePrice.toFixed(2)}</td>
                             <td className="px-6 py-4">{product.unitLabel}</td>
-                            <td className="px-6 py-4">{product.minQty}</td>
+                            <td className="px-6 py-4">{getProductMinOrderWeightKg ? getProductMinOrderWeightKg(product) : product.minOrderWeightKg ?? 10} kg</td>
                             <td className="px-6 py-4 font-bold">{getProductWeightPerUnitKg(product).toFixed(3)} kg</td>
                             <td className="px-6 py-4">
                               <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-primary/10 text-primary">
@@ -1684,7 +1667,7 @@ export default function AdminDashboard() {
                                       description: product.description,
                                       basePrice: String(product.basePrice),
                                       unitLabel: product.unitLabel,
-                                      minQty: String(product.minQty),
+                                      minOrderWeightKg: String(product.minOrderWeightKg ?? 10),
                                       weightPerUnitKg: String(getProductWeightPerUnitKg(product)),
                                       category: product.category,
                                       imageUrl: product.imageUrl || ''
@@ -1971,14 +1954,15 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Min Qty</label>
+                      <label htmlFor="product-min-order-weight" className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Min Order Weight (kg)</label>
                       <input
+                        id="product-min-order-weight"
                         type="number"
                         required
-                        min="1"
-                        step="1"
-                        value={productForm.minQty}
-                        onChange={(e) => setProductForm({ ...productForm, minQty: e.target.value })}
+                        min="0.001"
+                        step="0.001"
+                        value={productForm.minOrderWeightKg}
+                        onChange={(e) => setProductForm({ ...productForm, minOrderWeightKg: e.target.value })}
                         placeholder="10"
                         className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
                       />

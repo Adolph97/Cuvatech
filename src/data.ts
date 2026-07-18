@@ -72,7 +72,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Ultra-soft organic cotton garments silkscreened with water-based eco-inks.',
     basePrice: 20.00,
     unitLabel: 'Garments',
-    minQty: 10,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.2
   },
   {
@@ -81,7 +81,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'High-quality headwear featuring custom embroidery or precision prints.',
     basePrice: 12.00,
     unitLabel: 'Caps',
-    minQty: 15,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.15
   },
   {
@@ -90,7 +90,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Durable weather-proof canvas banners fitted with polished silver bamboo or aluminum constructs.',
     basePrice: 48.00,
     unitLabel: 'Banners',
-    minQty: 1,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.5
   },
   {
@@ -99,7 +99,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Premium vinyl labels with a smooth, glare-free matte varnish suitable for packaging.',
     basePrice: 0.22,
     unitLabel: 'Labels',
-    minQty: 100,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.015
   },
   {
@@ -108,7 +108,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Handcrafted ceramic mugs or insulated travel containers with vibrant, lasting prints.',
     basePrice: 5.50,
     unitLabel: 'Mugs',
-    minQty: 20,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.35
   },
   {
@@ -117,7 +117,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Hardcover hand-bound grid notebooks or soft-cover branded pads with recycled stock.',
     basePrice: 6.00,
     unitLabel: 'Notebooks',
-    minQty: 25,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.35
   },
   {
@@ -126,7 +126,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Water-resistant, beautifully typeset menu cards and table talkers for hospitality.',
     basePrice: 4.50,
     unitLabel: 'Menus',
-    minQty: 10,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.05
   },
   {
@@ -135,7 +135,7 @@ export const PRINTING_PRODUCTS: PrintingProduct[] = [
     description: 'Got an unusual canvas, card, or box? Describe your dimension and material dreams below.',
     basePrice: 15.00,
     unitLabel: 'Pieces',
-    minQty: 5,
+    minOrderWeightKg: 10,
     weightPerUnitKg: 0.2
   }
 ];
@@ -296,31 +296,8 @@ export const DELIVERY_FEES = {
   standardFee: 35,
   premiumClients: ['Jastel Water', 'Surjen Healthcare'],
   premiumFee: 45,
-  minOrderWeightKg: 10,
   deliveryNotes: {
     general: 'Delivery within 5-7 business days after proof approval. All orders must meet minimum 10kg requirement.',
     premium: 'Priority delivery for premium clients. Orders over 20kg qualify for free delivery on subsequent orders.'
-  }
-};
-
-// Function to merge API delivery settings with defaults (kept for reference)
-export const updateDeliveryFees = (apiSettings: {
-  deliveryFee?: number;
-  premiumDeliveryFee?: number;
-  minOrderWeightKg?: number;
-  premiumClients?: string[];
-}) => {
-  if (apiSettings.deliveryFee !== undefined) {
-    DELIVERY_FEES.standard = apiSettings.deliveryFee;
-    DELIVERY_FEES.standardFee = apiSettings.deliveryFee;
-  }
-  if (apiSettings.premiumDeliveryFee !== undefined) {
-    DELIVERY_FEES.premiumFee = apiSettings.premiumDeliveryFee;
-  }
-  if (apiSettings.minOrderWeightKg !== undefined) {
-    DELIVERY_FEES.minOrderWeightKg = apiSettings.minOrderWeightKg;
-  }
-  if (apiSettings.premiumClients !== undefined) {
-    DELIVERY_FEES.premiumClients = apiSettings.premiumClients;
   }
 };

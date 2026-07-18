@@ -7,6 +7,7 @@ import { useOrders } from '../OrderStore';
 import {
   calculatePrintingOrder,
   getMinimumPrintingQuantity,
+  getProductMinOrderWeightKg,
   getProductWeightPerUnitKg
 } from '../printingWeight';
 
@@ -29,9 +30,8 @@ const staggerContainer = {
 const ProductSelector: React.FC<{
   products: PrintingProduct[];
   selectedProduct: PrintingProduct;
-  minOrderWeightKg: number;
   onSelect: (prod: PrintingProduct) => void;
-}> = ({ products, selectedProduct, minOrderWeightKg, onSelect }) => {
+}> = ({ products, selectedProduct, onSelect }) => {
   const getProductIcon = (id: string) => {
     switch (id) {
       case 't-shirts': return <Shirt className="w-5 h-5 text-primary" />;
@@ -82,7 +82,7 @@ const ProductSelector: React.FC<{
                 {prod.label.split(' / ')[0]}
               </span>
               <span className="font-sans text-[9px] text-charcoal/30 block mt-1 uppercase font-bold tracking-widest">
-                Min: {getMinimumPrintingQuantity(prod, minOrderWeightKg)}
+                Min: {getMinimumPrintingQuantity(prod)}
               </span>
             </div>
           </motion.button>
@@ -96,9 +96,9 @@ const ProductSelector: React.FC<{
 const ProductDetailCard: React.FC<{
   product: PrintingProduct;
   deliveryFee: number;
-  minOrderWeightKg: number;
-}> = ({ product, deliveryFee, minOrderWeightKg }) => {
-  const minimumOrderQuantity = getMinimumPrintingQuantity(product, minOrderWeightKg);
+}> = ({ product, deliveryFee }) => {
+  const minimumOrderQuantity = getMinimumPrintingQuantity(product);
+  const productMinOrderWeightKg = getProductMinOrderWeightKg(product);
 
   const getProductIcon = (id: string) => {
     switch (id) {
@@ -148,16 +148,13 @@ const ProductDetailCard: React.FC<{
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Unit Price</span>
           <span className="text-charcoal font-extrabold text-right">${product.basePrice.toFixed(2)}</span>
 
-          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Batch Volume</span>
-          <span className="text-charcoal font-extrabold text-right">{product.minQty} {product.unitLabel}</span>
-
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Weight / Unit</span>
           <span className="text-charcoal font-extrabold text-right">{getProductWeightPerUnitKg(product).toFixed(3)}kg</span>
 
-          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Minimum Batch Weight</span>
-          <span className="text-charcoal font-extrabold text-right">{(getProductWeightPerUnitKg(product) * product.minQty).toFixed(3)}kg</span>
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Min Order Weight</span>
+          <span className="text-charcoal font-extrabold text-right">{productMinOrderWeightKg}kg</span>
 
-          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Minimum Order Quantity</span>
+          <span className="text-charcoal/30 font-bold uppercase tracking-widest">Minimum Units</span>
           <span className="text-charcoal font-extrabold text-right">{minimumOrderQuantity} {product.unitLabel}</span>
 
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Setup Fee</span>
@@ -167,7 +164,7 @@ const ProductDetailCard: React.FC<{
         {/* Delivery Info */}
         <div className="bg-primary/5 border border-primary/10 p-4 rounded-2xl grid grid-cols-2 gap-y-3 text-xs font-sans">
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Min Weight</span>
-          <span className="text-primary font-extrabold text-right">{minOrderWeightKg}kg</span>
+          <span className="text-primary font-extrabold text-right">{productMinOrderWeightKg}kg</span>
 
           <span className="text-charcoal/30 font-bold uppercase tracking-widest">Delivery Fee</span>
           <span className="text-charcoal font-extrabold text-right">${deliveryFee}</span>
@@ -364,9 +361,10 @@ const DeliveryInfoModal: React.FC<{
   onClose: () => void;
   deliveryFee: number;
   premiumDeliveryFee: number;
-  minOrderWeightKg: number;
+  product: PrintingProduct;
   premiumClients: string[];
-}> = ({ isOpen, onClose, deliveryFee, premiumDeliveryFee, minOrderWeightKg, premiumClients }) => {
+}> = ({ isOpen, onClose, deliveryFee, premiumDeliveryFee, product, premiumClients }) => {
+  const productMinOrderWeightKg = getProductMinOrderWeightKg(product);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -394,10 +392,10 @@ const DeliveryInfoModal: React.FC<{
               <div>
                 <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-widest">Minimum Order Weight</span>
                 <p className="font-display text-lg font-bold text-charcoal mt-1">
-                  {minOrderWeightKg}kg minimum required
+                  {productMinOrderWeightKg}kg minimum required
                 </p>
                 <p className="font-sans text-xs text-charcoal/60 mt-2">
-                  All print orders must meet our minimum {minOrderWeightKg}kg weight requirement for delivery logistics efficiency.
+                  All print orders must meet our minimum {productMinOrderWeightKg}kg weight requirement for delivery logistics efficiency.
                 </p>
               </div>
 
@@ -414,7 +412,7 @@ const DeliveryInfoModal: React.FC<{
               <div>
                 <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-widest">Delivery Timeline</span>
                 <p className="font-sans text-sm text-charcoal mt-1">
-                  Delivery within 5-7 business days after proof approval. All orders must meet minimum {minOrderWeightKg}kg requirement.
+                  Delivery within 5-7 business days after proof approval. All orders must meet minimum {productMinOrderWeightKg}kg requirement.
                 </p>
               </div>
             </div>
@@ -429,7 +427,7 @@ export default function PrintingConfigurator() {
   const { addOrder } = useOrders();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [selectedProduct, setSelectedProduct] = useState<PrintingProduct>(PRINTING_PRODUCTS[0]);
-  const [quantity, setQuantity] = useState<number>(PRINTING_PRODUCTS[0].minQty);
+  const [quantity, setQuantity] = useState<number>(getMinimumPrintingQuantity(PRINTING_PRODUCTS[0]));
   const [customDimension, setCustomDimension] = useState('');
   const [artworkDescription, setArtworkDescription] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
@@ -459,7 +457,6 @@ export default function PrintingConfigurator() {
     paymentMode: 'sandbox',
     deliveryFee: 35,
     premiumDeliveryFee: 45,
-    minOrderWeightKg: 10,
     premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
 
@@ -483,15 +480,14 @@ export default function PrintingConfigurator() {
 
   const handleProductChange = (prod: PrintingProduct) => {
     setSelectedProduct(prod);
-    setQuantity(getMinimumPrintingQuantity(prod, publicSettings.minOrderWeightKg));
+    setQuantity(getMinimumPrintingQuantity(prod));
     setUploadError('');
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value, 10);
     const minimumQuantity = getMinimumPrintingQuantity(
-      selectedProduct,
-      publicSettings.minOrderWeightKg
+      selectedProduct
     );
     setQuantity(Number.isFinite(value) ? Math.max(minimumQuantity, value) : minimumQuantity);
   };
@@ -569,11 +565,10 @@ export default function PrintingConfigurator() {
   }, []);
 
   useEffect(() => {
-    setQuantity(getMinimumPrintingQuantity(selectedProduct, publicSettings.minOrderWeightKg));
+    setQuantity(getMinimumPrintingQuantity(selectedProduct));
   }, [
-    publicSettings.minOrderWeightKg,
     selectedProduct.id,
-    selectedProduct.minQty,
+    selectedProduct.minOrderWeightKg,
     selectedProduct.weightPerUnitKg
   ]);
 
@@ -588,8 +583,7 @@ export default function PrintingConfigurator() {
   const orderCalculation = calculatePrintingOrder({
     product: selectedProduct,
     requestedQuantity: quantity,
-    deliveryFee: publicSettings.deliveryFee,
-    minOrderWeightKg: publicSettings.minOrderWeightKg
+    deliveryFee: publicSettings.deliveryFee
   });
   const {
     quantity: effectiveQuantity,
@@ -602,8 +596,7 @@ export default function PrintingConfigurator() {
     estimatedWeightKg
   } = orderCalculation;
   const minimumOrderQuantity = getMinimumPrintingQuantity(
-    selectedProduct,
-    publicSettings.minOrderWeightKg
+    selectedProduct
   );
 
   const handleNextStep = () => {
@@ -614,9 +607,10 @@ export default function PrintingConfigurator() {
         setUploadError('Describe the logo/design you want or attach a design file.');
         return;
       }
-      // Check minimum weight requirement - use dynamic value from API
-      if (estimatedWeightKg < publicSettings.minOrderWeightKg) {
-        setUploadError(`Minimum order weight is ${publicSettings.minOrderWeightKg}kg. Current estimate: ${estimatedWeightKg.toFixed(1)}kg. Please increase quantity.`);
+      // Check minimum weight requirement for this product
+      const productMinOrderWeightKg = getProductMinOrderWeightKg(selectedProduct);
+      if (estimatedWeightKg < productMinOrderWeightKg) {
+        setUploadError(`Minimum order weight is ${productMinOrderWeightKg}kg. Current estimate: ${estimatedWeightKg.toFixed(1)}kg. Please increase quantity.`);
         return;
       }
       setCurrentStep(3);
@@ -787,7 +781,6 @@ export default function PrintingConfigurator() {
                       <ProductSelector
                         products={productsToUse}
                         selectedProduct={selectedProduct}
-                        minOrderWeightKg={publicSettings.minOrderWeightKg}
                         onSelect={handleProductChange}
                       />
                     </div>
@@ -797,7 +790,6 @@ export default function PrintingConfigurator() {
                       <ProductDetailCard
                         product={selectedProduct}
                         deliveryFee={publicSettings.deliveryFee}
-                        minOrderWeightKg={publicSettings.minOrderWeightKg}
                       />
                     </div>
                   </div>
@@ -927,7 +919,7 @@ export default function PrintingConfigurator() {
                   <div>
                     <span className="font-sans text-xs font-bold text-charcoal/40 uppercase tracking-widest">Delivery Policy</span>
                     <p className="font-sans text-sm text-charcoal mt-1">
-                      Min. {publicSettings.minOrderWeightKg}kg • ${publicSettings.deliveryFee} fee
+                      Min. {getProductMinOrderWeightKg(selectedProduct)}kg • ${publicSettings.deliveryFee} fee
                     </p>
                   </div>
                   <button
@@ -1082,7 +1074,7 @@ export default function PrintingConfigurator() {
         onClose={() => setShowDeliveryInfo(false)}
         deliveryFee={publicSettings.deliveryFee}
         premiumDeliveryFee={publicSettings.premiumDeliveryFee}
-        minOrderWeightKg={publicSettings.minOrderWeightKg}
+        product={selectedProduct}
         premiumClients={publicSettings.premiumClients}
       />
     </motion.div>
