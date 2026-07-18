@@ -1,6 +1,7 @@
-import { ArrowUp, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUp, ArrowRight, CheckCircle2, Instagram, Linkedin } from 'lucide-react';
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { useSiteInfo } from '../SiteInfoStore';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -24,6 +25,12 @@ const staggerContainer = {
 export default function Footer({ onNavigate }: FooterProps) {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubbed, setNewsletterSubbed] = useState(false);
+  const { siteInfo } = useSiteInfo();
+
+  const xUrl = siteInfo.socials.x || 'https://x.com/cuva.tech';
+  const tiktokUrl = siteInfo.socials.tiktok || 'https://www.tiktok.com/@cuva.tech';
+  const instagramUrl = siteInfo.socials.instagram || 'https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx';
+  const linkedinUrl = siteInfo.socials.linkedin || 'https://www.linkedin.com/company/cuva-tech/';
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +86,27 @@ export default function Footer({ onNavigate }: FooterProps) {
             <p className="font-sans text-base text-charcoal/50 leading-relaxed max-w-sm">
             We use technology to improve performance and productivity making sure there is alignment in the business goals and technology requirements for every business
             </p>
+
+            {/* Social links wired to site info with fallbacks */}
+            <div className="flex items-center space-x-4 pt-2">
+              <span className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest font-sans">Connect:</span>
+              <motion.a whileHover={{ y: -5 }} href={xUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href={tiktokUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                </svg>
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href={instagramUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
+                <Instagram className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
+              </motion.a>
+              <motion.a whileHover={{ y: -5 }} href={linkedinUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
+                <Linkedin className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
+              </motion.a>
+            </div>
 
             {/*<span className="font-hand text-2xl text-primary font-bold opacity-80 rotate-[-2deg] inline-block">
               “Hand-bound in Dublin 2.”

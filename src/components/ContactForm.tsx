@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, CheckCircle, MapPin, Mail, Phone, Clock, Instagram, Linkedin, HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useOrders } from '../OrderStore';
+import { useSiteInfo } from '../SiteInfoStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,8 +19,16 @@ const staggerContainer = {
   }
 };
 
+const FALLBACK_PHONE_DISPLAY = '+1 (678) 656-8814';
+const FALLBACK_PHONE_TEL = 'tel:+16786568814';
+const FALLBACK_X = 'https://x.com/cuva.tech';
+const FALLBACK_TIKTOK = 'https://www.tiktok.com/@cuva.tech';
+const FALLBACK_INSTAGRAM = 'https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx';
+const FALLBACK_LINKEDIN = 'https://www.linkedin.com/company/cuva-tech/';
+
 export default function ContactForm() {
   const { addOrder } = useOrders();
+  const { siteInfo } = useSiteInfo();
   const [formInputs, setFormInputs] = useState({
     fullName: '',
     companyName: '',
@@ -48,6 +57,18 @@ export default function ContactForm() {
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputs(prev => ({ ...prev, consent: e.target.checked }));
   };
+
+  const address = siteInfo.address || '2108 Bradley Court, Springfield IL';
+  const email = siteInfo.email || 'info@cuvatech.com';
+  const phoneDisplay = siteInfo.phone || FALLBACK_PHONE_DISPLAY;
+  const phoneTel = siteInfo.phone ? 'tel:+' + siteInfo.phone.replace(/\D/g, '') : FALLBACK_PHONE_TEL;
+  const hours = siteInfo.openingHours
+    ? `Monday – Friday: ${siteInfo.openingHours}${siteInfo.closingHours ? ' - ' + siteInfo.closingHours : ''} GMT`
+    : 'Monday – Friday: 09:00 - 17:30 GMT';
+  const xUrl = siteInfo.socials.x || FALLBACK_X;
+  const tiktokUrl = siteInfo.socials.tiktok || FALLBACK_TIKTOK;
+  const instagramUrl = siteInfo.socials.instagram || FALLBACK_INSTAGRAM;
+  const linkedinUrl = siteInfo.socials.linkedin || FALLBACK_LINKEDIN;
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,7 +169,7 @@ export default function ContactForm() {
               </div>
 
               <span className="font-sans text-[10px] text-charcoal/40 text-center block font-medium">
-                (2108 Bradley Court, Springfield IL)
+                ({address})
               </span>
             </div>
 
@@ -160,7 +181,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Cuva Studio HQ</strong>
-                  <span className="text-charcoal/60">2108 Bradley Court, Springfield IL</span>
+                  <span className="text-charcoal/60">{address}</span>
                 </div>
               </div>
 
@@ -170,7 +191,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Email Correspondence</strong>
-                  <a href="mailto:info@cuvatech.com" className="text-primary hover:underline font-bold">info@cuvatech.com</a>
+                  <a href={`mailto:${email}`} className="text-primary hover:underline font-bold">{email}</a>
                 </div>
               </div>
 
@@ -180,7 +201,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Direct Phone Hub</strong>
-                  <a href="tel:+16786568814" className="text-primary font-bold">+1 (678) 656-8814</a>
+                  <a href={phoneTel} className="text-primary font-bold">{phoneDisplay}</a>
                 </div>
               </div>
 
@@ -190,7 +211,7 @@ export default function ContactForm() {
                 </span>
                 <div>
                   <strong className="text-charcoal block font-bold">Studio Availability</strong>
-                  <span className="text-charcoal/60">Monday – Friday: 09:00 - 17:30 GMT</span>
+                  <span className="text-charcoal/60">{hours}</span>
                 </div>
               </div>
             </div>
@@ -198,20 +219,20 @@ export default function ContactForm() {
             {/* Social Grid */}
             <div className="pt-6 border-t border-charcoal/5 flex items-center space-x-4">
               <span className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest font-sans">Connect:</span>
-              <motion.a whileHover={{ y: -5 }} href="https://x.com/cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
+              <motion.a whileHover={{ y: -5 }} href={xUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="X">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </motion.a>
-              <motion.a whileHover={{ y: -5 }} href="https://www.tiktok.com/@cuva.tech" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
+              <motion.a whileHover={{ y: -5 }} href={tiktokUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="TikTok">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                 </svg>
               </motion.a>
-              <motion.a whileHover={{ y: -5 }} href="https://www.instagram.com/cuva.tech?igsh=MTJnbmM5Mm03Y2Fx" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
+              <motion.a whileHover={{ y: -5 }} href={instagramUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="Instagram">
                 <Instagram className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
               </motion.a>
-              <motion.a whileHover={{ y: -5 }} href="https://www.linkedin.com/company/cuva-tech/" target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
+              <motion.a whileHover={{ y: -5 }} href={linkedinUrl} target="_blank" rel="noreferrer" className="p-2.5 bg-white hover:bg-bg border border-charcoal/5 rounded-full transition-all shadow-sm group" title="LinkedIn">
                 <Linkedin className="w-4 h-4 text-charcoal group-hover:text-primary transition-colors" />
               </motion.a>
             </div>

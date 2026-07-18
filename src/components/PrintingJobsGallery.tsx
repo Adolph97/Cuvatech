@@ -1,9 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-
-// Vite-compatible image import - correct path to gallery folder
-const imageModules = import.meta.glob('../assets/gallery/*.{jpg,jpeg,png,webp}', { eager: true });
-const images: string[] = Object.values(imageModules).map((mod: any) => mod.default || mod);
+import type { PortfolioItem } from '../types';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -16,6 +13,17 @@ const fadeInScale = {
 };
 
 export default function PrintingJobsGallery() {
+  const [items, setItems] = useState<PortfolioItem[]>([]);
+
+  useEffect(() => {
+    fetch('/api/portfolio')
+      .then(res => res.json())
+      .then((data: PortfolioItem[]) => setItems(data))
+      .catch(err => console.error("Error fetching portfolio:", err));
+  }, []);
+
+  const sortedItems = [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
   return (
     <motion.section
       id="printing-jobs"
@@ -46,26 +54,60 @@ export default function PrintingJobsGallery() {
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
         >
           <AnimatePresence>
-            {images.map((src, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="overflow-hidden rounded-xl border border-charcoal/5 shadow-sm aspect-square group"
-              >
-                <img
-                  src={src}
-                  alt={`Printing job ${idx + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-              </motion.div>
-            ))}
+            {sortedItems.map((item, idx) => {
+              const cardContent = (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="overflow-hidden rounded-xl border border-charcoal/5 shadow-sm group bg-bg flex flex-col"
+                >
+                  <div className="aspect-square overflow-hidden">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                        <span className="font-display text-charcoal/30 text-sm font-bold px-2 text-center">
+                          {item.title}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-display text-sm font-bold text-charcoal">{item.title}</h3>
+                    {item.description && (
+                      <p className="font-sans text-xs text-charcoal/60 leading-relaxed mt-1">{item.description}</p>
+                    )}
+                  </div>
+                </motion.div>
+              );
+
+              return item.link ? (
+                <a
+                  key={item.id}
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contents"
+                >
+                  {cardContent}
+                </a>
+              ) : (
+                <div key={item.id} className="contents">
+                  {cardContent}
+                </div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
-        {images.length === 0 && (
+        {items.length === 0 && (
           <motion.div
             variants={fadeInUp}
             className="text-center py-20 bg-white border border-charcoal/5 rounded-3xl"

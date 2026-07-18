@@ -30,6 +30,8 @@ import {
   StickyNote,
   Send,
   Image as ImageIcon,
+  Images,
+  Info,
   Download,
   ArrowUpRight,
   X,
@@ -42,6 +44,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getProductWeightPerUnitKg, getProductMinOrderWeightKg } from '../printingWeight';
+import BlogEditor from './admin/BlogEditor';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 15 },
@@ -69,7 +72,7 @@ export default function AdminDashboard() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Tab switching
-  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products' | 'Graphics'>('Overview');
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products' | 'Graphics' | 'Portfolio' | 'Blog' | 'Site Info'>('Overview');
 
   // Products state
   const [products, setProducts] = useState<any[]>([]);
@@ -94,6 +97,59 @@ export default function AdminDashboard() {
   });
   const [productImageUploading, setProductImageUploading] = useState(false);
   const [productImageError, setProductImageError] = useState('');
+
+  // Portfolio state
+  const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
+  const [editingPortfolio, setEditingPortfolio] = useState<any | null>(null);
+  const [showAddPortfolio, setShowAddPortfolio] = useState(false);
+  const [portfolioForm, setPortfolioForm] = useState({
+    id: '',
+    title: '',
+    description: '',
+    imageUrl: '',
+    link: '',
+    category: '',
+    order: 0
+  });
+  const [portfolioImageUploading, setPortfolioImageUploading] = useState(false);
+  const [portfolioImageError, setPortfolioImageError] = useState('');
+
+  // Blog state
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [blogLoading, setBlogLoading] = useState(false);
+  const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [showAddPost, setShowAddPost] = useState(false);
+  const [postForm, setPostForm] = useState({
+    id: '',
+    title: '',
+    excerpt: '',
+    content: '',
+    coverImageUrl: '',
+    author: '',
+    tagsText: '',
+    status: 'draft'
+  });
+  const [postCoverUploading, setPostCoverUploading] = useState(false);
+  const [postCoverError, setPostCoverError] = useState('');
+
+  // Site info state
+  const [siteInfo, setSiteInfo] = useState<any>({
+    phone: '',
+    email: '',
+    address: '',
+    openingHours: '',
+    closingHours: '',
+    brandTagline: '',
+    socials: { x: '', tiktok: '', instagram: '', linkedin: '' }
+  });
+  const [siteInfoLoading, setSiteInfoLoading] = useState(false);
+
+  // Canva Studio form state
+  const [canvaForm, setCanvaForm] = useState({
+    createUrl: '',
+    templatesText: ''
+  });
 
   // Order selection / search
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -185,6 +241,66 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, activeTab]);
 
+  // Load portfolio / blog / site-info when their tabs are active
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    if (activeTab === 'Portfolio' && portfolio.length === 0) {
+      setPortfolioLoading(true);
+      fetch('/api/portfolio')
+        .then(res => res.json())
+        .then(data => setPortfolio(Array.isArray(data) ? data : []))
+        .catch(err => console.error('Error loading portfolio:', err))
+        .finally(() => setPortfolioLoading(false));
+    }
+
+    if (activeTab === 'Blog' && blogPosts.length === 0) {
+      setBlogLoading(true);
+      fetch('/api/blog')
+        .then(res => res.json())
+        .then(data => setBlogPosts(Array.isArray(data) ? data : []))
+        .catch(err => console.error('Error loading blog:', err))
+        .finally(() => setBlogLoading(false));
+    }
+
+    if (activeTab === 'Site Info') {
+      setSiteInfoLoading(true);
+      fetch('/api/site-info')
+        .then(res => res.json())
+        .then(data => {
+          setSiteInfo({
+            phone: data.phone || '',
+            email: data.email || '',
+            address: data.address || '',
+            openingHours: data.openingHours || '',
+            closingHours: data.closingHours || '',
+            brandTagline: data.brandTagline || '',
+            socials: {
+              x: data.socials?.x || '',
+              tiktok: data.socials?.tiktok || '',
+              instagram: data.socials?.instagram || '',
+              linkedin: data.socials?.linkedin || ''
+            }
+          });
+        })
+        .catch(err => console.error('Error loading site info:', err))
+        .finally(() => setSiteInfoLoading(false));
+    }
+  }, [isAuthenticated, activeTab]);
+
+  // Initialize Canva Studio form from loaded settings
+  useEffect(() => {
+    if (settings.canva) {
+      setCanvaForm({
+        createUrl: settings.canva.createUrl || '',
+        templatesText: (settings.canva.templates || [])
+          .map((t: any) => t.url || t.label || '')
+          .filter(Boolean)
+          .join('\n')
+      });
+    }
+  }, [settings]);
+
   // ── Auth ──────────────────────────────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,6 +335,12 @@ export default function AdminDashboard() {
     setUsernameInput('');
     setPasswordInput('');
   };
+
+  // Auth header helper for protected admin endpoints (portfolio/blog/site-info)
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${sessionStorage.getItem('cuva_admin_token') || ''}`
+  });
 
   // ── Product Management ───────────────────────────────────────────────────
 
@@ -321,6 +443,245 @@ export default function AdminDashboard() {
       }
     } catch {
       alert('Error connecting to server');
+    }
+  };
+
+  // ── Portfolio Management ──────────────────────────────────────────────
+
+  const handleAddPortfolio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/portfolio', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title: portfolioForm.title,
+          description: portfolioForm.description || undefined,
+          imageUrl: portfolioForm.imageUrl || undefined,
+          link: portfolioForm.link || undefined,
+          category: portfolioForm.category || undefined,
+          order: Number(portfolioForm.order) || 0
+        })
+      });
+      if (res.ok) {
+        const item = await res.json();
+        setPortfolio([...portfolio, item]);
+        setShowAddPortfolio(false);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to add portfolio item');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleUpdatePortfolio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPortfolio) return;
+    try {
+      const res = await fetch(`/api/portfolio/${editingPortfolio.id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title: portfolioForm.title,
+          description: portfolioForm.description || undefined,
+          imageUrl: portfolioForm.imageUrl || undefined,
+          link: portfolioForm.link || undefined,
+          category: portfolioForm.category || undefined,
+          order: Number(portfolioForm.order) || 0
+        })
+      });
+      if (res.ok) {
+        const item = await res.json();
+        setPortfolio(portfolio.map((p: any) => p.id === editingPortfolio.id ? item : p));
+        setEditingPortfolio(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to update portfolio item');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleDeletePortfolio = async (id: string) => {
+    if (!confirm('Delete this portfolio item? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/portfolio/${id}`, { method: 'DELETE', headers: authHeaders() });
+      if (res.ok) {
+        setPortfolio(portfolio.filter((p: any) => p.id !== id));
+      } else {
+        alert('Failed to delete portfolio item');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handlePortfolioImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setPortfolioImageError('Choose a PNG, JPG, GIF, SVG, or WebP image.');
+      return;
+    }
+    setPortfolioImageError('');
+    setPortfolioImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Image upload failed');
+      setPortfolioForm(current => ({ ...current, imageUrl: data.url }));
+    } catch (error) {
+      setPortfolioImageError(error instanceof Error ? error.message : 'Image upload failed');
+    } finally {
+      setPortfolioImageUploading(false);
+    }
+  };
+
+  // ── Blog Management ───────────────────────────────────────────────────
+
+  const handleAddPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/blog', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title: postForm.title,
+          excerpt: postForm.excerpt || undefined,
+          content: postForm.content,
+          coverImageUrl: postForm.coverImageUrl || undefined,
+          author: postForm.author || undefined,
+          tags: postForm.tagsText.split(',').map(s => s.trim()).filter(Boolean),
+          status: postForm.status
+        })
+      });
+      if (res.ok) {
+        const post = await res.json();
+        setBlogPosts([...blogPosts, post]);
+        setShowAddPost(false);
+        setEditingPost(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to add post');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleUpdatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPost) return;
+    try {
+      const res = await fetch(`/api/blog/${editingPost.id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title: postForm.title,
+          excerpt: postForm.excerpt || undefined,
+          content: postForm.content,
+          coverImageUrl: postForm.coverImageUrl || undefined,
+          author: postForm.author || undefined,
+          tags: postForm.tagsText.split(',').map(s => s.trim()).filter(Boolean),
+          status: postForm.status
+        })
+      });
+      if (res.ok) {
+        const post = await res.json();
+        setBlogPosts(blogPosts.map((p: any) => p.id === editingPost.id ? post : p));
+        setShowAddPost(false);
+        setEditingPost(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to update post');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleDeletePost = async (id: string) => {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/blog/${id}`, { method: 'DELETE', headers: authHeaders() });
+      if (res.ok) {
+        setBlogPosts(blogPosts.filter((p: any) => p.id !== id));
+      } else {
+        alert('Failed to delete post');
+      }
+    } catch {
+      alert('Error connecting to server');
+    }
+  };
+
+  const handlePostCoverUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setPostCoverError('Choose a PNG, JPG, GIF, SVG, or WebP image.');
+      return;
+    }
+    setPostCoverError('');
+    setPostCoverUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Image upload failed');
+      setPostForm(current => ({ ...current, coverImageUrl: data.url }));
+    } catch (error) {
+      setPostCoverError(error instanceof Error ? error.message : 'Image upload failed');
+    } finally {
+      setPostCoverUploading(false);
+    }
+  };
+
+  // ── Site Info ─────────────────────────────────────────────────────────
+
+  const handleSaveSiteInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/site-info', {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(siteInfo)
+      });
+      if (res.ok) {
+        alert('Site information saved successfully.');
+      } else {
+        alert('Failed to save site information.');
+      }
+    } catch {
+      alert('Error connecting to backend.');
+    }
+  };
+
+  // ── Canva Studio settings ─────────────────────────────────────────────
+
+  const handleSaveCanvaSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const templates = canvaForm.templatesText
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((url) => ({ label: url, url }));
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canva: { createUrl: canvaForm.createUrl, templates } })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setSettings({ ...settings, ...updated });
+        alert('Canva Studio settings saved successfully.');
+      } else {
+        alert('Failed to save Canva settings.');
+      }
+    } catch {
+      alert('Error connecting to backend.');
     }
   };
 
@@ -739,6 +1100,9 @@ export default function AdminDashboard() {
               { id: 'Notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
               { id: 'Products', label: 'Products', icon: <Layers className="w-4 h-4" /> },
               { id: 'Graphics', label: 'Graphics', icon: <ImageIcon className="w-4 h-4" /> },
+              { id: 'Portfolio', label: 'Portfolio', icon: <Images className="w-4 h-4" /> },
+              { id: 'Blog', label: 'Blog', icon: <FileText className="w-4 h-4" /> },
+              { id: 'Site Info', label: 'Site Info', icon: <Info className="w-4 h-4" /> },
               { id: 'Settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
             ].map((item) => (
               <button
@@ -806,6 +1170,9 @@ export default function AdminDashboard() {
               {activeTab === 'Products' && 'Product Catalog Management'}
               {activeTab === 'Graphics' && 'Graphics Library'}
               {activeTab === 'Settings' && 'Console & Integration Settings'}
+              {activeTab === 'Portfolio' && 'Portfolio Showcase'}
+              {activeTab === 'Blog' && 'Blog & Articles'}
+              {activeTab === 'Site Info' && 'Site Information'}
             </h1>
             <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
               {activeTab === 'Overview' && 'Real-time orders from Cuva landing page. Click an order to manage it.'}
@@ -815,6 +1182,9 @@ export default function AdminDashboard() {
               {activeTab === 'Products' && 'Add, edit, and remove products from the catalog.'}
               {activeTab === 'Graphics' && 'View and manage all uploaded logo and design files.'}
               {activeTab === 'Settings' && 'Update credentials, Stripe, PayPal and Canva API keys.'}
+              {activeTab === 'Portfolio' && 'Manage the portfolio items shown on the public site.'}
+              {activeTab === 'Blog' && 'Write and publish blog posts.'}
+              {activeTab === 'Site Info' && 'Edit contact details, hours, and social links.'}
             </p>
           </div>
 
@@ -1392,7 +1762,7 @@ export default function AdminDashboard() {
 
         {/* ── TAB: SETTINGS ─────────────────────────────────────────────────── */}
         {activeTab === 'Settings' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
             {/* API Keys */}
             <div className="bg-white border border-charcoal/5 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
@@ -1576,19 +1946,53 @@ export default function AdminDashboard() {
             </form>
         </div>
 
+            {/* Canva Studio */}
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+              <div className="flex items-center space-x-3 border-b border-charcoal/5 pb-6">
+                <div className="bg-primary/10 p-3 rounded-xl text-primary"><Sparkles className="w-5 h-5" /></div>
+                <h3 className="font-display text-xl font-bold">Canva Studio</h3>
+              </div>
+
+              <form onSubmit={handleSaveCanvaSettings} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Canva Create URL</label>
+                  <input
+                    type="text"
+                    value={canvaForm.createUrl}
+                    onChange={(e) => setCanvaForm({ ...canvaForm, createUrl: e.target.value })}
+                    placeholder="https://www.canva.com/brand/..."
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-mono text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Template URLs (one per line)</label>
+                  <textarea
+                    rows={5}
+                    value={canvaForm.templatesText}
+                    onChange={(e) => setCanvaForm({ ...canvaForm, templatesText: e.target.value })}
+                    placeholder="https://www.canva.com/design/...&#10;https://www.canva.com/design/..."
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-mono text-xs resize-none"
+                  />
+                  <p className="text-[9px] text-charcoal/30 font-medium">Each line becomes a selectable Canva template.</p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
+                >
+                  Save Canva Studio
+                </button>
+              </form>
+            </div>
+
         </div>
         )}
 
         {/* ── TAB: PRODUCTS ───────────────────────────────────────────────────── */}
         {activeTab === 'Products' && (
           <div className="space-y-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="font-display text-3xl font-extrabold">Product Catalog</h1>
-                <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
-                  Manage printing products, pricing, and specifications.
-                </p>
-              </div>
+            <div className="flex items-center justify-end mb-6">
               <button
                 onClick={() => {
                   setShowAddProduct(true);
@@ -1702,13 +2106,7 @@ export default function AdminDashboard() {
         {/* ── TAB: GRAPHICS LIBRARY ───────────────────────────────────────────── */}
         {activeTab === 'Graphics' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="font-display text-3xl font-extrabold">Graphics Library</h1>
-                <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
-                  View and manage all uploaded logo and design files.
-                </p>
-              </div>
+            <div className="flex items-center justify-end mb-6">
               <div className="relative">
                 <Search className="w-4 h-4 text-charcoal/20 absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
@@ -1790,6 +2188,577 @@ export default function AdminDashboard() {
                     ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: PORTFOLIO ─────────────────────────────────────────────────── */}
+        {activeTab === 'Portfolio' && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-end mb-6">
+              <button
+                onClick={() => {
+                  setShowAddPortfolio(true);
+                  setEditingPortfolio(null);
+                  setPortfolioForm({ id: '', title: '', description: '', imageUrl: '', link: '', category: '', order: 0 });
+                  setPortfolioImageError('');
+                }}
+                className="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 flex items-center space-x-2 cursor-pointer hover:scale-[1.02] transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Portfolio</span>
+              </button>
+            </div>
+
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 overflow-hidden">
+              <div className="p-8 border-b border-charcoal/5">
+                <h2 className="font-display text-xl font-bold">Portfolio Items ({portfolio.length})</h2>
+              </div>
+
+              {portfolioLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <span className="text-charcoal/40 font-medium">Loading portfolio...</span>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em] bg-bg/50">
+                        <th className="px-6 py-4">Image</th>
+                        <th className="px-6 py-4">Title</th>
+                        <th className="px-6 py-4">Category</th>
+                        <th className="px-6 py-4">Link</th>
+                        <th className="px-6 py-4">Order</th>
+                        <th className="px-6 py-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-charcoal/5 text-sm font-sans">
+                      {portfolio.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="text-center py-12 text-charcoal/30 font-medium">No portfolio items found.</td>
+                        </tr>
+                      ) : (
+                        portfolio.map((item: any) => (
+                          <tr key={item.id} className="hover:bg-bg/50 transition-all">
+                            <td className="px-6 py-4">
+                              {item.imageUrl ? (
+                                <img src={item.imageUrl} alt={item.title} className="w-12 h-12 rounded-lg object-cover border border-charcoal/5" />
+                              ) : (
+                                <div className="w-12 h-12 rounded-lg bg-bg flex items-center justify-center"><Images className="w-4 h-4 text-charcoal/30" /></div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 font-bold">{item.title}</td>
+                            <td className="px-6 py-4">
+                              {item.category ? (
+                                <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-primary/10 text-primary">{item.category}</span>
+                              ) : <span className="text-charcoal/30">—</span>}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item.link ? (
+                                <a href={item.link} target="_blank" rel="noreferrer" className="text-primary font-bold hover:underline flex items-center gap-1">
+                                  Open <ArrowUpRight className="w-3 h-3" />
+                                </a>
+                              ) : <span className="text-charcoal/30">—</span>}
+                            </td>
+                            <td className="px-6 py-4 font-bold">{item.order ?? 0}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingPortfolio(item);
+                                    setPortfolioForm({
+                                      id: item.id,
+                                      title: item.title,
+                                      description: item.description || '',
+                                      imageUrl: item.imageUrl || '',
+                                      link: item.link || '',
+                                      category: item.category || '',
+                                      order: Number(item.order) || 0
+                                    });
+                                    setPortfolioImageError('');
+                                  }}
+                                  className="p-2 rounded-lg bg-bg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
+                                  title="Edit item"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePortfolio(item.id)}
+                                  className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition-all cursor-pointer"
+                                  title="Delete item"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Add/Edit Portfolio Modal */}
+        <AnimatePresence>
+          {(showAddPortfolio || editingPortfolio) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-8"
+              onClick={() => { setShowAddPortfolio(false); setEditingPortfolio(null); }}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                className="bg-white rounded-[2.5rem] p-10 max-w-lg w-full shadow-2xl space-y-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-2xl font-bold">
+                    {editingPortfolio ? 'Edit Portfolio Item' : 'Add Portfolio Item'}
+                  </h3>
+                  <button
+                    onClick={() => { setShowAddPortfolio(false); setEditingPortfolio(null); }}
+                    className="p-2 rounded-full hover:bg-bg transition-all cursor-pointer"
+                  >
+                    <X className="w-5 h-5 text-charcoal/40" />
+                  </button>
+                </div>
+
+                <form onSubmit={editingPortfolio ? handleUpdatePortfolio : handleAddPortfolio} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={portfolioForm.title}
+                      onChange={(e) => setPortfolioForm({ ...portfolioForm, title: e.target.value })}
+                      placeholder="Project title"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Image</label>
+                    <div className="flex items-center gap-4 rounded-xl bg-bg p-3">
+                      {portfolioForm.imageUrl ? (
+                        <img src={portfolioForm.imageUrl} alt="Preview" className="h-16 w-16 rounded-lg border border-charcoal/10 object-cover" />
+                      ) : (
+                        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-charcoal/20 bg-white">
+                          <Images className="w-5 h-5 text-charcoal/30" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition-colors hover:text-primary">
+                          <UploadCloud className="w-4 h-4" />
+                          <span>{portfolioImageUploading ? 'Uploading...' : 'Upload image'}</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
+                            disabled={portfolioImageUploading}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePortfolioImageUpload(f); e.currentTarget.value = ''; }}
+                            className="sr-only"
+                          />
+                        </label>
+                        {portfolioForm.imageUrl && (
+                          <button type="button" onClick={() => setPortfolioForm(current => ({ ...current, imageUrl: '' }))} className="ml-3 text-xs font-bold text-charcoal/50 hover:text-primary">Remove</button>
+                        )}
+                        {portfolioImageError && <p role="alert" className="mt-1 text-[10px] font-bold text-red-500">{portfolioImageError}</p>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Description</label>
+                    <textarea
+                      rows={3}
+                      value={portfolioForm.description}
+                      onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })}
+                      placeholder="Short description"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Link</label>
+                    <input
+                      type="text"
+                      value={portfolioForm.link}
+                      onChange={(e) => setPortfolioForm({ ...portfolioForm, link: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Category</label>
+                      <input
+                        type="text"
+                        value={portfolioForm.category}
+                        onChange={(e) => setPortfolioForm({ ...portfolioForm, category: e.target.value })}
+                        placeholder="branding"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Order</label>
+                      <input
+                        type="number"
+                        value={portfolioForm.order}
+                        onChange={(e) => setPortfolioForm({ ...portfolioForm, order: Number(e.target.value) })}
+                        placeholder="0"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all cursor-pointer"
+                    >
+                      {editingPortfolio ? 'Update Item' : 'Add Item'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowAddPortfolio(false); setEditingPortfolio(null); }}
+                      className="bg-bg border border-charcoal/10 text-charcoal py-4 px-6 rounded-2xl font-bold text-sm hover:bg-white transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── TAB: BLOG ─────────────────────────────────────────────────────── */}
+        {activeTab === 'Blog' && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-end mb-6">
+              <button
+                onClick={() => {
+                  setShowAddPost(true);
+                  setEditingPost(null);
+                  setPostForm({ id: '', title: '', excerpt: '', content: '', coverImageUrl: '', author: '', tagsText: '', status: 'draft' });
+                  setPostCoverError('');
+                }}
+                className="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 flex items-center space-x-2 cursor-pointer hover:scale-[1.02] transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Post</span>
+              </button>
+            </div>
+
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 overflow-hidden">
+              <div className="p-8 border-b border-charcoal/5">
+                <h2 className="font-display text-xl font-bold">Blog Posts ({blogPosts.length})</h2>
+              </div>
+
+              {blogLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <span className="text-charcoal/40 font-medium">Loading posts...</span>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em] bg-bg/50">
+                        <th className="px-6 py-4">Title</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4">Author</th>
+                        <th className="px-6 py-4">Updated</th>
+                        <th className="px-6 py-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-charcoal/5 text-sm font-sans">
+                      {blogPosts.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center py-12 text-charcoal/30 font-medium">No posts found.</td>
+                        </tr>
+                      ) : (
+                        blogPosts.map((post: any) => (
+                          <tr key={post.id} className="hover:bg-bg/50 transition-all">
+                            <td className="px-6 py-4 font-bold">{post.title}</td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${post.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {post.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">{post.author || '—'}</td>
+                            <td className="px-6 py-4 text-charcoal/40 font-mono text-xs">
+                              {post.updatedAt ? new Date(post.updatedAt).toLocaleDateString() : (post.createdAt ? new Date(post.createdAt).toLocaleDateString() : '—')}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingPost(post);
+                                    setPostForm({
+                                      id: post.id,
+                                      title: post.title,
+                                      excerpt: post.excerpt || '',
+                                      content: post.content || '',
+                                      coverImageUrl: post.coverImageUrl || '',
+                                      author: post.author || '',
+                                      tagsText: (post.tags || []).join(', '),
+                                      status: post.status || 'draft'
+                                    });
+                                    setPostCoverError('');
+                                    setShowAddPost(true);
+                                  }}
+                                  className="p-2 rounded-lg bg-bg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
+                                  title="Edit post"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePost(post.id)}
+                                  className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition-all cursor-pointer"
+                                  title="Delete post"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Add/Edit Post Modal */}
+        <AnimatePresence>
+          {showAddPost && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-8"
+              onClick={() => { setShowAddPost(false); setEditingPost(null); }}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                className="bg-white rounded-[2.5rem] p-10 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-2xl font-bold">
+                    {editingPost ? 'Edit Post' : 'Add New Post'}
+                  </h3>
+                  <button
+                    onClick={() => { setShowAddPost(false); setEditingPost(null); }}
+                    className="p-2 rounded-full hover:bg-bg transition-all cursor-pointer"
+                  >
+                    <X className="w-5 h-5 text-charcoal/40" />
+                  </button>
+                </div>
+
+                <form onSubmit={editingPost ? handleUpdatePost : handleAddPost} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={postForm.title}
+                      onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
+                      placeholder="Post title"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Excerpt</label>
+                    <textarea
+                      rows={2}
+                      value={postForm.excerpt}
+                      onChange={(e) => setPostForm({ ...postForm, excerpt: e.target.value })}
+                      placeholder="Short summary"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Content</label>
+                    <BlogEditor
+                      value={postForm.content}
+                      onChange={(html) => setPostForm({ ...postForm, content: html })}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Author</label>
+                      <input
+                        type="text"
+                        value={postForm.author}
+                        onChange={(e) => setPostForm({ ...postForm, author: e.target.value })}
+                        placeholder="Author name"
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Status</label>
+                      <select
+                        value={postForm.status}
+                        onChange={(e) => setPostForm({ ...postForm, status: e.target.value })}
+                        className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none font-bold"
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Tags (comma separated)</label>
+                    <input
+                      type="text"
+                      value={postForm.tagsText}
+                      onChange={(e) => setPostForm({ ...postForm, tagsText: e.target.value })}
+                      placeholder="printing, branding"
+                      className="w-full bg-bg border-none px-4 py-3 rounded-xl text-sm outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest">Cover Image</label>
+                    <div className="flex items-center gap-4 rounded-xl bg-bg p-3">
+                      {postForm.coverImageUrl ? (
+                        <img src={postForm.coverImageUrl} alt="Cover preview" className="h-16 w-16 rounded-lg border border-charcoal/10 object-cover" />
+                      ) : (
+                        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-charcoal/20 bg-white">
+                          <ImageIcon className="w-5 h-5 text-charcoal/30" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition-colors hover:text-primary">
+                          <UploadCloud className="w-4 h-4" />
+                          <span>{postCoverUploading ? 'Uploading...' : 'Upload cover'}</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
+                            disabled={postCoverUploading}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePostCoverUpload(f); e.currentTarget.value = ''; }}
+                            className="sr-only"
+                          />
+                        </label>
+                        {postForm.coverImageUrl && (
+                          <button type="button" onClick={() => setPostForm(current => ({ ...current, coverImageUrl: '' }))} className="ml-3 text-xs font-bold text-charcoal/50 hover:text-primary">Remove</button>
+                        )}
+                        {postCoverError && <p role="alert" className="mt-1 text-[10px] font-bold text-red-500">{postCoverError}</p>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all cursor-pointer"
+                    >
+                      {editingPost ? 'Update Post' : 'Add Post'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowAddPost(false); setEditingPost(null); }}
+                      className="bg-bg border border-charcoal/10 text-charcoal py-4 px-6 rounded-2xl font-bold text-sm hover:bg-white transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── TAB: SITE INFO ─────────────────────────────────────────────────── */}
+        {activeTab === 'Site Info' && (
+          <div className="space-y-8">
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 p-10">
+              {siteInfoLoading && (
+                <div className="flex items-center gap-3 text-charcoal/40 font-medium mb-6">
+                  <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                  <span>Loading site information...</span>
+                </div>
+              )}
+              <form onSubmit={handleSaveSiteInfo} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Phone</label>
+                    <input type="text" value={siteInfo.phone} onChange={(e) => setSiteInfo({ ...siteInfo, phone: e.target.value })} placeholder="+233 ..." className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email</label>
+                    <input type="text" value={siteInfo.email} onChange={(e) => setSiteInfo({ ...siteInfo, email: e.target.value })} placeholder="hello@cuvatech.com" className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Opening Hours</label>
+                    <input type="text" value={siteInfo.openingHours} onChange={(e) => setSiteInfo({ ...siteInfo, openingHours: e.target.value })} placeholder="9:00 AM" className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Closing Hours</label>
+                    <input type="text" value={siteInfo.closingHours} onChange={(e) => setSiteInfo({ ...siteInfo, closingHours: e.target.value })} placeholder="6:00 PM" className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Address</label>
+                  <textarea rows={2} value={siteInfo.address} onChange={(e) => setSiteInfo({ ...siteInfo, address: e.target.value })} placeholder="123 Main St, Accra" className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold resize-none" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Brand Tagline</label>
+                  <input type="text" value={siteInfo.brandTagline} onChange={(e) => setSiteInfo({ ...siteInfo, brandTagline: e.target.value })} placeholder="Engineering brands that scale." className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold" />
+                </div>
+
+                <div className="border-t border-charcoal/5 pt-6 space-y-4">
+                  <h4 className="text-sm font-bold text-charcoal/60">Social Links</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {[
+                      { key: 'x', label: 'X (Twitter)' },
+                      { key: 'tiktok', label: 'TikTok' },
+                      { key: 'instagram', label: 'Instagram' },
+                      { key: 'linkedin', label: 'LinkedIn' }
+                    ].map((s) => (
+                      <div key={s.key} className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">{s.label}</label>
+                        <input
+                          type="text"
+                          value={siteInfo.socials[s.key as keyof typeof siteInfo.socials]}
+                          onChange={(e) => setSiteInfo({ ...siteInfo, socials: { ...siteInfo.socials, [s.key]: e.target.value } })}
+                          placeholder="https://..."
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-mono text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
+                >
+                  Save Site Information
+                </button>
+              </form>
             </div>
           </div>
         )}
