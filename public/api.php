@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $db_file = __DIR__ . '/orders.json';
 $config_file = __DIR__ . '/config.json';
 $products_file = __DIR__ . '/products.json';
+$portfolio_file = __DIR__ . '/portfolio.json';
+$blog_file = __DIR__ . '/blog.json';
+$site_info_file = __DIR__ . '/site-info.json';
 
 // Initialize files if they don't exist
 if (!file_exists($db_file)) {
@@ -40,6 +43,7 @@ if (!file_exists($config_file)) {
         "stripeSecretKey" => "",
         "paypalClientId" => "",
         "canvaApiKey" => "",
+        "canva" => ["createUrl" => "https://www.canva.com/", "templates" => []],
         "paymentMode" => "sandbox",
         "deliveryFee" => 35,
         "premiumDeliveryFee" => 45,
@@ -134,6 +138,27 @@ if (!file_exists($products_file)) {
     file_put_contents($products_file, json_encode($initial_products, JSON_PRETTY_PRINT));
 }
 
+if (!file_exists($portfolio_file)) {
+    file_put_contents($portfolio_file, json_encode([], JSON_PRETTY_PRINT));
+}
+
+if (!file_exists($blog_file)) {
+    file_put_contents($blog_file, json_encode([], JSON_PRETTY_PRINT));
+}
+
+if (!file_exists($site_info_file)) {
+    $default_site_info = [
+        "phone" => "",
+        "email" => "",
+        "address" => "",
+        "openingHours" => "",
+        "closingHours" => "",
+        "socials" => ["x" => "", "tiktok" => "", "instagram" => "", "linkedin" => ""],
+        "brandTagline" => ""
+    ];
+    file_put_contents($site_info_file, json_encode($default_site_info, JSON_PRETTY_PRINT));
+}
+
 // Routing based on the path parameter rewritten by .htaccess
 $path = isset($_GET['path']) ? $_GET['path'] : '';
 
@@ -166,6 +191,35 @@ function readJsonFile($file, $fallback = []) {
 
 function writeJsonFile($file, $data) {
     file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
+}
+
+function readJsonFileRaw($file, $fallback = null) {
+    if (!file_exists($file)) {
+        return $fallback;
+    }
+    $data = json_decode(file_get_contents($file), true);
+    return $data !== null ? $data : $fallback;
+}
+
+function slugify($text) {
+    $text = strtolower(trim($text));
+    $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
+    $text = preg_replace('/\s+/', '-', $text);
+    $text = preg_replace('/-+/', '-', $text);
+    return trim($text, '-');
+}
+
+function requireAdmin() {
+    $auth = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+    $token = '';
+    if (preg_match('/^Bearer\s+(.+)$/', $auth, $m)) {
+        $token = trim($m[1]);
+    }
+    if ($token !== 'cuva_admin_secure_session_token') {
+        http_response_code(401);
+        echo json_encode(["error" => "Unauthorized"]);
+        exit();
+    }
 }
 
 // Route: admin/login
@@ -228,7 +282,8 @@ if ($path === 'admin/settings') {
         if (array_key_exists('deliveryFee', $input)) $config['deliveryFee'] = floatval($input['deliveryFee']);
         if (array_key_exists('premiumDeliveryFee', $input)) $config['premiumDeliveryFee'] = floatval($input['premiumDeliveryFee']);
         if (array_key_exists('premiumClients', $input) && is_array($input['premiumClients'])) $config['premiumClients'] = $input['premiumClients'];
-        
+        if (array_key_exists('canva', $input) && is_array($input['canva'])) $config['canva'] = $input['canva'];
+
         file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
         unset($config['password']);
         echo json_encode($config);
@@ -245,7 +300,8 @@ if ($path === 'settings/public') {
         "paymentMode" => isset($config['paymentMode']) ? $config['paymentMode'] : 'sandbox',
         "deliveryFee" => $config['deliveryFee'],
         "premiumDeliveryFee" => $config['premiumDeliveryFee'],
-        "premiumClients" => $config['premiumClients']
+        "premiumClients" => $config['premiumClients'],
+        "canva" => isset($config['canva']) ? $config['canva'] : ["createUrl" => "https://www.canva.com/", "templates" => []]
     ]);
     exit();
 }
@@ -657,6 +713,271 @@ if ($path === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         http_response_code(400);
         echo json_encode(["error" => "No file uploaded or upload error"]);
+    }
+    exit();
+}
+
+// Route: portfolio
+if ($path === 'portfolio') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        echo json_encode(readJsonFile($portfolio_file));
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        requireAdmin();
+        $input = getJsonInput();
+        $items = readJsonFile($portfolio_file);
+        if (!isset($input['title']) || !is_string($input['title']) || trim($input['title']) === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "title is required"]);
+            exit();
+        }
+        $base_id = (isset($input['id']) && trim($input['id']) !== '') ? slugify($input['id']) : slugify($input['title']);
+        foreach ($items as $it) {
+            if (isset($it['id']) && $it['id'] === $base_id) {
+                http_response_code(400);
+                echo json_encode(["error" => "Portfolio item id already exists"]);
+                exit();
+            }
+        }
+        $new_item = [
+            "id" => $base_id,
+            "title" => trim($input['title']),
+            "description" => isset($input['description']) ? $input['description'] : '',
+            "imageUrl" => isset($input['imageUrl']) && $input['imageUrl'] ? $input['imageUrl'] : null,
+            "link" => isset($input['link']) ? $input['link'] : '',
+            "category" => isset($input['category']) ? $input['category'] : '',
+            "order" => isset($input['order']) && is_numeric($input['order']) ? intval($input['order']) : 0,
+            "createdAt" => date(DATE_ISO8601)
+        ];
+        $items[] = $new_item;
+        writeJsonFile($portfolio_file, $items);
+        http_response_code(201);
+        echo json_encode($new_item);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
+    exit();
+}
+
+// Route: portfolio/:id
+if (preg_match('/^portfolio\/([^\/]+)$/', $path, $matches)) {
+    $item_id = $matches[1];
+    $items = readJsonFile($portfolio_file);
+    $idx = -1;
+    foreach ($items as $i => $it) {
+        if (isset($it['id']) && $it['id'] === $item_id) { $idx = $i; break; }
+    }
+    if ($idx === -1) {
+        http_response_code(404);
+        echo json_encode(["error" => "Portfolio item not found"]);
+        exit();
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        requireAdmin();
+        $input = getJsonInput();
+        $item = $items[$idx];
+        if (array_key_exists('title', $input)) $item['title'] = $input['title'];
+        if (array_key_exists('description', $input)) $item['description'] = $input['description'];
+        if (array_key_exists('imageUrl', $input)) $item['imageUrl'] = $input['imageUrl'] ? $input['imageUrl'] : null;
+        if (array_key_exists('link', $input)) $item['link'] = $input['link'];
+        if (array_key_exists('category', $input)) $item['category'] = $input['category'];
+        if (array_key_exists('order', $input)) $item['order'] = is_numeric($input['order']) ? intval($input['order']) : $item['order'];
+        $items[$idx] = $item;
+        writeJsonFile($portfolio_file, $items);
+        echo json_encode($item);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        requireAdmin();
+        $removed = $items[$idx];
+        if (isset($removed['imageUrl']) && $removed['imageUrl']) {
+            $fp = __DIR__ . $removed['imageUrl'];
+            if (file_exists($fp)) @unlink($fp);
+        }
+        array_splice($items, $idx, 1);
+        writeJsonFile($portfolio_file, $items);
+        echo json_encode(["success" => true, "message" => "Portfolio item " . $item_id . " deleted"]);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
+    exit();
+}
+
+// Route: blog
+if ($path === 'blog') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $posts = readJsonFile($blog_file);
+        $status = isset($_GET['status']) ? $_GET['status'] : '';
+        if ($status === 'published') {
+            $filtered = [];
+            foreach ($posts as $p) {
+                if (isset($p['status']) && $p['status'] === 'published') $filtered[] = $p;
+            }
+            echo json_encode($filtered);
+        } else {
+            echo json_encode($posts);
+        }
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        requireAdmin();
+        $input = getJsonInput();
+        $posts = readJsonFile($blog_file);
+        if (!isset($input['title']) || !is_string($input['title']) || trim($input['title']) === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "title is required"]);
+            exit();
+        }
+        if (!isset($input['content']) || !is_string($input['content']) || trim($input['content']) === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "content is required"]);
+            exit();
+        }
+        $base = (isset($input['slug']) && trim($input['slug']) !== '') ? slugify($input['slug']) : slugify($input['title']);
+        $final = $base;
+        $n = 2;
+        $taken = false;
+        do {
+            $taken = false;
+            foreach ($posts as $p) {
+                if (isset($p['slug']) && $p['slug'] === $final) { $taken = true; break; }
+            }
+            if ($taken) { $final = $base . '-' . $n; $n++; }
+        } while ($taken);
+        $new_post = [
+            "id" => "blog-" . time(),
+            "slug" => $final,
+            "title" => trim($input['title']),
+            "excerpt" => isset($input['excerpt']) ? $input['excerpt'] : '',
+            "content" => $input['content'],
+            "coverImageUrl" => isset($input['coverImageUrl']) && $input['coverImageUrl'] ? $input['coverImageUrl'] : null,
+            "author" => isset($input['author']) ? $input['author'] : '',
+            "tags" => isset($input['tags']) && is_array($input['tags']) ? $input['tags'] : [],
+            "status" => (isset($input['status']) && $input['status'] === 'published') ? 'published' : 'draft',
+            "createdAt" => date(DATE_ISO8601),
+            "updatedAt" => date(DATE_ISO8601)
+        ];
+        $posts[] = $new_post;
+        writeJsonFile($blog_file, $posts);
+        http_response_code(201);
+        echo json_encode($new_post);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
+    exit();
+}
+
+// Route: blog/:slug (GET) and blog/:id (PUT/DELETE)
+if (preg_match('/^blog\/([^\/]+)$/', $path, $matches)) {
+    $segment = $matches[1];
+    $posts = readJsonFile($blog_file);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $found = null;
+        foreach ($posts as $p) {
+            if (isset($p['slug']) && $p['slug'] === $segment && isset($p['status']) && $p['status'] === 'published') { $found = $p; break; }
+        }
+        if ($found === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Post not found"]);
+            exit();
+        }
+        echo json_encode($found);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        requireAdmin();
+        $input = getJsonInput();
+        $idx = -1;
+        foreach ($posts as $i => $p) {
+            if (isset($p['id']) && $p['id'] === $segment) { $idx = $i; break; }
+        }
+        if ($idx === -1) {
+            http_response_code(404);
+            echo json_encode(["error" => "Post not found"]);
+            exit();
+        }
+        $post = $posts[$idx];
+        $resolveSlug = function($source) use ($posts, $segment) {
+            $base = slugify($source);
+            $candidate = $base;
+            $n = 2;
+            foreach ($posts as $p) {
+                if (isset($p['slug']) && $p['slug'] === $candidate && $p['id'] !== $segment) { $candidate = $base . '-' . $n; $n++; }
+            }
+            return $candidate;
+        };
+        if (array_key_exists('slug', $input) && is_string($input['slug']) && trim($input['slug']) !== '') {
+            $post['slug'] = $resolveSlug($input['slug']);
+        } elseif (array_key_exists('title', $input) && $input['title'] !== $post['title']) {
+            $post['slug'] = $resolveSlug($input['title']);
+        }
+        if (array_key_exists('title', $input)) $post['title'] = $input['title'];
+        if (array_key_exists('content', $input)) $post['content'] = $input['content'];
+        if (array_key_exists('excerpt', $input)) $post['excerpt'] = $input['excerpt'];
+        if (array_key_exists('coverImageUrl', $input)) $post['coverImageUrl'] = $input['coverImageUrl'] ? $input['coverImageUrl'] : null;
+        if (array_key_exists('author', $input)) $post['author'] = $input['author'];
+        if (array_key_exists('tags', $input)) $post['tags'] = is_array($input['tags']) ? $input['tags'] : [];
+        if (array_key_exists('status', $input)) $post['status'] = $input['status'];
+        $post['updatedAt'] = date(DATE_ISO8601);
+        $posts[$idx] = $post;
+        writeJsonFile($blog_file, $posts);
+        echo json_encode($post);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        requireAdmin();
+        $idx = -1;
+        foreach ($posts as $i => $p) {
+            if (isset($p['id']) && $p['id'] === $segment) { $idx = $i; break; }
+        }
+        if ($idx === -1) {
+            http_response_code(404);
+            echo json_encode(["error" => "Post not found"]);
+            exit();
+        }
+        $removed = $posts[$idx];
+        if (isset($removed['coverImageUrl']) && $removed['coverImageUrl']) {
+            $fp = __DIR__ . $removed['coverImageUrl'];
+            if (file_exists($fp)) @unlink($fp);
+        }
+        array_splice($posts, $idx, 1);
+        writeJsonFile($blog_file, $posts);
+        echo json_encode(["success" => true, "message" => "Post " . $segment . " deleted"]);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
+    }
+    exit();
+}
+
+// Route: site-info
+if ($path === 'site-info') {
+    $default_site_info = [
+        "phone" => "",
+        "email" => "",
+        "address" => "",
+        "openingHours" => "",
+        "closingHours" => "",
+        "socials" => ["x" => "", "tiktok" => "", "instagram" => "", "linkedin" => ""],
+        "brandTagline" => ""
+    ];
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        echo json_encode(readJsonFileRaw($site_info_file, $default_site_info));
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        requireAdmin();
+        $input = getJsonInput() ?: [];
+        $current = readJsonFileRaw($site_info_file, $default_site_info);
+        $fields = ['phone', 'email', 'address', 'openingHours', 'closingHours', 'brandTagline'];
+        foreach ($fields as $f) {
+            if (array_key_exists($f, $input)) $current[$f] = $input[$f];
+        }
+        $socials = (isset($current['socials']) && is_array($current['socials'])) ? $current['socials'] : [];
+        $social_keys = ['x', 'tiktok', 'instagram', 'linkedin'];
+        foreach ($social_keys as $s) {
+            if (isset($input['socials']) && is_array($input['socials']) && array_key_exists($s, $input['socials'])) {
+                $socials[$s] = $input['socials'][$s];
+            }
+        }
+        $current['socials'] = $socials;
+        writeJsonFile($site_info_file, $current);
+        echo json_encode($current);
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
     }
     exit();
 }
