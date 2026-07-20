@@ -19,6 +19,7 @@ var PRODUCTS_FILE = path.join(__dirname, "products.json");
 var PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
 var BLOG_FILE = path.join(__dirname, "blog.json");
 var SITE_INFO_FILE = path.join(__dirname, "site-info.json");
+var CONTENT_FILE = path.join(__dirname, "content.json");
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
@@ -499,6 +500,46 @@ var writeSiteInfo = (info) => {
     console.error("Error writing site-info file:", err);
   }
 };
+var defaultContent = () => ({
+  homepage: {},
+  navbar: [],
+  footer: {},
+  about: {},
+  services: {},
+  testimonials: []
+});
+var isPlainObject = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+var deepMerge = (base, override) => {
+  if (!isPlainObject(base) || !isPlainObject(override)) {
+    return override === void 0 ? base : override;
+  }
+  const out = { ...base };
+  for (const key of Object.keys(override)) {
+    out[key] = isPlainObject(base[key]) && isPlainObject(override[key]) ? deepMerge(base[key], override[key]) : override[key];
+  }
+  return out;
+};
+var readContent = () => {
+  try {
+    if (!fs.existsSync(CONTENT_FILE)) {
+      const def = defaultContent();
+      fs.writeFileSync(CONTENT_FILE, JSON.stringify(def, null, 2));
+      return def;
+    }
+    const info = JSON.parse(fs.readFileSync(CONTENT_FILE, "utf8"));
+    return deepMerge(defaultContent(), info);
+  } catch (err) {
+    console.error("Error reading content file:", err);
+    return defaultContent();
+  }
+};
+var writeContent = (content) => {
+  try {
+    fs.writeFileSync(CONTENT_FILE, JSON.stringify(content, null, 2));
+  } catch (err) {
+    console.error("Error writing content file:", err);
+  }
+};
 app.get("/api/portfolio", (req, res) => {
   res.json(readPortfolio());
 });
@@ -690,6 +731,16 @@ app.put("/api/site-info", requireAdmin, (req, res) => {
   updated.socials = socials;
   writeSiteInfo(updated);
   res.json(updated);
+});
+app.get("/api/content", (req, res) => {
+  res.json(readContent());
+});
+app.put("/api/content", requireAdmin, (req, res) => {
+  const current = readContent();
+  const body = req.body || {};
+  const merged = deepMerge(current, body);
+  writeContent(merged);
+  res.json(merged);
 });
 app.get("/api/uploads", (req, res) => {
   try {

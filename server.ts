@@ -26,6 +26,7 @@ const PRODUCTS_FILE = path.join(__dirname, 'products.json');
 const PORTFOLIO_FILE = path.join(__dirname, 'portfolio.json');
 const BLOG_FILE = path.join(__dirname, 'blog.json');
 const SITE_INFO_FILE = path.join(__dirname, 'site-info.json');
+const CONTENT_FILE = path.join(__dirname, 'content.json');
 
 // Ensure uploads directory exists
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -615,6 +616,57 @@ const writeSiteInfo = (info: any) => {
   catch (err) { console.error('Error writing site-info file:', err); }
 };
 
+// ─── Generic Site Content helpers ────────────────────────────────────────────
+// A single JSON document holding all editable frontend copy (hero, nav, footer,
+// about, services, testimonials, ...). Admins PATCH slices of it; we deep-merge so
+// saving one section never clobbers the others. The committed content.json ships
+// with the full default copy, so readContent normally returns real values.
+
+const defaultContent = (): any => ({
+  homepage: {},
+  navbar: [],
+  footer: {},
+  about: {},
+  services: {},
+  testimonials: []
+});
+
+const isPlainObject = (v: any): v is Record<string, any> =>
+  !!v && typeof v === 'object' && !Array.isArray(v);
+
+const deepMerge = (base: any, override: any): any => {
+  if (!isPlainObject(base) || !isPlainObject(override)) {
+    return override === undefined ? base : override;
+  }
+  const out: any = { ...base };
+  for (const key of Object.keys(override)) {
+    out[key] = isPlainObject(base[key]) && isPlainObject(override[key])
+      ? deepMerge(base[key], override[key])
+      : override[key];
+  }
+  return out;
+};
+
+const readContent = (): any => {
+  try {
+    if (!fs.existsSync(CONTENT_FILE)) {
+      const def = defaultContent();
+      fs.writeFileSync(CONTENT_FILE, JSON.stringify(def, null, 2));
+      return def;
+    }
+    const info = JSON.parse(fs.readFileSync(CONTENT_FILE, 'utf8'));
+    return deepMerge(defaultContent(), info);
+  } catch (err) {
+    console.error('Error reading content file:', err);
+    return defaultContent();
+  }
+};
+
+const writeContent = (content: any) => {
+  try { fs.writeFileSync(CONTENT_FILE, JSON.stringify(content, null, 2)); }
+  catch (err) { console.error('Error writing content file:', err); }
+};
+
 // ─── Portfolio (Recent Printing Jobs) CRUD ─────────────────────────────────────
 
 app.get('/api/portfolio', (req, res) => {
@@ -841,6 +893,20 @@ app.put('/api/site-info', requireAdmin, (req, res) => {
 
   writeSiteInfo(updated);
   res.json(updated);
+});
+
+// ─── Generic Site Content (editable frontend copy) ─────────────────────────────
+
+app.get('/api/content', (req, res) => {
+  res.json(readContent());
+});
+
+app.put('/api/content', requireAdmin, (req, res) => {
+  const current = readContent();
+  const body = req.body || {};
+  const merged = deepMerge(current, body);
+  writeContent(merged);
+  res.json(merged);
 });
 
 // ─── Uploaded Files Management Routes ──────────────────────────────────────────
