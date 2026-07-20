@@ -56,9 +56,21 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
     { id: 'branding-printing', label: 'Branding & Printing' },
     { id: 'digital-marketing', label: 'Marketing' },
     { id: 'printing-jobs', label: 'Printing Jobs' },
+    { id: 'blog', label: 'Journal' },
     { id: 'testimonials', label: 'Reviews' },
     { id: 'contact', label: 'Say Hello' }
   ];
+
+  // Section links scroll within the landing page; "Journal" is a separate SPA
+  // route, so it uses history.pushState to switch views (same as the blog cards).
+  const handleNav = (id: string) => {
+    if (id === 'blog') {
+      window.history.pushState({ path: '/blog' }, '', '/blog');
+      setIsOpen(false);
+      return;
+    }
+    onNavigate(id);
+  };
 
   return (
     <nav
@@ -106,7 +118,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                 <button
                   id={`nav-link-${item.id}`}
                   key={item.id}
-                  onClick={() => onNavigate(item.id)}
+                  onClick={() => handleNav(item.id)}
                   className={`relative px-1 py-1 text-sm font-bold transition-all duration-150 cursor-pointer ${
                     isActive
                       ? 'text-primary'
@@ -172,7 +184,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                   key={item.id}
                   onClick={() => {
                     setIsOpen(false);
-                    onNavigate(item.id);
+                    handleNav(item.id);
                   }}
                   className={`text-left px-3 py-2 text-base font-bold border border-transparent rounded transition-all cursor-pointer ${
                     activeSection === item.id

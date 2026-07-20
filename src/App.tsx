@@ -20,6 +20,7 @@ import { SiteInfoProvider } from './SiteInfoStore';
 import AdminDashboard from './components/AdminDashboard';
 import BlogList from './components/BlogList';
 import BlogPost from './components/BlogPost';
+import BlogPreview from './components/BlogPreview';
 
 // Animation variants
 const fadeInUp = {
@@ -571,6 +572,9 @@ function LandingPage() {
 
       {/* TESTIMONIALS catalog and TrustpilotScoreboard */}
       <Testimonials />
+
+      {/* RECENT BLOG POSTS — latest 3 with link to the full Journal */}
+      <BlogPreview />
 
       {/* CONTACT FORM & custom coordinate maps */}
       <ContactForm />

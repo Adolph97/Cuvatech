@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import type { BlogPost } from '../types';
+import BlogHeader from './BlogHeader';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -40,12 +41,14 @@ export default function BlogList() {
   };
 
   return (
-    <motion.section
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-      className="py-24 bg-bg min-h-screen font-sans"
-    >
+    <>
+      <BlogHeader />
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        className="py-24 bg-bg min-h-screen font-sans"
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div variants={fadeInUp} className="text-center mb-16">
           <span className="font-sans text-xs font-bold text-primary uppercase tracking-[0.2em] block mb-2">
@@ -124,6 +127,7 @@ export default function BlogList() {
         )}
       </div>
     </motion.section>
+    </>
   );
 }
 
