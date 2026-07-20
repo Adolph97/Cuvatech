@@ -136,7 +136,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [content, setContent] = useState<any>(DEFAULT_CONTENT);
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch('/api/content', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => setContent(data && typeof data === 'object' ? data : DEFAULT_CONTENT))
       .catch(err => console.error('Error fetching site content:', err));

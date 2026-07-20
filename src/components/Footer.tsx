@@ -206,7 +206,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Bottom footer credit & Scroll to top */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-10 text-[10px] font-bold text-charcoal/20 font-sans uppercase tracking-[0.2em]">
           <div className="space-y-3 text-center md:text-left">
-            <span className="block">© 2026 Cuva Tech.</span>
+            <span className="block">{footer.copyright || '© 2026 Cuva Tech.'}</span>
           </div>
 
           <button

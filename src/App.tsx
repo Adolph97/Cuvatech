@@ -159,7 +159,7 @@ function LandingPage() {
               >
                 <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
                   <span className="relative inline-block pb-2">
-                    Optimizing Businesses.
+                    {hp.heroTitle || 'Optimizing Businesses.'}
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
