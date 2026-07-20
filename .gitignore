@@ -57,3 +57,5 @@ coverage/
 !.env.example
 uploads/
 release_version/
+
+*.json
