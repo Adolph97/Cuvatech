@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'motion/react';
 // Admin System Imports
 import { OrderProvider, useOrders } from './OrderStore';
 import { SiteInfoProvider } from './SiteInfoStore';
+import { ContentProvider, useContent } from './ContentStore';
 import AdminDashboard from './components/AdminDashboard';
 import BlogList from './components/BlogList';
 import BlogPost from './components/BlogPost';
@@ -40,6 +41,8 @@ const staggerContainer = {
 
 function LandingPage() {
   const { addOrder } = useOrders();
+  const { content } = useContent();
+  const hp = content.homepage || {};
   const [activeSection, setActiveSection] = useState('hero');
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [globalName, setGlobalName] = useState('');
@@ -167,10 +170,7 @@ function LandingPage() {
                 </h1>
                 
                 <p className="font-sans text-xl sm:text-2xl text-charcoal/60 leading-relaxed max-w-2xl font-medium">
-                  Cuva Tech is your full-service crew for IT solutions, 
-                  branding & printing, and digital marketing.  
-                  Growing businesses get one calm partner instead of 
-                  five vendors.
+                  {hp.heroSubtitle || 'Cuva Tech is your full-service crew for IT solutions, branding & printing, and digital marketing. Growing businesses get one calm partner instead of five vendors.'}
                 </p>
               </motion.div>
 
@@ -186,7 +186,7 @@ function LandingPage() {
                   whileTap={{ scale: 0.95 }}
                   className="bg-primary text-white px-8 py-5 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 cursor-pointer transition-all flex items-center space-x-2"
                 >
-                  <span>Start a project</span>
+                  <span>{hp.heroCtaPrimary || 'Start a project'}</span>
                   <ArrowRight className="w-5 h-5" />
                 </motion.button>
                 
@@ -197,7 +197,7 @@ function LandingPage() {
                   whileTap={{ scale: 0.95 }}
                   className="bg-white text-charcoal border border-charcoal/5 px-8 py-5 text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
                 >
-                  See what we do
+                  {hp.heroCtaSecondary || 'See what we do'}
                 </motion.button>
               </motion.div>
 
@@ -206,20 +206,19 @@ function LandingPage() {
                 variants={fadeInUp}
                 className="flex items-center space-x-6 sm:space-x-12 pt-10"
               >
-                <div>
-                  <div className="text-4xl font-extrabold text-charcoal">120+</div>
-                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">projects</div>
-                </div>
-                <div className="w-px h-10 bg-charcoal/5" />
-                <div>
-                  <div className="text-4xl font-extrabold text-charcoal">98%</div>
-                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">retention</div>
-                </div>
-                <div className="w-px h-10 bg-charcoal/5" />
-                <div>
-                  <div className="text-4xl font-extrabold text-charcoal">24/7</div>
-                  <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">support</div>
-                </div>
+                {(hp.stats || [
+                  { value: '120+', label: 'projects' },
+                  { value: '98%', label: 'retention' },
+                  { value: '24/7', label: 'support' }
+                ]).map((stat: any, i: number) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <div className="w-px h-10 bg-charcoal/5" />}
+                    <div>
+                      <div className="text-4xl font-extrabold text-charcoal">{stat.value}</div>
+                      <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">{stat.label}</div>
+                    </div>
+                  </React.Fragment>
+                ))}
               </motion.div>
 
               {/* "that's us!" text with emoji */}
@@ -383,78 +382,47 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-20">
-            <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">Core Ecosystem</span>
+            <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">{hp.coreOverview?.eyebrow || 'Core Ecosystem'}</span>
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal">
-              Three Unified Creative Practices
+              {hp.coreOverview?.title || 'Three Unified Creative Practices'}
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-            
-            {/* Card 1: IT Solutions */}
-            <motion.div 
-              variants={fadeInUp}
-              whileHover={{ y: -12 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
-            >
-              <div>
-               {/* <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest block mb-4">[ SYSTEMS ]</span> */}
-                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">IT Solutions</h3>
-                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
-                  Onsite servers migrated seamlessly to AWS & GCP cloud meshes, configured with multi-region backup structures.
-                </p>
-              </div>
-              <button
-                onClick={() => handleNavigate('it-services')}
-                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
-              >
-                <span>Explore more</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
-
-            {/* Card 2: Branding & Printing */}
-            <motion.div 
-              variants={fadeInUp}
-              whileHover={{ y: -12 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Branding & Print</h3>
-                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
-                  Logo design, Print Shop (T-shirts, Caps, Menus, etc.), and Free Consultations for your brand identity.
-                </p>
-              </div>
-              <button
-                onClick={() => handleNavigate('branding-printing')}
-                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
-              >
-                <span>Explore more</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
-
-            {/* Card 3: Digital Marketing */}
-            <motion.div 
-              variants={fadeInUp}
-              whileHover={{ y: -12 }}
-              className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <h3 className="font-display text-2xl font-bold text-charcoal mb-4">Digital Marketing</h3>
-                <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
-                  On-page SEO diagnostics, semantic keyword maps, Meta & Google Ad sandbox campaigns focused on CPA.
-                </p>
-              </div>
-              <button
-                onClick={() => handleNavigate('digital-marketing')}
-                className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
-              >
-                <span>Explore more</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
-
+            {(hp.coreOverview?.cards || [
+              { title: 'IT Solutions', description: 'Onsite servers migrated seamlessly to AWS & GCP cloud meshes, configured with multi-region backup structures.' },
+              { title: 'Branding & Print', description: 'Logo design, Print Shop (T-shirts, Caps, Menus, etc.), and Free Consultations for your brand identity.' },
+              { title: 'Digital Marketing', description: 'On-page SEO diagnostics, semantic keyword maps, Meta & Google Ad sandbox campaigns focused on CPA.' }
+            ]).map((card: any, i: number) => {
+              const targets = ['it-services', 'branding-printing', 'digital-marketing'];
+              const icons = [
+                <Server className="w-8 h-8 text-primary" />,
+                <Shirt className="w-8 h-8 text-primary" />,
+                <Megaphone className="w-8 h-8 text-primary" />
+              ];
+              return (
+                <motion.div 
+                  key={i}
+                  variants={fadeInUp}
+                  whileHover={{ y: -12 }}
+                  className="bg-white border border-charcoal/5 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal/5 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <h3 className="font-display text-2xl font-bold text-charcoal mb-4">{card.title}</h3>
+                    <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
+                      {card.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleNavigate(targets[i])}
+                    className="text-sm font-bold text-primary hover:text-primary/80 text-left flex items-center space-x-2 cursor-pointer transition-colors"
+                  >
+                    <span>Explore more</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </motion.section>
@@ -486,11 +454,10 @@ function LandingPage() {
               02 / Material Layer
             </span>*/}
             <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
-              Branding, Logos & Print
+              {hp.brandingSection?.title || 'Branding, Logos & Print'}
             </h2>
             <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-              We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking
-              your Canva projects directly or using our custom product configurators.
+              {hp.brandingSection?.subtitle || 'We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking your Canva projects directly or using our custom product configurators.'}
             </p>
           </div>
 
@@ -711,10 +678,12 @@ export default function App() {
   return (
     <OrderProvider>
       <SiteInfoProvider>
-        {path === '/admin' ? <AdminDashboard /> :
-         path === '/blog' ? <BlogList /> :
-         path.startsWith('/blog/') ? <BlogPost /> :
-         <LandingPage />}
+        <ContentProvider>
+          {path === '/admin' ? <AdminDashboard /> :
+           path === '/blog' ? <BlogList /> :
+           path.startsWith('/blog/') ? <BlogPost /> :
+           <LandingPage />}
+        </ContentProvider>
       </SiteInfoProvider>
     </OrderProvider>
   );
