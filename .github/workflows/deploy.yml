@@ -78,5 +78,9 @@ jobs:
             products.json
             orders.json
             config.json
+            content.json
+            site-info.json
+            portfolio.json
+            blog.json
             uploads/**
           dangerous-clean-slate: false
