@@ -385,6 +385,22 @@ const readProducts = (): any[] => {
       }
       delete product.minQty;
     }
+    // Migration: normalize any product id that is not URL-safe (e.g. contains a
+    // slash or spaces) so PUT/DELETE by id route correctly. Fixes records that
+    // were created before ids were slugified on creation.
+    const seenIds = new Set<string>();
+    let idsChanged = false;
+    products.forEach((product: any, index: number) => {
+      const safeId = slugify(product.id || '');
+      let candidate = safeId || `product-${index}`;
+      while (seenIds.has(candidate)) candidate = `${candidate}-${index}`;
+      if (candidate !== product.id) {
+        product.id = candidate;
+        idsChanged = true;
+      }
+      seenIds.add(product.id);
+    });
+    if (idsChanged) writeProducts(products);
     return products;
   } catch (err) {
     console.error('Error reading products file:', err);
@@ -415,17 +431,24 @@ app.post('/api/products', (req, res) => {
   const numericBasePrice = Number(basePrice);
   const numericMinOrderWeightKg = Number(minOrderWeightKg);
   const numericWeightPerUnitKg = Number(weightPerUnitKg);
-  if (!id || !label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isFinite(numericMinOrderWeightKg) || numericMinOrderWeightKg <= 0 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
-    return res.status(400).json({ error: 'Missing or invalid required fields: id, label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg' });
+  if (!label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isFinite(numericMinOrderWeightKg) || numericMinOrderWeightKg <= 0 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
+    return res.status(400).json({ error: 'Missing or invalid required fields: label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg' });
   }
 
-  const existingProduct = products.find((p: any) => p.id === id);
+  // Product IDs must be URL-safe so PUT/DELETE by id route correctly.
+  // Slugify the provided id, falling back to the label when none is given.
+  const productId = (id && typeof id === 'string' && id.trim()) ? slugify(id) : slugify(label);
+  if (!productId) {
+    return res.status(400).json({ error: 'A valid product id (or label) is required' });
+  }
+
+  const existingProduct = products.find((p: any) => p.id === productId);
   if (existingProduct) {
     return res.status(400).json({ error: 'Product ID already exists' });
   }
 
   const newProduct = {
-    id,
+    id: productId,
     label,
     description: description || '',
     basePrice: numericBasePrice,

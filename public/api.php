@@ -209,6 +209,39 @@ function slugify($text) {
     return trim($text, '-');
 }
 
+// Read products and normalize any non-URL-safe id (e.g. one containing a slash
+// or spaces) so PUT/DELETE by id route correctly. Writes back only when changed.
+function getProducts() {
+    global $products_file;
+    $products = readJsonFile($products_file);
+    $changed = false;
+    $seen = [];
+    foreach ($products as &$product) {
+        if (!isset($product['id']) || !is_string($product['id'])) {
+            $product['id'] = 'product-' . count($seen);
+            $changed = true;
+        } else {
+            $safe = slugify($product['id']);
+            if ($safe !== $product['id']) {
+                $product['id'] = $safe;
+                $changed = true;
+            }
+        }
+        // Guarantee uniqueness after normalization
+        if (in_array($product['id'], $seen, true)) {
+            $candidate = $product['id'] . '-' . count($seen);
+            $product['id'] = $candidate;
+            $changed = true;
+        }
+        $seen[] = $product['id'];
+    }
+    unset($product);
+    if ($changed) {
+        writeJsonFile($products_file, $products);
+    }
+    return $products;
+}
+
 function requireAdmin() {
     $auth = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
     $token = '';
@@ -309,10 +342,11 @@ if ($path === 'settings/public') {
 // Route: products
 if ($path === 'products') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        echo file_get_contents($products_file);
+        $products = getProducts();
+        echo json_encode($products);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $input = getJsonInput();
-        $products = readJsonFile($products_file);
+        $products = getProducts();
 
         $id = isset($input['id']) ? trim($input['id']) : '';
         $label = isset($input['label']) ? trim($input['label']) : '';
@@ -322,14 +356,23 @@ if ($path === 'products') {
         $min_order_weight_kg = isset($input['minOrderWeightKg']) && is_numeric($input['minOrderWeightKg']) ? floatval($input['minOrderWeightKg']) : 0;
         $weight_per_unit_kg = isset($input['weightPerUnitKg']) && is_numeric($input['weightPerUnitKg']) ? floatval($input['weightPerUnitKg']) : 0;
 
-        if ($id === '' || $label === '' || $unit_label === '' || $base_price <= 0 || $min_order_weight_kg <= 0 || $weight_per_unit_kg <= 0) {
+        if ($label === '' || $unit_label === '' || $base_price <= 0 || $min_order_weight_kg <= 0 || $weight_per_unit_kg <= 0) {
             http_response_code(400);
-            echo json_encode(["error" => "Missing or invalid required fields: id, label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg"]);
+            echo json_encode(["error" => "Missing or invalid required fields: label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg"]);
+            exit();
+        }
+
+        // Product IDs must be URL-safe so PUT/DELETE by id route correctly.
+        // Slugify the provided id, falling back to the label when none is given.
+        $raw_id = $id !== '' ? slugify($id) : slugify($label);
+        if ($raw_id === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "A valid product id (or label) is required"]);
             exit();
         }
 
         foreach ($products as $product) {
-            if (isset($product['id']) && $product['id'] === $id) {
+            if (isset($product['id']) && $product['id'] === $raw_id) {
                 http_response_code(400);
                 echo json_encode(["error" => "Product ID already exists"]);
                 exit();
@@ -337,7 +380,7 @@ if ($path === 'products') {
         }
 
         $new_product = [
-            "id" => $id,
+            "id" => $raw_id,
             "label" => $label,
             "description" => isset($input['description']) ? $input['description'] : '',
             "basePrice" => $base_price,
@@ -363,7 +406,7 @@ if ($path === 'products') {
 // Route: products/:id
 if (preg_match('/^products\/([^\/]+)$/', $path, $matches)) {
     $product_id = $matches[1];
-    $products = readJsonFile($products_file);
+    $products = getProducts();
 
     $product_index = -1;
     foreach ($products as $index => $product) {

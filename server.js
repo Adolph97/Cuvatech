@@ -16,6 +16,9 @@ var DB_FILE = path.join(__dirname, "orders.json");
 var CONFIG_FILE = path.join(__dirname, "config.json");
 var UPLOADS_DIR = path.join(__dirname, "uploads");
 var PRODUCTS_FILE = path.join(__dirname, "products.json");
+var PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
+var BLOG_FILE = path.join(__dirname, "blog.json");
+var SITE_INFO_FILE = path.join(__dirname, "site-info.json");
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
@@ -29,6 +32,7 @@ var readConfig = () => {
         stripeSecretKey: "",
         paypalClientId: "",
         canvaApiKey: "",
+        canva: { createUrl: "https://www.canva.com/", templates: [] },
         paymentMode: "sandbox",
         // Delivery fee settings
         deliveryFee: 35,
@@ -43,6 +47,7 @@ var readConfig = () => {
     if (config.deliveryFee === void 0) config.deliveryFee = 35;
     if (config.premiumDeliveryFee === void 0) config.premiumDeliveryFee = 45;
     if (!config.premiumClients) config.premiumClients = ["Jastel Water", "Surjen Healthcare"];
+    if (!config.canva) config.canva = { createUrl: "https://www.canva.com/", templates: [] };
     return config;
   } catch (err) {
     console.error("Error reading config file:", err);
@@ -148,6 +153,7 @@ app.post("/api/admin/settings", (req, res) => {
   if (deliveryFee !== void 0) config.deliveryFee = Number(deliveryFee);
   if (premiumDeliveryFee !== void 0) config.premiumDeliveryFee = Number(premiumDeliveryFee);
   if (premiumClients !== void 0) config.premiumClients = premiumClients;
+  if (req.body.canva !== void 0) config.canva = req.body.canva;
   writeConfig(config);
   const { password, ...safeSettings } = config;
   res.json(safeSettings);
@@ -161,7 +167,8 @@ app.get("/api/settings/public", (req, res) => {
     // Delivery fee settings for frontend
     deliveryFee: config.deliveryFee ?? 35,
     premiumDeliveryFee: config.premiumDeliveryFee ?? 45,
-    premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"]
+    premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"],
+    canva: config.canva || { createUrl: "https://www.canva.com/", templates: [] }
   });
 });
 app.post("/api/upload", (req, res) => {
@@ -307,6 +314,19 @@ var readProducts = () => {
       }
       delete product.minQty;
     }
+    const seenIds = /* @__PURE__ */ new Set();
+    let idsChanged = false;
+    products.forEach((product, index) => {
+      const safeId = slugify(product.id || "");
+      let candidate = safeId || `product-${index}`;
+      while (seenIds.has(candidate)) candidate = `${candidate}-${index}`;
+      if (candidate !== product.id) {
+        product.id = candidate;
+        idsChanged = true;
+      }
+      seenIds.add(product.id);
+    });
+    if (idsChanged) writeProducts(products);
     return products;
   } catch (err) {
     console.error("Error reading products file:", err);
@@ -330,15 +350,19 @@ app.post("/api/products", (req, res) => {
   const numericBasePrice = Number(basePrice);
   const numericMinOrderWeightKg = Number(minOrderWeightKg);
   const numericWeightPerUnitKg = Number(weightPerUnitKg);
-  if (!id || !label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isFinite(numericMinOrderWeightKg) || numericMinOrderWeightKg <= 0 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
-    return res.status(400).json({ error: "Missing or invalid required fields: id, label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg" });
+  if (!label || !unitLabel || !Number.isFinite(numericBasePrice) || numericBasePrice <= 0 || !Number.isFinite(numericMinOrderWeightKg) || numericMinOrderWeightKg <= 0 || !Number.isFinite(numericWeightPerUnitKg) || numericWeightPerUnitKg <= 0) {
+    return res.status(400).json({ error: "Missing or invalid required fields: label, basePrice, unitLabel, minOrderWeightKg, weightPerUnitKg" });
   }
-  const existingProduct = products.find((p) => p.id === id);
+  const productId = id && typeof id === "string" && id.trim() ? slugify(id) : slugify(label);
+  if (!productId) {
+    return res.status(400).json({ error: "A valid product id (or label) is required" });
+  }
+  const existingProduct = products.find((p) => p.id === productId);
   if (existingProduct) {
     return res.status(400).json({ error: "Product ID already exists" });
   }
   const newProduct = {
-    id,
+    id: productId,
     label,
     description: description || "",
     basePrice: numericBasePrice,
@@ -393,6 +417,279 @@ app.delete("/api/products/:id", (req, res) => {
   products.splice(productIndex, 1);
   writeProducts(products);
   res.json({ success: true, message: `Product ${id} deleted` });
+});
+var ADMIN_TOKEN = "cuva_admin_secure_session_token";
+var requireAdmin = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && typeof authHeader === "string" && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  if (token !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+};
+var slugify = (text) => text.toString().toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+var readPortfolio = () => {
+  try {
+    if (!fs.existsSync(PORTFOLIO_FILE)) {
+      fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify([], null, 2));
+      return [];
+    }
+    return JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf8"));
+  } catch (err) {
+    console.error("Error reading portfolio file:", err);
+    return [];
+  }
+};
+var writePortfolio = (items) => {
+  try {
+    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(items, null, 2));
+  } catch (err) {
+    console.error("Error writing portfolio file:", err);
+  }
+};
+var readBlog = () => {
+  try {
+    if (!fs.existsSync(BLOG_FILE)) {
+      fs.writeFileSync(BLOG_FILE, JSON.stringify([], null, 2));
+      return [];
+    }
+    return JSON.parse(fs.readFileSync(BLOG_FILE, "utf8"));
+  } catch (err) {
+    console.error("Error reading blog file:", err);
+    return [];
+  }
+};
+var writeBlog = (posts) => {
+  try {
+    fs.writeFileSync(BLOG_FILE, JSON.stringify(posts, null, 2));
+  } catch (err) {
+    console.error("Error writing blog file:", err);
+  }
+};
+var DEFAULT_SITE_INFO = {
+  phone: "",
+  email: "",
+  address: "",
+  openingHours: "",
+  closingHours: "",
+  socials: { x: "", tiktok: "", instagram: "", linkedin: "" },
+  brandTagline: ""
+};
+var readSiteInfo = () => {
+  try {
+    if (!fs.existsSync(SITE_INFO_FILE)) {
+      fs.writeFileSync(SITE_INFO_FILE, JSON.stringify(DEFAULT_SITE_INFO, null, 2));
+      return DEFAULT_SITE_INFO;
+    }
+    const info = JSON.parse(fs.readFileSync(SITE_INFO_FILE, "utf8"));
+    return {
+      ...DEFAULT_SITE_INFO,
+      ...info,
+      socials: { ...DEFAULT_SITE_INFO.socials, ...info.socials || {} }
+    };
+  } catch (err) {
+    console.error("Error reading site-info file:", err);
+    return DEFAULT_SITE_INFO;
+  }
+};
+var writeSiteInfo = (info) => {
+  try {
+    fs.writeFileSync(SITE_INFO_FILE, JSON.stringify(info, null, 2));
+  } catch (err) {
+    console.error("Error writing site-info file:", err);
+  }
+};
+app.get("/api/portfolio", (req, res) => {
+  res.json(readPortfolio());
+});
+app.post("/api/portfolio", requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id, title, description, imageUrl, link, category, order } = req.body;
+  if (!title || typeof title !== "string" || !title.trim()) {
+    return res.status(400).json({ error: "title is required" });
+  }
+  const itemId = id && typeof id === "string" && id.trim() ? slugify(id) : slugify(title);
+  if (items.find((p) => p.id === itemId)) {
+    return res.status(400).json({ error: "Portfolio item id already exists" });
+  }
+  const newItem = {
+    id: itemId,
+    title: title.trim(),
+    description: description || "",
+    imageUrl: imageUrl || null,
+    link: link || "",
+    category: category || "",
+    order: Number.isFinite(Number(order)) ? Number(order) : 0,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  items.push(newItem);
+  writePortfolio(items);
+  res.status(201).json(newItem);
+});
+app.put("/api/portfolio/:id", requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id } = req.params;
+  const idx = items.findIndex((p) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: "Portfolio item not found" });
+  }
+  const { title, description, imageUrl, link, category, order } = req.body;
+  items[idx] = {
+    ...items[idx],
+    title: title ?? items[idx].title,
+    description: description ?? items[idx].description,
+    imageUrl: imageUrl !== void 0 ? imageUrl || null : items[idx].imageUrl,
+    link: link ?? items[idx].link,
+    category: category ?? items[idx].category,
+    order: order !== void 0 ? Number.isFinite(Number(order)) ? Number(order) : items[idx].order : items[idx].order
+  };
+  writePortfolio(items);
+  res.json(items[idx]);
+});
+app.delete("/api/portfolio/:id", requireAdmin, (req, res) => {
+  const items = readPortfolio();
+  const { id } = req.params;
+  const idx = items.findIndex((p) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: "Portfolio item not found" });
+  }
+  const removed = items[idx];
+  if (removed.imageUrl) {
+    const filepath = path.join(UPLOADS_DIR, path.basename(removed.imageUrl));
+    if (fs.existsSync(filepath)) {
+      try {
+        fs.unlinkSync(filepath);
+      } catch (e) {
+      }
+    }
+  }
+  items.splice(idx, 1);
+  writePortfolio(items);
+  res.json({ success: true, message: `Portfolio item ${id} deleted` });
+});
+app.get("/api/blog", (req, res) => {
+  const posts = readBlog();
+  if (req.query.status === "published") {
+    return res.json(posts.filter((p) => p.status === "published"));
+  }
+  res.json(posts);
+});
+app.get("/api/blog/:slug", (req, res) => {
+  const posts = readBlog();
+  const post = posts.find((p) => p.slug === req.params.slug && p.status === "published");
+  if (!post) {
+    return res.status(404).json({ error: "Post not found" });
+  }
+  res.json(post);
+});
+app.post("/api/blog", requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { title, content, excerpt, coverImageUrl, author, tags, status, slug } = req.body;
+  if (!title || typeof title !== "string" || !title.trim()) {
+    return res.status(400).json({ error: "title is required" });
+  }
+  if (!content || typeof content !== "string" || !content.trim()) {
+    return res.status(400).json({ error: "content is required" });
+  }
+  const baseSlug = slug && typeof slug === "string" && slug.trim() ? slugify(slug) : slugify(title);
+  let finalSlug = baseSlug;
+  let n = 2;
+  while (posts.find((p) => p.slug === finalSlug)) {
+    finalSlug = `${baseSlug}-${n}`;
+    n++;
+  }
+  const newPost = {
+    id: `blog-${Date.now()}`,
+    slug: finalSlug,
+    title: title.trim(),
+    excerpt: excerpt || "",
+    content,
+    coverImageUrl: coverImageUrl || null,
+    author: author || "",
+    tags: Array.isArray(tags) ? tags : [],
+    status: status === "published" ? "published" : "draft",
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  posts.push(newPost);
+  writeBlog(posts);
+  res.status(201).json(newPost);
+});
+app.put("/api/blog/:id", requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { id } = req.params;
+  const idx = posts.findIndex((p) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: "Post not found" });
+  }
+  const { title, content, excerpt, coverImageUrl, author, tags, status, slug } = req.body;
+  const post = posts[idx];
+  const resolveSlug = (source) => {
+    let base = slugify(source);
+    let candidate = base;
+    let n = 2;
+    while (posts.find((p) => p.slug === candidate && p.id !== id)) {
+      candidate = `${base}-${n}`;
+      n++;
+    }
+    return candidate;
+  };
+  if (slug && typeof slug === "string" && slug.trim()) {
+    post.slug = resolveSlug(slug);
+  } else if (title && title !== post.title) {
+    post.slug = resolveSlug(title);
+  }
+  post.title = title ?? post.title;
+  post.content = content ?? post.content;
+  post.excerpt = excerpt ?? post.excerpt;
+  post.coverImageUrl = coverImageUrl !== void 0 ? coverImageUrl || null : post.coverImageUrl;
+  post.author = author ?? post.author;
+  post.tags = tags !== void 0 ? Array.isArray(tags) ? tags : [] : post.tags;
+  post.status = status ?? post.status;
+  post.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  writeBlog(posts);
+  res.json(post);
+});
+app.delete("/api/blog/:id", requireAdmin, (req, res) => {
+  const posts = readBlog();
+  const { id } = req.params;
+  const idx = posts.findIndex((p) => p.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: "Post not found" });
+  }
+  const removed = posts[idx];
+  if (removed.coverImageUrl) {
+    const filepath = path.join(UPLOADS_DIR, path.basename(removed.coverImageUrl));
+    if (fs.existsSync(filepath)) {
+      try {
+        fs.unlinkSync(filepath);
+      } catch (e) {
+      }
+    }
+  }
+  posts.splice(idx, 1);
+  writeBlog(posts);
+  res.json({ success: true, message: `Post ${id} deleted` });
+});
+var SITE_INFO_FIELDS = ["phone", "email", "address", "openingHours", "closingHours", "brandTagline"];
+var SITE_INFO_SOCIALS = ["x", "tiktok", "instagram", "linkedin"];
+app.get("/api/site-info", (req, res) => {
+  res.json(readSiteInfo());
+});
+app.put("/api/site-info", requireAdmin, (req, res) => {
+  const current = readSiteInfo();
+  const body = req.body || {};
+  const updated = { ...current };
+  for (const field of SITE_INFO_FIELDS) {
+    if (body[field] !== void 0) updated[field] = body[field];
+  }
+  const socials = { ...current.socials || {} };
+  for (const s of SITE_INFO_SOCIALS) {
+    if (body.socials && body.socials[s] !== void 0) socials[s] = body.socials[s];
+  }
+  updated.socials = socials;
+  writeSiteInfo(updated);
+  res.json(updated);
 });
 app.get("/api/uploads", (req, res) => {
   try {
