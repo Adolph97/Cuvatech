@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Megaphone, Calendar, Check, Play, Eye, Sparkles, Sliders, BarChart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useContent } from '../ContentStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -19,6 +20,12 @@ const staggerContainer = {
 
 export default function DigitalMarketing() {
   const [activeTab, setActiveTab] = useState<'seo' | 'ads' | 'social' | 'analytics'>('seo');
+  const { content } = useContent();
+  const marketing = content.homepage?.marketingSection || {};
+  const seo = marketing.seo || {};
+  const ads = marketing.ads || {};
+  const social = marketing.social || {};
+  const analytics = marketing.analytics || {};
 
   // Interactive state for SEO checker
   const [keywordInput, setKeywordInput] = useState('');
@@ -82,11 +89,10 @@ export default function DigitalMarketing() {
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-3">
           </span>
           <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6 text-center">
-            Digital Marketing and Business Insights
+            {marketing.title || 'Digital Marketing and Business Insights'}
           </h2>
           <p className="font-sans text-lg text-charcoal/60 leading-relaxed text-center max-w-2xl mx-auto">
-            Quiet, human-intent marketing campaigns designed to convert high-value leads. No flashing triggers, 
-            just clean visibility that speaks clearly to decision makers in tech and design.
+            {marketing.subtitle || 'Quiet, human-intent marketing campaigns designed to convert high-value leads. No flashing triggers, just clean visibility that speaks clearly to decision makers in tech and design.'}
           </p>
         </motion.div>
 
@@ -135,24 +141,23 @@ export default function DigitalMarketing() {
               >
               <div className="space-y-8">
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block">
-                  Data & Retention [Analytics & Email]
+                  {analytics.eyebrow || 'Data & Retention [Analytics & Email]'}
                 </span>
                 <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
-                  Actionable insights, <br /><span className="text-primary italic">tailored messaging.</span>
+                  {analytics.headline || 'Actionable insights, '} <br /><span className="text-primary italic">{analytics.headlineAccent || 'tailored messaging.'}</span>
                 </h3>
                 
                 <p className="font-sans text-base text-charcoal/60 leading-relaxed">
-                  We bridge the gap between raw data and creative strategy. From deep GA4 audits to 
-                  highly-personalized email automation, we ensure every touchpoint is measured and meaningful.
+                  {analytics.description || 'We bridge the gap between raw data and creative strategy. From deep GA4 audits to highly-personalized email automation, we ensure every touchpoint is measured and meaningful.'}
                 </p>
 
                 <ul className="space-y-4">
-                  {[
+                  {(analytics.bullets || [
                     'Advanced GA4 / GTM implementation and event tracking',
                     'Custom performance dashboards and conversion path analysis',
                     'Drip-campaign architecture and high-editorial email design',
                     'A/B testing protocols for landing pages and subject lines'
-                  ].map((item, idx) => (
+                  ]).map((item: string, idx: number) => (
                     <li key={idx} className="flex items-start text-charcoal/70 text-sm">
                       <span className="p-1 bg-primary/10 rounded-full mr-3 mt-0.5 text-primary shrink-0">
                         <Check className="w-3.5 h-3.5" />
@@ -217,25 +222,23 @@ export default function DigitalMarketing() {
               >
               <div className="space-y-8">
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block">
-                  Organic Traffic Engine [SEO]
+                  {seo.eyebrow || 'Organic Traffic Engine [SEO]'}
                 </span>
                 <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
-                  SEO audits with <br /><span className="text-primary italic">high-intent precision.</span>
+                  {seo.headline || 'SEO audits with '} <br /><span className="text-primary italic">{seo.headlineAccent || 'high-intent precision.'}</span>
                 </h3>
                 
                 <p className="font-sans text-base text-charcoal/60 leading-relaxed">
-                  We don’t chase vanity metrics or write robotic AI paragraphs. We design deep technical 
-                  crawls, semantic HTML guidelines, structural schema mapping, and coordinate hand-researched 
-                  industry backlinks.
+                  {seo.description || "We don't chase vanity metrics or write robotic AI paragraphs. We design deep technical crawls, semantic HTML guidelines, structural schema mapping, and coordinate hand-researched industry backlinks."}
                 </p>
 
                 <ul className="space-y-4">
-                  {[
+                  {(seo.bullets || [
                     'On-page performance audit & loading speed acceleration',
                     'Strategic key-phrase mapping targeting zero-volume vanity overrides',
                     'Semantic schemas for deep snippet categorization',
                     'Bespoke link curation in high-authority tech/design logs'
-                  ].map((item, idx) => (
+                  ]).map((item: string, idx: number) => (
                     <li key={idx} className="flex items-start text-charcoal/70 text-sm">
                       <span className="p-1 bg-primary/10 rounded-full mr-3 mt-0.5 text-primary shrink-0">
                         <Check className="w-3.5 h-3.5" />
@@ -345,21 +348,18 @@ export default function DigitalMarketing() {
               >
               <div className="space-y-8">
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block">
-                  Targeted Ad Networks [Paid Campaigns]
+                  {ads.eyebrow || 'Targeted Ad Networks [Paid Campaigns]'}
                 </span>
                 <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
-                  Direct conversions, <br /><span className="text-primary italic">minimal expenditure waste.</span>
+                  {ads.headline || 'Direct conversions, '} <br /><span className="text-primary italic">{ads.headlineAccent || 'minimal expenditure waste.'}</span>
                 </h3>
                 
                 <p className="font-sans text-base text-charcoal/60 leading-relaxed">
-                  We deploy targeted Google Search, Meta Social, and LinkedIn B2B structures. We structure 
-                  precise audiences with high buyers intent, craft high-editorial design hooks, and report 
-                  performance with absolute clarity.
+                  {ads.description || 'We deploy targeted Google Search, Meta Social, and LinkedIn B2B structures. We structure precise audiences with high buyers intent, craft high-editorial design hooks, and report performance with absolute clarity.'}
                 </p>
 
                 <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 text-sm text-charcoal/60 leading-relaxed italic">
-                  <strong>Did you know?</strong> Google Ads targeting exact high-intent schemas see a 42% decrease 
-                  in cost-per-click compared to wide AI auto-matching structures.
+                  <strong>Did you know?</strong> {ads.didYouKnow || 'Google Ads targeting exact high-intent schemas see a 42% decrease in cost-per-click compared to wide AI auto-matching structures.'}
                 </div>
               </div>
 
@@ -469,15 +469,14 @@ export default function DigitalMarketing() {
               >
               <div className="space-y-8">
                 <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block">
-                  Platform Presence [Social Media]
+                  {social.eyebrow || 'Platform Presence [Social Media]'}
                 </span>
                 <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
-                  Authentic storytelling, <br /><span className="text-primary italic">beautifully typeset.</span>
+                  {social.headline || 'Authentic storytelling, '} <br /><span className="text-primary italic">{social.headlineAccent || 'beautifully typeset.'}</span>
                 </h3>
                 
                 <p className="font-sans text-base text-charcoal/60 leading-relaxed">
-                  We formulate custom content schedules across LinkedIn, Instagram, and X/Twitter. We curate 
-                  thought-provoking threads, designs, and case histories that engage peers.
+                  {social.description || 'We formulate custom content schedules across LinkedIn, Instagram, and X/Twitter. We curate thought-provoking threads, designs, and case histories that engage peers.'}
                 </p>
 
                 <div className="flex items-center space-x-3 pt-4">

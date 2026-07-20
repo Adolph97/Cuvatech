@@ -2,6 +2,7 @@ import { ArrowUp, ArrowRight, CheckCircle2, Instagram, Linkedin } from 'lucide-r
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useSiteInfo } from '../SiteInfoStore';
+import { useContent } from '../ContentStore';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -26,6 +27,8 @@ export default function Footer({ onNavigate }: FooterProps) {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubbed, setNewsletterSubbed] = useState(false);
   const { siteInfo } = useSiteInfo();
+  const { content } = useContent();
+  const footer = content.footer || {};
 
   const xUrl = siteInfo.socials.x || 'https://x.com/cuva.tech';
   const tiktokUrl = siteInfo.socials.tiktok || 'https://www.tiktok.com/@cuva.tech';
@@ -84,7 +87,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             </button>
 
             <p className="font-sans text-base text-charcoal/50 leading-relaxed max-w-sm">
-            We use technology to improve performance and productivity making sure there is alignment in the business goals and technology requirements for every business
+              {footer.tagline || 'We use technology to improve performance and productivity making sure there is alignment in the business goals and technology requirements for every business'}
             </p>
 
             {/* Social links wired to site info with fallbacks */}
@@ -115,38 +118,55 @@ export default function Footer({ onNavigate }: FooterProps) {
 
           {/* Column 2: Navigation Links */}
           <motion.div variants={fadeInUp} className="md:col-span-4 grid grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.3em] block">Sections</span>
-              <ul className="space-y-4 text-sm font-bold text-charcoal/60">
-                <li><button onClick={() => onNavigate('hero')} className="hover:text-primary transition-colors block cursor-pointer">Homepage</button></li>
-                <li><button onClick={() => onNavigate('it-services')} className="hover:text-primary transition-colors block cursor-pointer">IT Cloud Systems</button></li>
-                <li><button onClick={() => onNavigate('branding-printing')} className="hover:text-primary transition-colors block cursor-pointer">Printing Configs</button></li>
-                <li><button onClick={() => onNavigate('digital-marketing')} className="hover:text-primary transition-colors block cursor-pointer">Digital Marketing</button></li>
-              </ul>
-            </div>
-
-            <div className="space-y-6">
-              <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.3em] block">Company</span>
-              <ul className="space-y-4 text-sm font-bold text-charcoal/60">
-                <li><button onClick={() => onNavigate('about-us')} className="hover:text-primary transition-colors block cursor-pointer">Our Story</button></li>
-                <li><button onClick={() => onNavigate('testimonials')} className="hover:text-primary transition-colors block cursor-pointer">Client Reviews</button></li>
-                <li><button onClick={() => onNavigate('contact')} className="hover:text-primary transition-colors block cursor-pointer">Contact Studio</button></li>
-                <li><button onClick={() => window.location.href = '/admin'} className="hover:text-primary transition-colors block cursor-pointer">Admin Portal</button></li>
-              </ul>
-            </div>
+            {(footer.columns || [
+              {
+                title: 'Sections',
+                links: [
+                  { label: 'Homepage', target: 'hero' },
+                  { label: 'IT Cloud Systems', target: 'it-services' },
+                  { label: 'Printing Configs', target: 'branding-printing' },
+                  { label: 'Digital Marketing', target: 'digital-marketing' }
+                ]
+              },
+              {
+                title: 'Company',
+                links: [
+                  { label: 'Our Story', target: 'about-us' },
+                  { label: 'Client Reviews', target: 'testimonials' },
+                  { label: 'Contact Studio', target: 'contact' },
+                  { label: 'Admin Portal', target: 'admin' }
+                ]
+              }
+            ]).map((col: any, ci: number) => (
+              <div key={ci} className="space-y-6">
+                <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.3em] block">{col.title}</span>
+                <ul className="space-y-4 text-sm font-bold text-charcoal/60">
+                  {col.links.map((link: any, li: number) => (
+                    <li key={li}>
+                      <button
+                        onClick={() => link.target === 'admin' ? (window.location.href = '/admin') : onNavigate(link.target)}
+                        className="hover:text-primary transition-colors block cursor-pointer"
+                      >
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </motion.div>
 
           {/* Column 3: Newsletter Form */}
           <motion.div variants={fadeInUp} className="md:col-span-3 space-y-8">
             <div>
               <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.3em] block mb-3">
-                STUDIO DISPATCH
+                {footer.newsletterEyebrow || 'STUDIO DISPATCH'}
               </span>
               <h5 className="font-display text-xl font-extrabold text-charcoal leading-tight">
-                Subscribe to local brand logs
+                {footer.newsletterTitle || 'Subscribe to local brand logs'}
               </h5>
               <p className="font-sans text-sm text-charcoal/50 mt-2 leading-relaxed">
-                Thoughtful paragraphs about server configurations, print inks, and layout theories.
+                {footer.newsletterSubtitle || 'Thoughtful paragraphs about server configurations, print inks, and layout theories.'}
               </p>
             </div>
 

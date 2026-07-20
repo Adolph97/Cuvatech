@@ -45,6 +45,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { getProductWeightPerUnitKg, getProductMinOrderWeightKg } from '../printingWeight';
 import BlogEditor from './admin/BlogEditor';
+import ContentManager from './admin/ContentManager';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 15 },
@@ -71,8 +72,16 @@ export default function AdminDashboard() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  // Notification read tracking — persisted to localStorage
+  const [readNotificationKeys, setReadNotificationKeys] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('cuva_read_notifications');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+
   // Tab switching
-  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products' | 'Graphics' | 'Portfolio' | 'Blog' | 'Site Info'>('Overview');
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Customers' | 'Analytics' | 'Notifications' | 'Settings' | 'Products' | 'Graphics' | 'Portfolio' | 'Blog' | 'Site Info' | 'Content'>('Overview');
 
   // Products state
   const [products, setProducts] = useState<any[]>([]);
@@ -900,6 +909,25 @@ export default function AdminDashboard() {
     }))
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  // Notification read/unread tracking
+  const notifKey = (orderId: string, idx: number) => `${orderId}::${idx}`;
+  const unreadCount = systemNotifications.filter((_, i) => !readNotificationKeys.has(notifKey(systemNotifications[i].orderId, i))).length;
+
+  const markAsRead = (orderId: string, idx: number) => {
+    setReadNotificationKeys(prev => {
+      const next = new Set(prev);
+      next.add(notifKey(orderId, idx));
+      localStorage.setItem('cuva_read_notifications', JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const markAllAsRead = () => {
+    const allKeys = new Set(systemNotifications.map((n, i) => notifKey(n.orderId, i)));
+    setReadNotificationKeys(allKeys);
+    localStorage.setItem('cuva_read_notifications', JSON.stringify([...allKeys]));
+  };
+
   // ── Image helpers ─────────────────────────────────────────────────────────
 
   const isImageFile = (url?: string, type?: string) => {
@@ -1103,6 +1131,7 @@ export default function AdminDashboard() {
               { id: 'Portfolio', label: 'Portfolio', icon: <Images className="w-4 h-4" /> },
               { id: 'Blog', label: 'Blog', icon: <FileText className="w-4 h-4" /> },
               { id: 'Site Info', label: 'Site Info', icon: <Info className="w-4 h-4" /> },
+              { id: 'Content', label: 'Content', icon: <Edit2 className="w-4 h-4" /> },
               { id: 'Settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
             ].map((item) => (
               <button
@@ -1118,9 +1147,9 @@ export default function AdminDashboard() {
               >
                 {item.icon}
                 <span>{item.label}</span>
-                {item.id === 'Notifications' && pendingCount > 0 && (
+                {item.id === 'Notifications' && unreadCount > 0 && (
                   <span className="ml-auto bg-primary text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {pendingCount}
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -1173,6 +1202,7 @@ export default function AdminDashboard() {
               {activeTab === 'Portfolio' && 'Portfolio Showcase'}
               {activeTab === 'Blog' && 'Blog & Articles'}
               {activeTab === 'Site Info' && 'Site Information'}
+              {activeTab === 'Content' && 'Site Content Editor'}
             </h1>
             <p className="font-sans text-sm text-charcoal/40 font-medium mt-1">
               {activeTab === 'Overview' && 'Real-time orders from Cuva landing page. Click an order to manage it.'}
@@ -1185,6 +1215,7 @@ export default function AdminDashboard() {
               {activeTab === 'Portfolio' && 'Manage the portfolio items shown on the public site.'}
               {activeTab === 'Blog' && 'Write and publish blog posts.'}
               {activeTab === 'Site Info' && 'Edit contact details, hours, and social links.'}
+              {activeTab === 'Content' && 'Edit every text & visual part of the public site — hero, nav, footer, about, services and reviews.'}
             </p>
           </div>
 
@@ -1204,7 +1235,7 @@ export default function AdminDashboard() {
               className="w-10 h-10 bg-white border border-charcoal/5 rounded-full flex items-center justify-center relative cursor-pointer hover:bg-bg shadow-sm transition-all"
             >
               <Bell className="w-5 h-5 text-charcoal/40" />
-              {pendingCount > 0 && (
+              {unreadCount > 0 && (
                 <span className="absolute top-0 right-0 w-3 h-3 bg-primary border-2 border-bg rounded-full animate-bounce" />
               )}
             </div>
@@ -1722,39 +1753,64 @@ export default function AdminDashboard() {
         {/* ── TAB: NOTIFICATIONS ───────────────────────────────────────────── */}
         {activeTab === 'Notifications' && (
           <div className="bg-white border border-charcoal/5 rounded-[2.5rem] shadow-xl shadow-charcoal/5 overflow-hidden">
-            <div className="p-8 border-b border-charcoal/5">
-              <h2 className="font-display text-xl font-bold">Audit Event Log ({systemNotifications.length})</h2>
+            <div className="p-8 border-b border-charcoal/5 flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-xl font-bold">Audit Event Log ({systemNotifications.length})</h2>
+                <p className="text-xs text-charcoal/40 mt-1">{unreadCount} unread</p>
+              </div>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs font-bold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-xl transition-all"
+                >
+                  Mark all as read
+                </button>
+              )}
             </div>
             <div className="p-8 space-y-4 max-h-[640px] overflow-y-auto">
               {systemNotifications.length === 0 ? (
                 <div className="text-center py-12 text-charcoal/30 font-medium">No events logged yet.</div>
               ) : (
-                systemNotifications.map((note, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.02 }}
-                    className="flex items-start justify-between border-b border-charcoal/5 pb-4 last:border-b-0"
-                  >
-                    <div className="flex items-start space-x-4">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                      <div className="space-y-1">
-                        <span className="text-xs font-bold text-charcoal">{note.message}</span>
-                        <div className="flex items-center space-x-3 text-[10px] text-charcoal/40 font-bold uppercase tracking-wider">
-                          <span>{note.customerName}</span>
-                          <span>•</span>
-                          <span className="font-mono text-primary">{note.orderId}</span>
-                          <span>•</span>
-                          <span>{note.type}</span>
+                systemNotifications.map((note, i) => {
+                  const key = notifKey(note.orderId, i);
+                  const isRead = readNotificationKeys.has(key);
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.02 }}
+                      className={`flex items-start justify-between border-b border-charcoal/5 pb-4 last:border-b-0 ${isRead ? 'opacity-50' : ''}`}
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${isRead ? 'bg-charcoal/20' : 'bg-primary'}`} />
+                        <div className="space-y-1">
+                          <span className="text-xs font-bold text-charcoal">{note.message}</span>
+                          <div className="flex items-center space-x-3 text-[10px] text-charcoal/40 font-bold uppercase tracking-wider">
+                            <span>{note.customerName}</span>
+                            <span>•</span>
+                            <span className="font-mono text-primary">{note.orderId}</span>
+                            <span>•</span>
+                            <span>{note.type}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <span className="text-[10px] text-charcoal/30 font-mono shrink-0 ml-4">
-                      {new Date(note.createdAt).toLocaleString()}
-                    </span>
-                  </motion.div>
-                ))
+                      <div className="flex items-center space-x-3 shrink-0 ml-4">
+                        <span className="text-[10px] text-charcoal/30 font-mono">
+                          {new Date(note.createdAt).toLocaleString()}
+                        </span>
+                        {!isRead && (
+                          <button
+                            onClick={() => markAsRead(note.orderId, i)}
+                            className="text-[10px] font-bold text-primary/60 hover:text-primary bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Mark read
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -2762,6 +2818,8 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === 'Content' && <ContentManager />}
 
         {/* Add/Edit Product Modal */}
         <AnimatePresence>

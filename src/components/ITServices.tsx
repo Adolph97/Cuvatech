@@ -4,6 +4,7 @@ import { ITService } from '../types';
 import { Server, Cpu, Cloud, HelpCircle, FileText, CheckCircle, Send, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOrders } from '../OrderStore';
+import { useContent } from '../ContentStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -28,6 +29,8 @@ interface ITServicesProps {
 
 export default function ITServices() {
   const { addOrder } = useOrders();
+  const { content } = useContent();
+  const services: ITService[] = content.services?.it?.length ? content.services.it : IT_SERVICES;
   const [selectedService, setSelectedService] = useState<ITService | null>(null);
   const [formInputs, setFormInputs] = useState({
     fullName: '',
@@ -114,7 +117,7 @@ export default function ITServices() {
   };
 
   const [showAll, setShowAll] = useState(false);
-  const visibleServices = showAll ? IT_SERVICES : IT_SERVICES.slice(0, 2);
+  const visibleServices = showAll ? services : services.slice(0, 2);
 
   return (
     <motion.section 
@@ -133,12 +136,11 @@ export default function ITServices() {
         {/* Section Header */}
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-charcoal leading-tight mb-4">
-            IT Solutions & Systems
+            {content.homepage?.itSection?.title || 'IT Solutions & Systems'}
           </h2>
           <div className="w-24 h-1 bg-primary/20 mx-auto mb-6 rounded-full" />
           <p className="font-sans text-lg text-charcoal/80 leading-relaxed">
-            Quiet, bulletproof infrastructure built for creative minds. We draft setups using paper-based 
-            clarity before engineering cloud architectures that withstand massive traffic peaks. 
+            {content.homepage?.itSection?.subtitle || 'Quiet, bulletproof infrastructure built for creative minds. We draft setups using paper-based clarity before engineering cloud architectures that withstand massive traffic peaks.'}
           </p>
         </motion.div>
 
@@ -205,7 +207,7 @@ export default function ITServices() {
         </div>
 
         {/* Reveal All Button */}
-        {!showAll && IT_SERVICES.length > 2 && (
+        {!showAll && services.length > 2 && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -228,19 +230,18 @@ export default function ITServices() {
         >
           <div className="max-w-2xl">
             <h4 className="font-display text-2xl sm:text-3xl font-bold text-charcoal mb-2">
-              Unsure about legacy database frameworks?
+              {content.services?.itBanner?.title || 'Unsure about legacy database frameworks?'}
             </h4>
             <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed">
-              We offer free, zero-commitment physical tech audits. Let our principal systems architect sit 
-              down with you (via video call or hot tea) to map out your architecture securely.
+              {content.services?.itBanner?.text || 'We offer free, zero-commitment physical tech audits. Let our principal systems architect sit down with you (via video call or hot tea) to map out your architecture securely.'}
             </p>
           </div>
           <button
             id="audit-cta-btn"
-            onClick={() => openFormFor(IT_SERVICES[0])}
+            onClick={() => openFormFor(services[0])}
             className="btn-primary whitespace-nowrap"
           >
-            Schedule System Audit
+            {content.services?.itBanner?.cta || 'Schedule System Audit'}
           </button>
         </motion.div>
 

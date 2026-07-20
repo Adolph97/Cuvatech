@@ -4,6 +4,7 @@ import { ShieldCheck, Heart, Sparkles, BookOpen } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ScribbleStar, ScribbleUnderline } from './NotionIllustrations';
 import Modal from './Modal';
+import { useContent } from '../ContentStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -21,44 +22,39 @@ const staggerContainer = {
 };
 
 // Our Story content component to be reused in modal
-function OurStoryContent() {
+function OurStoryContent({ about }: { about: any }) {
+  const story = about?.story || {};
   return (
     <div className="space-y-8">
       {/* Founding and story segments */}
       <div className="space-y-6">
         <h3 className="font-display text-2xl sm:text-3xl font-bold text-charcoal leading-tight">
-          Bridging the gap between heavy cloud infrastructure and manual typography.
+          {story.heading || 'Bridging the gap between heavy cloud infrastructure and manual typography.'}
         </h3>
 
-        <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
-          Founded in Dublin in 2024, Cuva Tech emerged from a simple question: <em>Why must high-performance IT
-          solutions feel so sterile?</em> Our founder, Efe Cuva, spent years wiring remote database nodes across
-          heavy financial networks, yet spent weekends collecting manual handpressed journals and studying print ink
-          absorption rules.
-        </p>
-
-        <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
-          We realized that the best brands aren't built with off-the-shelf automated scripts or template blocks.
-          They require bespoke physical presence combined with weightless, secure cloud engines.
-        </p>
+        {(story.paragraphs || [
+          'Founded in Dublin in 2024, Cuva Tech emerged from a simple question: Why must high-performance IT solutions feel so sterile? Our founder, Efe Cuva, spent years wiring remote database nodes across heavy financial networks, yet spent weekends collecting manual handpressed journals and studying print ink absorption rules.',
+          "We realized that the best brands aren't built with off-the-shelf automated scripts or template blocks. They require bespoke physical presence combined with weightless, secure cloud engines."
+        ]).map((p: string, i: number) => (
+          <p key={i} className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
+            {p}
+          </p>
+        ))}
       </div>
 
       <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <motion.div whileHover={{ y: -5 }} className="bg-white border border-charcoal/5 p-5 sm:p-6 rounded-2xl shadow-sm">
-          <span className="font-sans font-bold text-xs text-primary uppercase tracking-wider">Symmetry</span>
-          <h5 className="font-display text-lg sm:text-xl font-bold text-charcoal mt-2">Symmetrical Synthesis</h5>
-          <p className="font-sans text-xs sm:text-sm text-charcoal/50 mt-2">
-            Your website layout, search keywords, and actual printed invoicing books are custom engineered in tandem.
-          </p>
-        </motion.div>
-
-        <motion.div whileHover={{ y: -5 }} className="bg-white border border-charcoal/5 p-5 sm:p-6 rounded-2xl shadow-sm">
-          <span className="font-sans font-bold text-xs text-primary uppercase tracking-wider">Quality</span>
-          <h5 className="font-display text-lg sm:text-xl font-bold text-charcoal mt-2">Uncompromising</h5>
-          <p className="font-sans text-xs sm:text-sm text-charcoal/50 mt-2">
-            No cookie-cutter AI automation codes. Everything is adjusted, compiled, and hand-sketched by lead designers.
-          </p>
-        </motion.div>
+        {(story.principles || [
+          { eyebrow: 'Symmetry', title: 'Symmetrical Synthesis', text: 'Your website layout, search keywords, and actual printed invoicing books are custom engineered in tandem.' },
+          { eyebrow: 'Quality', title: 'Uncompromising', text: 'No cookie-cutter AI automation codes. Everything is adjusted, compiled, and hand-sketched by lead designers.' }
+        ]).map((p: any, i: number) => (
+          <motion.div key={i} whileHover={{ y: -5 }} className="bg-white border border-charcoal/5 p-5 sm:p-6 rounded-2xl shadow-sm">
+            <span className="font-sans font-bold text-xs text-primary uppercase tracking-wider">{p.eyebrow}</span>
+            <h5 className="font-display text-lg sm:text-xl font-bold text-charcoal mt-2">{p.title}</h5>
+            <p className="font-sans text-xs sm:text-sm text-charcoal/50 mt-2">
+              {p.text}
+            </p>
+          </motion.div>
+        ))}
       </div>
 
       {/* Mission and Vision statements */}
@@ -69,11 +65,10 @@ function OurStoryContent() {
             <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />
           </div>
           <span className="font-sans text-xs font-bold text-primary uppercase tracking-widest block mb-3 sm:mb-4">
-            OUR MISSION
+            {story.missionLabel || 'OUR MISSION'}
           </span>
           <p className="font-display text-lg sm:text-xl md:text-2xl font-bold italic text-charcoal leading-relaxed">
-            "To humanize the digital workspace by engineering bulletproof cloud systems and elegant material
-            craft that commands respect, builds trust, and endures."
+            "{story.mission || 'To humanize the digital workspace by engineering bulletproof cloud systems and elegant material craft that commands respect, builds trust, and endures.'}"
           </p>
         </motion.div>
 
@@ -83,11 +78,10 @@ function OurStoryContent() {
             <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />
           </div>
           <span className="font-sans text-xs font-bold text-charcoal/40 uppercase tracking-widest block mb-3 sm:mb-4">
-            OUR VISION
+            {story.visionLabel || 'OUR VISION'}
           </span>
           <p className="font-sans text-sm sm:text-base text-charcoal/60 leading-relaxed italic">
-            "We envision a technological landscape where digital interfaces preserve personal craftsmanship, where
-            infrastructure represents high design, and where client relations are cultivated through quiet competence and tea."
+            "{story.vision || 'We envision a technological landscape where digital interfaces preserve personal craftsmanship, where infrastructure represents high design, and where client relations are cultivated through quiet competence and tea.'}"
           </p>
         </motion.div>
       </div>
@@ -97,6 +91,8 @@ function OurStoryContent() {
 
 export default function AboutUs() {
   const [isStoryModalOpen, setStoryModalOpen] = React.useState(false);
+  const { content } = useContent();
+  const about = content.about || {};
 
   return (
     <motion.section
@@ -116,15 +112,14 @@ export default function AboutUs() {
         {/* Header */}
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">
-            Our Story & Values
+            {about.eyebrow || 'Our Story & Values'}
           </span>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
-            Everything starts with <br />
-            <span className="text-primary italic">craftsmanship.</span>
+            {about.title || 'Everything starts with'} <br />
+            <span className="text-primary italic">{about.titleAccent || 'craftsmanship.'}</span>
           </h2>
           <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-            We are a multi-service technology and creative synthesis studio. We believe that technology
-            should feel less like cold aluminum servers, and more like beautiful, warm physical stationery.
+            {about.subtitle || 'We are a multi-service technology and creative synthesis studio. We believe that technology should feel less like cold aluminum servers, and more like beautiful, warm physical stationery.'}
           </p>
         </motion.div>
 
@@ -141,7 +136,7 @@ export default function AboutUs() {
             className="bg-primary text-white px-10 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 flex items-center space-x-3 cursor-pointer transition-all"
           >
             <BookOpen className="w-4 h-4" />
-            <span>Read Our Full Story</span>
+            <span>{about.storyButton || 'Read Our Full Story'}</span>
           </motion.button>
         </motion.div>
 
@@ -153,9 +148,9 @@ export default function AboutUs() {
               <ScribbleStar className="w-7 h-7 transform rotate-12" />
             </div>
 
-            <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">The Architects</span>
+            <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">{about.teamEyebrow || 'The Architects'}</span>
             <h4 className="font-display text-4xl font-extrabold text-charcoal mt-1 relative inline-block px-2">
-              Our Leading Craftsmen
+              {about.teamTitle || 'Our Leading Craftsmen'}
             </h4>
           </motion.div>
 
@@ -211,16 +206,16 @@ export default function AboutUs() {
           {/* Modal Header with visual flair */}
           <div className="bg-primary/5 border-b border-charcoal/5 p-5 sm:p-6 md:p-8 mb-6">
             <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">
-              Cuva Origins
+              {about.modalEyebrow || 'Cuva Origins'}
             </span>
             <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-charcoal leading-tight">
-              Our Story & Mission
+              {about.modalTitle || 'Our Story & Mission'}
             </h3>
           </div>
 
           {/* Modal Content with better padding on mobile */}
           <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
-            <OurStoryContent />
+            <OurStoryContent about={about} />
           </div>
         </div>
       </Modal>

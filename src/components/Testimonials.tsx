@@ -4,6 +4,7 @@ import { Testimonial } from '../types';
 import { Star, MessageSquarePlus, Filter, CheckCircle, Quote, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScribbleStar, ScribbleCircle } from './NotionIllustrations';
+import { useContent } from '../ContentStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -22,7 +23,9 @@ const staggerContainer = {
 
 export default function Testimonials() {
   const [filter, setFilter] = React.useState<'ALL' | 'IT' | 'Branding' | 'Digital Marketing'>('ALL');
-  const [reviewsList, setReviewsList] = React.useState<Testimonial[]>(TESTIMONIALS);
+  const { content } = useContent();
+  const initialTestimonials: Testimonial[] = content.testimonials?.length ? content.testimonials : TESTIMONIALS;
+  const [reviewsList, setReviewsList] = React.useState<Testimonial[]>(initialTestimonials);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   // Submit new review form state

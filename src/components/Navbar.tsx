@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useContent } from '../ContentStore';
 
 interface NavbarProps {
   activeSection: string;
@@ -41,6 +42,7 @@ export function CuvaLogo({ className = '' }: { className?: string }) {
 export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { content } = useContent();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,16 +52,18 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { id: 'hero', label: 'Home' },
-    { id: 'it-services', label: 'IT Services' },
-    { id: 'branding-printing', label: 'Branding & Printing' },
-    { id: 'digital-marketing', label: 'Marketing' },
-    { id: 'printing-jobs', label: 'Printing Jobs' },
-    { id: 'blog', label: 'Journal' },
-    { id: 'testimonials', label: 'Reviews' },
-    { id: 'contact', label: 'Say Hello' }
-  ];
+  const navItems = content.navbar?.length
+    ? content.navbar
+    : [
+        { id: 'hero', label: 'Home' },
+        { id: 'it-services', label: 'IT Services' },
+        { id: 'branding-printing', label: 'Branding & Printing' },
+        { id: 'digital-marketing', label: 'Marketing' },
+        { id: 'printing-jobs', label: 'Printing Jobs' },
+        { id: 'blog', label: 'Journal' },
+        { id: 'testimonials', label: 'Reviews' },
+        { id: 'contact', label: 'Say Hello' }
+      ];
 
   // Section links scroll within the landing page; "Journal" is a separate SPA
   // route, so it uses history.pushState to switch views (same as the blog cards).
