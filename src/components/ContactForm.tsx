@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle, MapPin, Mail, Phone, Clock, Instagram, Linkedin, HelpCircle } from 'lucide-react';
+import { Send, CheckCircle, MapPin, Mail, Phone, Clock, Instagram, Linkedin, HelpCircle, ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useOrders } from '../OrderStore';
 import { useSiteInfo } from '../SiteInfoStore';
@@ -364,19 +364,22 @@ export default function ContactForm() {
                 {/* Dropdown service switcher */}
                 <div className="flex flex-col">
                   <label className="font-sans text-xs font-bold text-charcoal mb-2 ml-1">Service area of choice</label>
-                  <select
-                    id="contact-form-enquiry"
-                    name="enquiryType"
-                    value={formInputs.enquiryType}
-                    onChange={handleInputChange}
-                    className="bg-bg border border-charcoal/10 p-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal cursor-pointer"
-                  >
-                    <option value="IT Systems">IT Cloud Systems (AWS, GCP, Net setups)</option>
-                    <option value="Logo & Brand specs">Bespoke Logo & Brand Guidelines</option>
-                    <option value="Fine Printing configs">Custom Paperworks & Fine Printing</option>
-                    <option value="Search SEO">Growth Marketing & Local Search checks</option>
-                    <option value="Mixed custom brief">Mixed custom multi-service request</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="contact-form-enquiry"
+                      name="enquiryType"
+                      value={formInputs.enquiryType}
+                      onChange={handleInputChange}
+                      className="w-full bg-bg border border-charcoal/10 p-3.5 pr-11 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-charcoal cursor-pointer appearance-none"
+                    >
+                      <option value="IT Systems">IT Cloud Systems (AWS, GCP, Net setups)</option>
+                      <option value="Logo & Brand specs">Bespoke Logo & Brand Guidelines</option>
+                      <option value="Fine Printing configs">Custom Paperworks & Fine Printing</option>
+                      <option value="Search SEO">Growth Marketing & Local Search checks</option>
+                      <option value="Mixed custom brief">Mixed custom multi-service request</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-charcoal/40 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
 
                 {/* Message text area */}

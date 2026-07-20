@@ -11,7 +11,7 @@ import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 import { ITIllustration, PrintIllustration, MarketingIllustration, MasterHeroIllustration, ScribbleUnderline, HanddrawnArrow, ScribbleStar, ScribbleCircle } from './components/NotionIllustrations';
 
-import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Admin System Imports
@@ -651,12 +651,15 @@ function LandingPage() {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
-                    <select className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-                      <option>IT Cloud Systems & Migrations</option>
-                      <option>Fine Stationery & Booklets print</option>
-                      <option>Handdrawn Logo Design Guidelines</option>
-                      <option>CPA Marketing & SEO growth checks</option>
-                    </select>
+                    <div className="relative">
+                      <select className="w-full bg-bg border-none px-5 py-4 pr-12 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer">
+                        <option>IT Cloud Systems & Migrations</option>
+                        <option>Fine Stationery & Booklets print</option>
+                        <option>Handdrawn Logo Design Guidelines</option>
+                        <option>CPA Marketing & SEO growth checks</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-charcoal/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                   </div>
 
                   <button
