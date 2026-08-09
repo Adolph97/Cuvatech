@@ -196,11 +196,11 @@ function LandingPage() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
-        className="py-12 sm:py-16 bg-white/50 relative"
+        className="py-10 sm:py-14 bg-white/50 relative"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-20">
+          <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-10 sm:mb-12">
             <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">{hp.coreOverview?.eyebrow || 'Core Ecosystem'}</span>
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal">
               {hp.coreOverview?.title || 'Three Unified Creative Practices'}
@@ -263,12 +263,12 @@ function LandingPage() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeInUp}
-        className="py-16 sm:py-20 bg-bg relative"
+        className="py-10 sm:py-14 bg-bg relative"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="max-w-3xl mx-auto text-center mb-12">
+          <div className="max-w-3xl mx-auto text-center mb-8">
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal leading-tight mb-4">
               {hp.brandingSection?.title || 'Branding & Printing Portfolio'}
             </h2>
@@ -278,7 +278,7 @@ function LandingPage() {
           </div>
 
           {/* Sub Tab Switcher */}
-          <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
+          <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-8 shadow-sm">
             <button
               id="subtab-print"
               onClick={() => setBrandingSubTab(brandingSubTab === 'print' ? null : 'print')}
@@ -327,7 +327,7 @@ function LandingPage() {
           </div>
 
           {/* Integrated Printing Portfolio Showcase */}
-          <div className="mt-16 pt-12 border-t border-charcoal/5">
+          <div className="mt-10 pt-8 border-t border-charcoal/5">
             <PrintingJobsGallery />
           </div>
 
@@ -486,16 +486,29 @@ export default function App() {
       <SiteInfoProvider>
         <ContentProvider>
           {path === '/admin' ? <AdminDashboard /> :
-           path === '/blog' ? <BlogList /> :
-           path.startsWith('/blog/') ? <BlogPost /> :
+           path === '/blog' ? (
+             <PageWrapper activeSection="blog">
+               <BlogList />
+             </PageWrapper>
+           ) :
+           path.startsWith('/blog/') ? (
+             <PageWrapper activeSection="blog">
+               <BlogPost />
+             </PageWrapper>
+           ) :
            path === '/it-services' ? (
              <PageWrapper activeSection="it-services">
                <ITServices />
              </PageWrapper>
            ) :
-           path === '/branding-and-marketing' || path === '/branding-and-printing' || path === '/digital-marketing' ? (
-             <PageWrapper activeSection="branding-marketing">
-               <BrandingMarketingPage />
+           path === '/branding-and-printing' || path === '/branding-and-marketing' ? (
+             <PageWrapper activeSection="branding-and-printing">
+               <BrandingPrintingPage />
+             </PageWrapper>
+           ) :
+           path === '/digital-marketing' ? (
+             <PageWrapper activeSection="digital-marketing">
+               <DigitalMarketing />
              </PageWrapper>
            ) :
            path === '/about' ? (
@@ -515,21 +528,21 @@ export default function App() {
   );
 }
 
-function BrandingMarketingPage() {
-  const [activeTab, setActiveTab] = useState<'branding' | 'print' | 'marketing'>('branding');
+function BrandingPrintingPage() {
+  const [activeTab, setActiveTab] = useState<'branding' | 'print'>('branding');
   return (
-    <div className="py-16 sm:py-20 bg-bg relative min-h-screen">
+    <div className="py-10 sm:py-14 bg-bg relative min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-8">
           <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal leading-tight mb-4">
-            Branding, Printing & Marketing
+            Branding & Printing
           </h1>
           <p className="font-sans text-base sm:text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-            Everything your business needs for brand design, physical print assets, and digital marketing expansion.
+            Logo design, brand identity, and our full-service print shop — all under one roof.
           </p>
         </div>
 
-        <div className="flex bg-white/50 border border-charcoal/5 max-w-lg mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
+        <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-8 shadow-sm">
           <button
             onClick={() => setActiveTab('branding')}
             className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
@@ -546,25 +559,16 @@ function BrandingMarketingPage() {
           >
             Print Configurator
           </button>
-          <button
-            onClick={() => setActiveTab('marketing')}
-            className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
-              activeTab === 'marketing' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
-            }`}
-          >
-            Digital Marketing
-          </button>
         </div>
 
         <div>
           {activeTab === 'branding' && <CanvaIntegration />}
           {activeTab === 'print' && (
-            <div className="space-y-16">
+            <div className="space-y-10">
               <PrintingConfigurator />
               <PrintingJobsGallery />
             </div>
           )}
-          {activeTab === 'marketing' && <DigitalMarketing />}
         </div>
       </div>
     </div>
@@ -577,10 +581,12 @@ function PageWrapper({ children, activeSection }: { children: React.ReactNode; a
     const routeMap: Record<string, string> = {
       'hero': '/',
       'it-services': '/it-services',
-      'branding-marketing': '/branding-and-marketing',
-      'branding-printing': '/branding-and-marketing',
-      'digital-marketing': '/branding-and-marketing',
+      'branding-and-printing': '/branding-and-printing',
+      'branding-marketing': '/branding-and-printing',
+      'branding-printing': '/branding-and-printing',
+      'digital-marketing': '/digital-marketing',
       'about-us': '/about',
+      'blog': '/blog',
       'contact': '/contact'
     };
     if (routeMap[id]) {
