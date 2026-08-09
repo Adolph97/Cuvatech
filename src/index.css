@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
-  --font-hand: "Caveat", cursive;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   --color-primary: #0047AB;
   --color-primary-light: #F5D6C6;
@@ -35,6 +35,7 @@
     overflow-x: hidden;
     width: 100%;
     position: relative;
+    font-family: var(--font-sans);
   }
   html {
     scroll-behavior: smooth;
@@ -49,9 +50,9 @@
     opacity: 0.99; /* Ensure background is visible */
   }
 
-  /* Soften global elements */
+  /* Standardized font family across elements */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
   }
 }
 
