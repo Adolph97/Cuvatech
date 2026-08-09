@@ -101,7 +101,7 @@ export default function AboutUs() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={staggerContainer}
-      className="py-24 bg-bg relative overflow-hidden"
+      className="py-10 sm:py-14 bg-bg relative overflow-hidden"
     >
       {/* Structural grids accents */}
       <div className="absolute inset-x-0 h-[1px] bg-charcoal/5 top-1/4" />
@@ -110,7 +110,7 @@ export default function AboutUs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Header */}
-        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
+        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">
             {about.eyebrow || 'Our Story & Values'}
           </span>
@@ -126,7 +126,7 @@ export default function AboutUs() {
         {/* Our Story Button - triggers modal */}
         <motion.div
           variants={fadeInUp}
-          className="flex justify-center mb-16"
+          className="flex justify-center mb-8 sm:mb-10"
         >
           <motion.button
             id="our-story-trigger"
@@ -142,7 +142,7 @@ export default function AboutUs() {
 
         {/* TEAM MEMBERS */}
         <motion.div variants={staggerContainer} className="relative">
-          <motion.div variants={fadeInUp} className="text-center mb-16 relative max-w-sm mx-auto sm:max-w-md">
+          <motion.div variants={fadeInUp} className="text-center mb-8 sm:mb-10 relative max-w-sm mx-auto sm:max-w-md">
             <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">{about.teamEyebrow || 'The Architects'}</span>
             <h4 className="font-display text-4xl font-extrabold text-charcoal mt-1 relative inline-block px-2">
               {about.teamTitle || 'Our Leading Craftsmen'}
