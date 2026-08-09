@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import type { BlogPost as BlogPostType } from '../types';
-import BlogHeader from './BlogHeader';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -54,9 +53,7 @@ export default function BlogPost() {
   };
 
   return (
-    <>
-      <BlogHeader showBlogLink />
-      <motion.article
+    <motion.article
         initial="hidden"
         animate="visible"
         variants={fadeInUp}
@@ -114,6 +111,5 @@ export default function BlogPost() {
         )}
       </div>
     </motion.article>
-    </>
   );
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import type { BlogPost } from '../types';
-import BlogHeader from './BlogHeader';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -41,9 +40,7 @@ export default function BlogList() {
   };
 
   return (
-    <>
-      <BlogHeader />
-      <motion.section
+    <motion.section
         initial="hidden"
         animate="visible"
         variants={fadeInUp}
@@ -127,7 +124,6 @@ export default function BlogList() {
         )}
       </div>
     </motion.section>
-    </>
   );
 }
 

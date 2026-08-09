@@ -65,10 +65,10 @@ export default function BlogPreview() {
       whileInView="visible"
       viewport={{ once: true, margin: '-100px' }}
       variants={fadeInUp}
-      className="py-24 bg-white/50 relative"
+      className="py-10 sm:py-14 bg-white/50 relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
+        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
           <span className="font-sans text-xs font-bold text-primary uppercase tracking-[0.2em] block mb-3 flex items-center justify-center space-x-2">
             <Newspaper className="w-4 h-4" />
             <span>Cuva Journal</span>
