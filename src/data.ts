@@ -271,25 +271,6 @@ export const TEAM_MEMBERS: TeamMember[] = [
   }
 ];
 
-export const TRUSTPILOT_DATA = {
-  rating: 4.9,
-  count: 148,
-  reviews: [
-    {
-      author: 'Alistair G.',
-      text: 'Genuinely personal service. High-end design details coupled with sound server tech.',
-      stars: 5,
-      time: '2 days ago'
-    },
-    {
-      author: 'Clara S.',
-      text: 'Cuva Tech feels like a craft workshop for tech. Super responsive printing configurator too.',
-      stars: 5,
-      time: '1 week ago'
-    }
-  ]
-};
-
 // Delivery fee configuration (default values - can be overridden via admin settings API)
 export const DELIVERY_FEES = {
   standard: 35,
