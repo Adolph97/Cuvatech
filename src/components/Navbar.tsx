@@ -52,28 +52,23 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = content.navbar?.length
-    ? content.navbar
-    : [
-        { id: 'hero', label: 'Home' },
-        { id: 'it-services', label: 'IT Services' },
-        { id: 'branding-printing', label: 'Branding & Printing' },
-        { id: 'digital-marketing', label: 'Marketing' },
-        { id: 'printing-jobs', label: 'Printing Jobs' },
-        { id: 'blog', label: 'Journal' },
-        { id: 'testimonials', label: 'Reviews' },
-        { id: 'contact', label: 'Say Hello' }
-      ];
+  const navItems = [
+    { id: 'hero', label: 'Home', path: '/' },
+    { id: 'it-services', label: 'IT Services', path: '/it-services' },
+    { id: 'branding-printing', label: 'Branding & Printing', path: '/branding-and-printing' },
+    { id: 'digital-marketing', label: 'Marketing', path: '/digital-marketing' },
+    { id: 'about-us', label: 'About Us', path: '/about' },
+    { id: 'blog', label: 'Journal', path: '/blog' },
+    { id: 'contact', label: 'Contact', path: '/contact' }
+  ];
 
-  // Section links scroll within the landing page; "Journal" is a separate SPA
-  // route, so it uses history.pushState to switch views (same as the blog cards).
-  const handleNav = (id: string) => {
-    if (id === 'blog') {
-      window.history.pushState({ path: '/blog' }, '', '/blog');
+  const handleNav = (item: typeof navItems[0]) => {
+    if (item.path.startsWith('/')) {
+      window.history.pushState({ path: item.path }, '', item.path);
       setIsOpen(false);
       return;
     }
-    onNavigate(id);
+    onNavigate(item.id);
   };
 
   return (
@@ -117,12 +112,12 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
           {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
             {navItems.map((item) => {
-              const isActive = activeSection === item.id;
+              const isActive = activeSection === item.id || (typeof window !== 'undefined' && window.location.pathname === item.path);
               return (
                 <button
                   id={`nav-link-${item.id}`}
                   key={item.id}
-                  onClick={() => handleNav(item.id)}
+                  onClick={() => handleNav(item)}
                   className={`relative px-1 py-1 text-sm font-bold transition-all duration-150 cursor-pointer ${
                     isActive
                       ? 'text-primary'
@@ -188,10 +183,10 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
                   key={item.id}
                   onClick={() => {
                     setIsOpen(false);
-                    handleNav(item.id);
+                    handleNav(item);
                   }}
                   className={`text-left px-3 py-2 text-base font-bold border border-transparent rounded transition-all cursor-pointer ${
-                    activeSection === item.id
+                    activeSection === item.id || (typeof window !== 'undefined' && window.location.pathname === item.path)
                       ? 'bg-sand text-clay border-charcoal/10 pl-5'
                       : 'text-charcoal hover:bg-sand/50'
                   }`}

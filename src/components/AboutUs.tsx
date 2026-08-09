@@ -143,11 +143,6 @@ export default function AboutUs() {
         {/* TEAM MEMBERS */}
         <motion.div variants={staggerContainer} className="relative">
           <motion.div variants={fadeInUp} className="text-center mb-16 relative max-w-sm mx-auto sm:max-w-md">
-            {/* Playful float star next to team heading */}
-            <div className="absolute top-[-25px] right-[10px] text-primary anim-float pointer-events-none">
-              <ScribbleStar className="w-7 h-7 transform rotate-12" />
-            </div>
-
             <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-2">{about.teamEyebrow || 'The Architects'}</span>
             <h4 className="font-display text-4xl font-extrabold text-charcoal mt-1 relative inline-block px-2">
               {about.teamTitle || 'Our Leading Craftsmen'}

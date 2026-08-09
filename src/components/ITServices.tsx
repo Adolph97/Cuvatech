@@ -120,8 +120,8 @@ export default function ITServices() {
   const visibleServices = showAll ? services : services.slice(0, 2);
 
   return (
-    <motion.section 
-      id="it-services" 
+    <motion.section
+      id="it-services"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -132,7 +132,7 @@ export default function ITServices() {
       <div className="absolute inset-0 bg-[radial-gradient(#1e1b18_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Section Header */}
         <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-charcoal leading-tight mb-4">
@@ -165,15 +165,12 @@ export default function ITServices() {
                     <div className="p-3 bg-white border border-charcoal/5 rounded-2xl shadow-sm group-hover:bg-primary/5 transition-colors">
                       {getServiceIcon(service.id)}
                     </div>
-                    <span className="font-mono text-xs text-charcoal/40 font-bold tracking-widest uppercase">
-                      [01-{idx + 1}]
-                    </span>
                   </div>
 
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-charcoal mb-1">
                     {service.title}
                   </h3>
-                  
+
                   <p className="font-hand font-bold text-base text-primary mb-4">
                     “{service.tagline}”
                   </p>
@@ -208,7 +205,7 @@ export default function ITServices() {
 
         {/* Reveal All Button */}
         {!showAll && services.length > 2 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mt-12 text-center"
@@ -224,7 +221,7 @@ export default function ITServices() {
         )}
 
         {/* Dynamic Consultation request Banner */}
-        <motion.div 
+        <motion.div
           variants={fadeInUp}
           className="mt-16 bg-primary/10 border border-primary/20 p-8 sm:p-12 rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
         >
@@ -280,7 +277,7 @@ export default function ITServices() {
                 <form id="it-consultation-form" onSubmit={handleSubmit} className="p-8 space-y-6">
                   <div className="bg-white/40 p-4 rounded-2xl border border-charcoal/5">
                     <p className="font-sans text-xs text-charcoal/70">
-                      You have selected <strong className="text-charcoal font-semibold">{selectedService.title}</strong>. 
+                      You have selected <strong className="text-charcoal font-semibold">{selectedService.title}</strong>.
                       This form pre-populates our CRM so a lead technician can study your agency needs immediately.
                     </p>
                   </div>
@@ -412,7 +409,7 @@ export default function ITServices() {
                   <div className="inline-block p-4 bg-primary/10 border border-primary/20 rounded-full text-primary animate-bounce">
                     <CheckCircle className="w-12 h-12 stroke-[1.5]" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h4 className="font-display text-2xl font-bold text-charcoal">
                       Blueprint Registered!
@@ -429,7 +426,7 @@ export default function ITServices() {
                   <div className="bg-primary/5 border border-primary/10 p-6 rounded-2xl shadow-sm text-left max-w-sm mx-auto">
                     <span className="font-hand font-bold text-xs text-primary block mb-2 opacity-65">HAND-WRITTEN CONFIRMATION —</span>
                     <p className="font-hand text-base leading-relaxed text-charcoal font-semibold">
-                      "Sarah or Sarah’s assistant is reviewing Scribe Editorial's request details today. 
+                      "Sarah or Sarah’s assistant is reviewing Scribe Editorial's request details today.
                       Expect a warm response with a sketched deployment mock-up in your inbox inside 4 hours."
                     </p>
                     <span className="font-hand text-sm font-bold text-primary block text-right mt-3">- Cuva Studio</span>

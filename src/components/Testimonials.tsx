@@ -1,5 +1,5 @@
 import React from 'react';
-import { TESTIMONIALS, TRUSTPILOT_DATA } from '../data';
+import { TESTIMONIALS} from '../data';
 import { Testimonial } from '../types';
 import { Star, MessageSquarePlus, Filter, CheckCircle, Quote, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -124,55 +124,29 @@ export default function Testimonials() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Trustpilot Scoreboard Header */}
-        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-6 sm:p-8 rounded-3xl shadow-lg mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center space-x-6">
-            {/* Trustpilot custom visual design */}
-            <div className="bg-[#00b67a] p-4 sm:p-6 rounded-2xl shadow-md flex flex-col items-center justify-center shrink-0">
-              <span className="text-white text-2xl sm:text-3xl font-bold tracking-tighter leading-none select-none font-display">Trustpilot</span>
-              <div className="flex space-x-1 mt-2.5">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="bg-white p-1 rounded-sm">
-                    <svg className="w-3 h-3 text-[#00b67a] fill-current" viewBox="0 0 24 24">
-                      <polygon points="12,1.5 15.4,8.4 23,9.5 17.5,14.8 18.8,22.3 12,18.8 5.2,22.3 6.5,14.8 1,9.5 8.6,8.4" />
-                    </svg>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-display text-4xl font-bold text-charcoal">{TRUSTPILOT_DATA.rating}</span>
-                <span className="text-charcoal/40 text-sm font-bold uppercase tracking-wider">/ 5.0</span>
-              </div>
-              <h3 className="font-display text-xl font-bold text-charcoal mt-1">
-                {TRUSTPILOT_DATA.count} Verified Client Stories
-              </h3>
-              <p className="font-sans text-xs text-charcoal/50 leading-normal font-medium">
-                Based on enterprise IT frameworks, branding publications, and local SEO campaign records.
-              </p>
-            </div>
+        {/* Client Feedback Header */}
+        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-6 sm:p-8 rounded-3xl shadow-lg mb-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <span className="font-sans font-bold text-xs text-primary uppercase tracking-widest block mb-1">
+              Client Feedback
+            </span>
+            <h3 className="font-display text-2xl sm:text-3xl font-bold text-charcoal">
+              Verified Client Stories & Testimonials
+            </h3>
+            <p className="font-sans text-xs text-charcoal/50 leading-normal font-medium mt-1">
+              Real feedback from our IT, Branding & Printing, and Digital Marketing partners.
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             <button
               id="submit-review-trigger"
               onClick={() => setIsFormOpen(true)}
-              className="btn-secondary w-full sm:w-auto flex items-center justify-center space-x-2"
+              className="btn-primary w-full sm:w-auto flex items-center justify-center space-x-2"
             >
-              <MessageSquarePlus className="w-4 h-4 text-primary" />
+              <MessageSquarePlus className="w-4 h-4 text-white" />
               <span>Write a Testimonial</span>
             </button>
-            <a
-              id="external-trustpilot-link"
-              href="https://www.trustpilot.com"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="btn-primary w-full sm:w-auto text-center"
-            >
-              See all reviews
-            </a>
           </div>
         </motion.div>
 
