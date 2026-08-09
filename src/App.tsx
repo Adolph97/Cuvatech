@@ -123,211 +123,70 @@ function LandingPage() {
       {/* HERO SECTION */}
       <header
         id="hero"
-        className="pt-24 sm:pt-32 pb-16 sm:pb-32 bg-bg relative overflow-hidden"
+        className="pt-28 sm:pt-36 pb-16 sm:pb-24 bg-bg relative overflow-hidden"
       >
-        {/* Ambient brand color glows (Primary) matching new identity */}
-        <div className="absolute top-8 right-6 sm:top-12 sm:right-12 w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-primary/10 blur-[80px] sm:blur-[90px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute -bottom-12 -left-8 sm:-bottom-16 sm:-left-16 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-primary/5 blur-[80px] sm:blur-[120px] mix-blend-multiply pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="space-y-8 sm:space-y-10"
+          >
+            {/* Main Header Title & Subtitle */}
+            <motion.div variants={fadeInUp} className="space-y-6 max-w-4xl mx-auto">
+              <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold text-charcoal leading-[1.1] tracking-tight">
+                {hp.heroTitle || 'Optimizing Businesses.'}
+              </h1>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-
-            {/* Hero Left Content - STAGGERED MOTION ENTRANCES */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-              className="lg:col-span-7 space-y-8 text-left"
-            >
-
-              {/* Hand-sketched tag indicator */}
-              <motion.div
-                variants={fadeInUp}
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm select-none"
-              >
-              {/*
-                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                <span className="font-sans font-bold text-[10px] text-charcoal/40 uppercase tracking-[0.2em] select-none">
-                  Project Preview
-                </span> */}
-              </motion.div>
-
-              {/* Display Header */}
-              <motion.div
-                variants={fadeInUp}
-                className="space-y-6 relative"
-              >
-                <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
-                  <span className="relative inline-block pb-2">
-                    {hp.heroTitle || 'Optimizing Businesses.'}
-                  {/*<motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: '100%' }}
-                      transition={{ delay: 1, duration: 0.8 }}
-                      className="absolute left-0 bottom-0 h-[15%] min-h-[8px] max-h-[16px] bg-primary/30 -z-10 rounded-full"
-                    /> */}
-                  </span>
-                </h1>
-
-                <p className="font-sans text-xl sm:text-2xl text-charcoal/60 leading-relaxed max-w-2xl font-medium">
-                  {hp.heroSubtitle || 'Cuva Tech is your full-service crew for IT solutions, branding & printing, and digital marketing. Growing businesses get one calm partner instead of five vendors.'}
-                </p>
-              </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-wrap items-center gap-4 pt-4"
-              >
-                <motion.button
-                  id="hero-primary-cta"
-                  onClick={() => handleNavigate('contact')}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-primary text-white px-8 py-5 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 cursor-pointer transition-all flex items-center space-x-2"
-                >
-                  <span>{hp.heroCtaPrimary || 'Start a project'}</span>
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-
-                <motion.button
-                  id="hero-secondary-cta"
-                  onClick={() => handleNavigate('it-services')}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white text-charcoal border border-charcoal/5 px-8 py-5 text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
-                >
-                  {hp.heroCtaSecondary || 'See what we do'}
-                </motion.button>
-              </motion.div>
-
-              {/* Stats like in image */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex items-center space-x-6 sm:space-x-12 pt-10"
-              >
-                {(hp.stats || [
-                  { value: '120+', label: 'projects' },
-                  { value: '98%', label: 'retention' },
-                  { value: '24/7', label: 'support' }
-                ]).map((stat: any, i: number) => (
-                  <React.Fragment key={i}>
-                    {i > 0 && <div className="w-px h-10 bg-charcoal/5" />}
-                    <div>
-                      <div className="text-4xl font-extrabold text-charcoal">{stat.value}</div>
-                      <div className="text-xs text-charcoal/30 font-bold uppercase tracking-widest mt-1">{stat.label}</div>
-                    </div>
-                  </React.Fragment>
-                ))}
-              </motion.div>
-
-              {/* "that's us!" text with emoji */}
-             {/* <motion.div
-                variants={fadeInUp}
-                className="pt-8"
-              >
-                <span className="font-hand text-4xl text-primary font-bold italic rotate-[-5deg] inline-block">
-                  that's us! 👋
-                </span>
-              </motion.div>*/}
-
+              <p className="font-sans text-lg sm:text-2xl text-charcoal/70 leading-relaxed max-w-3xl mx-auto font-medium">
+                {hp.heroSubtitle || 'Cuva Tech is your full-service crew for IT solutions, branding & printing, and digital marketing. Growing businesses get one calm partner instead of five vendors.'}
+              </p>
             </motion.div>
 
-            {/* Hero Right Content: ORBITAL 3D REVOLVING GRAPHIC */}
+            {/* Call To Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 flex justify-center w-full relative h-[300px] sm:h-[400px] md:h-[500px] items-center"
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
             >
-              {/* Featured Services Visual Display */}
-    {/*<div className="absolute inset-0 flex items-center justify-center">
-                <AnimatePresence mode="popLayout">
-                  <motion.div
-                    key={`${activeSketch}-visual`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                    className="grid grid-cols-3 gap-4 sm:gap-6"
-                  >
-                    {activeSketch === 'it' && (
-                      <>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Server className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Servers</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Cpu className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Infrastructure</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Cloud className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Cloud</span>
-                        </div>
-                      </>
-                    )}
-                    {activeSketch === 'print' && (
-                      <>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Shirt className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Apparel</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <PenTool className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Logos</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Type className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Print Shop</span>
-                        </div>
-                      </>
-                    )}
-                    {activeSketch === 'marketing' && (
-                      <>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Search className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">SEO</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <BarChart className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Analytics</span>
-                        </div>
-                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
-                          <Megaphone className="w-8 h-8 text-primary" />
-                          <span className="text-xs font-bold text-charcoal">Campaigns</span>
-                        </div>
-                      </>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>*/}
+              <motion.button
+                id="hero-primary-cta"
+                onClick={() => handleNavigate('contact')}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-auto bg-primary text-white px-8 py-4 text-base sm:text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 cursor-pointer transition-all flex items-center justify-center space-x-2"
+              >
+                <span>{hp.heroCtaPrimary || 'Start a project'}</span>
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
 
-              {/* Bottom Caption & Selector UI Overlay */}
-              {/*<div className="absolute bottom-0 left-0 right-0 flex flex-col items-center space-y-4 sm:space-y-6 z-20 px-4">
-                <div className="flex bg-white/80 backdrop-blur-md border border-charcoal/5 rounded-full p-1.5 shadow-xl flex-wrap justify-center">
-                  {['it', 'print', 'marketing'].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setActiveSketch(p as any)}
-                      className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap ${
-                        activeSketch === p
-                          ? 'bg-charcoal text-white shadow-lg'
-                          : 'text-charcoal/30 hover:bg-bg hover:text-charcoal'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex flex-col items-center text-center space-y-1">
-                  <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.4em]">Agency_System </span>
-                </div>
-              </div>*/}
+              <motion.button
+                id="hero-secondary-cta"
+                onClick={() => handleNavigate('it-services')}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-auto bg-white text-charcoal border border-charcoal/10 px-8 py-4 text-base sm:text-lg font-bold rounded-2xl shadow-sm cursor-pointer transition-all hover:bg-bg"
+              >
+                {hp.heroCtaSecondary || 'See what we do'}
+              </motion.button>
             </motion.div>
 
-          </div>
+            {/* Key Statistics Display */}
+            <motion.div
+              variants={fadeInUp}
+              className="pt-10 sm:pt-14 border-t border-charcoal/5 max-w-3xl mx-auto grid grid-cols-3 gap-4 sm:gap-8 items-center"
+            >
+              {(hp.stats || [
+                { value: '120+', label: 'projects' },
+                { value: '98%', label: 'retention' },
+                { value: '24/7', label: 'support' }
+              ]).map((stat: any, i: number) => (
+                <div key={i} className="text-center">
+                  <div className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-charcoal tracking-tight">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-charcoal/40 font-bold uppercase tracking-widest mt-1 sm:mt-2">{stat.label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
       </header>
 
@@ -634,14 +493,9 @@ export default function App() {
                <ITServices />
              </PageWrapper>
            ) :
-           path === '/branding-and-printing' ? (
-             <PageWrapper activeSection="branding-printing">
-               <BrandingPage />
-             </PageWrapper>
-           ) :
-           path === '/digital-marketing' ? (
-             <PageWrapper activeSection="digital-marketing">
-               <DigitalMarketing />
+           path === '/branding-and-marketing' || path === '/branding-and-printing' || path === '/digital-marketing' ? (
+             <PageWrapper activeSection="branding-marketing">
+               <BrandingMarketingPage />
              </PageWrapper>
            ) :
            path === '/about' ? (
@@ -661,46 +515,56 @@ export default function App() {
   );
 }
 
-function BrandingPage() {
-  const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print' | null>('print');
+function BrandingMarketingPage() {
+  const [activeTab, setActiveTab] = useState<'branding' | 'print' | 'marketing'>('branding');
   return (
     <div className="py-16 sm:py-20 bg-bg relative min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal leading-tight mb-4">
-            Branding & Printing Portfolio
+            Branding, Printing & Marketing
           </h1>
           <p className="font-sans text-base sm:text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-            Our full-service print shop, logo studio, and live portfolio showcase of completed brand works.
+            Everything your business needs for brand design, physical print assets, and digital marketing expansion.
           </p>
         </div>
 
-        <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
+        <div className="flex bg-white/50 border border-charcoal/5 max-w-lg mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
           <button
-            onClick={() => setBrandingSubTab(brandingSubTab === 'print' ? null : 'print')}
+            onClick={() => setActiveTab('branding')}
             className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
-              brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
+              activeTab === 'branding' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
+            }`}
+          >
+            Logos & Design
+          </button>
+          <button
+            onClick={() => setActiveTab('print')}
+            className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === 'print' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
             }`}
           >
             Print Configurator
           </button>
           <button
-            onClick={() => setBrandingSubTab(brandingSubTab === 'logo' ? null : 'logo')}
+            onClick={() => setActiveTab('marketing')}
             className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
-              brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
+              activeTab === 'marketing' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
             }`}
           >
-            Logos & Graphics
+            Digital Marketing
           </button>
         </div>
 
         <div>
-          {brandingSubTab === 'logo' && <CanvaIntegration />}
-          {brandingSubTab === 'print' && <PrintingConfigurator />}
-        </div>
-
-        <div className="mt-16 pt-12 border-t border-charcoal/5">
-          <PrintingJobsGallery />
+          {activeTab === 'branding' && <CanvaIntegration />}
+          {activeTab === 'print' && (
+            <div className="space-y-16">
+              <PrintingConfigurator />
+              <PrintingJobsGallery />
+            </div>
+          )}
+          {activeTab === 'marketing' && <DigitalMarketing />}
         </div>
       </div>
     </div>
@@ -713,8 +577,9 @@ function PageWrapper({ children, activeSection }: { children: React.ReactNode; a
     const routeMap: Record<string, string> = {
       'hero': '/',
       'it-services': '/it-services',
-      'branding-printing': '/branding-and-printing',
-      'digital-marketing': '/digital-marketing',
+      'branding-marketing': '/branding-and-marketing',
+      'branding-printing': '/branding-and-marketing',
+      'digital-marketing': '/branding-and-marketing',
       'about-us': '/about',
       'contact': '/contact'
     };

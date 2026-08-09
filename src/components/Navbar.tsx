@@ -55,8 +55,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenConsultForm }:
   const navItems = [
     { id: 'hero', label: 'Home', path: '/' },
     { id: 'it-services', label: 'IT Services', path: '/it-services' },
-    { id: 'branding-printing', label: 'Branding & Printing', path: '/branding-and-printing' },
-    { id: 'digital-marketing', label: 'Marketing', path: '/digital-marketing' },
+    { id: 'branding-marketing', label: 'Branding & Marketing', path: '/branding-and-marketing' },
     { id: 'about-us', label: 'About Us', path: '/about' },
     { id: 'blog', label: 'Journal', path: '/blog' },
     { id: 'contact', label: 'Contact', path: '/contact' }
