@@ -48,7 +48,7 @@ function LandingPage() {
   const [globalName, setGlobalName] = useState('');
   const [globalEmail, setGlobalEmail] = useState('');
   const [globalSent, setGlobalSent] = useState(false);
-  
+
   // Custom interactive tab for branding
   const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print' | null>(null);
 
@@ -112,7 +112,7 @@ function LandingPage() {
 
   return (
     <div className="bg-bg text-charcoal min-h-screen font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
-      
+
       {/* Dynamic Navigation Bar */}
       <Navbar
         activeSection={activeSection}
@@ -131,17 +131,17 @@ function LandingPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            
+
             {/* Hero Left Content - STAGGERED MOTION ENTRANCES */}
-            <motion.div 
+            <motion.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
               className="lg:col-span-7 space-y-8 text-left"
             >
-              
+
               {/* Hand-sketched tag indicator */}
-              <motion.div 
+              <motion.div
                 variants={fadeInUp}
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm select-none"
               >
@@ -153,29 +153,29 @@ function LandingPage() {
               </motion.div>
 
               {/* Display Header */}
-              <motion.div 
+              <motion.div
                 variants={fadeInUp}
                 className="space-y-6 relative"
               >
                 <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-[0.9] tracking-tight">
                   <span className="relative inline-block pb-2">
                     {hp.heroTitle || 'Optimizing Businesses.'}
-                    <motion.div 
+                  {/*<motion.div
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ delay: 1, duration: 0.8 }}
-                      className="absolute left-0 bottom-0 h-[15%] min-h-[8px] max-h-[16px] bg-primary/30 -z-10 rounded-full" 
-                    />
+                      className="absolute left-0 bottom-0 h-[15%] min-h-[8px] max-h-[16px] bg-primary/30 -z-10 rounded-full"
+                    /> */}
                   </span>
                 </h1>
-                
+
                 <p className="font-sans text-xl sm:text-2xl text-charcoal/60 leading-relaxed max-w-2xl font-medium">
                   {hp.heroSubtitle || 'Cuva Tech is your full-service crew for IT solutions, branding & printing, and digital marketing. Growing businesses get one calm partner instead of five vendors.'}
                 </p>
               </motion.div>
 
               {/* Action Buttons */}
-              <motion.div 
+              <motion.div
                 variants={fadeInUp}
                 className="flex flex-wrap items-center gap-4 pt-4"
               >
@@ -189,7 +189,7 @@ function LandingPage() {
                   <span>{hp.heroCtaPrimary || 'Start a project'}</span>
                   <ArrowRight className="w-5 h-5" />
                 </motion.button>
-                
+
                 <motion.button
                   id="hero-secondary-cta"
                   onClick={() => handleNavigate('it-services')}
@@ -202,7 +202,7 @@ function LandingPage() {
               </motion.div>
 
               {/* Stats like in image */}
-              <motion.div 
+              <motion.div
                 variants={fadeInUp}
                 className="flex items-center space-x-6 sm:space-x-12 pt-10"
               >
@@ -222,7 +222,7 @@ function LandingPage() {
               </motion.div>
 
               {/* "that's us!" text with emoji */}
-             {/* <motion.div 
+             {/* <motion.div
                 variants={fadeInUp}
                 className="pt-8"
               >
@@ -240,110 +240,71 @@ function LandingPage() {
               transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 flex justify-center w-full relative h-[300px] sm:h-[400px] md:h-[500px] items-center"
             >
-              {/* Background Decorative Glows */}
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -z-10"
-              />
-
-              {/* Main Central Illustration */}
-              <div className="relative z-10 w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px]">
-                <MasterHeroIllustration
-                  className="w-full h-auto"
-                  activePillar={activeSketch}
-                />
-              </div>
-
-              {/* Orbital Icons Layer */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-
+              {/* Featured Services Visual Display */}
+    {/*<div className="absolute inset-0 flex items-center justify-center">
                 <AnimatePresence mode="popLayout">
-                  {/* Orbit 1 */}
                   <motion.div
-                    key={`${activeSketch}-orbit-1`}
-                    initial={{ opacity: 0, scale: 0.5 }}
+                    key={`${activeSketch}-visual`}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute inset-0 flex items-center justify-center"
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.4 }}
+                    className="grid grid-cols-3 gap-4 sm:gap-6"
                   >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="absolute w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] border border-charcoal/[0.03] rounded-full"
-                    >
-                      <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
-                      >
-                        {activeSketch === 'it' && <Server className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'print' && <Shirt className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <Search className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                      </motion.div>
-                    </motion.div>
-                  </motion.div>
-
-                  {/* Orbit 2 */}
-                  <motion.div
-                    key={`${activeSketch}-orbit-2`}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                      style={{ rotate: 120 }}
-                      className="absolute w-[260px] h-[260px] sm:w-[350px] sm:h-[350px] md:w-[420px] md:h-[420px] border border-charcoal/[0.02] rounded-full"
-                    >
-                      <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
-                      >
-                        {activeSketch === 'it' && <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'print' && <PenTool className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <BarChart className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                      </motion.div>
-                    </motion.div>
-                  </motion.div>
-
-                  {/* Orbit 3 */}
-                  <motion.div
-                    key={`${activeSketch}-orbit-3`}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                      style={{ rotate: 240 }}
-                      className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] border border-charcoal/[0.025] rounded-full"
-                    >
-                      <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 p-3 sm:p-4 bg-white border border-charcoal/5 rounded-2xl shadow-xl pointer-events-auto"
-                      >
-                        {activeSketch === 'it' && <Cloud className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'print' && <Type className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                        {activeSketch === 'marketing' && <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                      </motion.div>
-                    </motion.div>
+                    {activeSketch === 'it' && (
+                      <>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Server className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Servers</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Cpu className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Infrastructure</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Cloud className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Cloud</span>
+                        </div>
+                      </>
+                    )}
+                    {activeSketch === 'print' && (
+                      <>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Shirt className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Apparel</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <PenTool className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Logos</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Type className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Print Shop</span>
+                        </div>
+                      </>
+                    )}
+                    {activeSketch === 'marketing' && (
+                      <>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Search className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">SEO</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <BarChart className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Analytics</span>
+                        </div>
+                        <div className="p-5 sm:p-6 bg-white border border-charcoal/5 rounded-2xl shadow-md flex flex-col items-center gap-3 text-center">
+                          <Megaphone className="w-8 h-8 text-primary" />
+                          <span className="text-xs font-bold text-charcoal">Campaigns</span>
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 </AnimatePresence>
-
-              </div>
+              </div>*/}
 
               {/* Bottom Caption & Selector UI Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center space-y-4 sm:space-y-6 z-20 px-4">
+              {/*<div className="absolute bottom-0 left-0 right-0 flex flex-col items-center space-y-4 sm:space-y-6 z-20 px-4">
                 <div className="flex bg-white/80 backdrop-blur-md border border-charcoal/5 rounded-full p-1.5 shadow-xl flex-wrap justify-center">
                   {['it', 'print', 'marketing'].map((p) => (
                     <button
@@ -362,9 +323,8 @@ function LandingPage() {
                 </div>
                 <div className="flex flex-col items-center text-center space-y-1">
                   <span className="font-sans text-[10px] font-bold text-charcoal/20 uppercase tracking-[0.4em]">Agency_System </span>
-                 {/* <span className="font-hand text-primary text-lg font-bold italic opacity-60">"Revolving Creative Logic"</span>*/}
                 </div>
-              </div>
+              </div>*/}
             </motion.div>
 
           </div>
@@ -372,15 +332,15 @@ function LandingPage() {
       </header>
 
       {/* CORE THREE-SERVICES OVERVIEW GRID - ANIMATED */}
-      <motion.section 
+      <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
-        className="py-24 bg-white/50 relative"
+        className="py-12 sm:py-16 bg-white/50 relative"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-20">
             <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">{hp.coreOverview?.eyebrow || 'Core Ecosystem'}</span>
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal">
@@ -401,7 +361,7 @@ function LandingPage() {
                 <Megaphone className="w-8 h-8 text-primary" />
               ];
               return (
-                <motion.div 
+                <motion.div
                   key={i}
                   variants={fadeInUp}
                   whileHover={{ y: -12 }}
@@ -437,45 +397,42 @@ function LandingPage() {
         <ITServices />
       </motion.div>
 
-      {/* BRANDING & PRINTING SECTION */}
+      {/* BRANDING & PRINTING SECTION (CONSOLIDATED WITH PORTFOLIO) */}
       <motion.section
         id="branding-printing"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeInUp}
-        className="py-24 bg-bg relative"
+        className="py-16 sm:py-20 bg-bg relative"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="max-w-3xl mx-auto text-center mb-16">
-           {/* <span className="font-sans text-xs font-bold text-primary tracking-widest uppercase block mb-3">
-              02 / Material Layer
-            </span>*/}
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6">
-              {hp.brandingSection?.title || 'Branding, Logos & Print'}
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal leading-tight mb-4">
+              {hp.brandingSection?.title || 'Branding & Printing Portfolio'}
             </h2>
-            <p className="font-sans text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
-              {hp.brandingSection?.subtitle || 'We design lasting brandmarks and print them on premium, eco-friendly assets. Choose between linking your Canva projects directly or using our custom product configurators.'}
+            <p className="font-sans text-base sm:text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
+              {hp.brandingSection?.subtitle || 'Our full-service print shop, logo studio, and live portfolio showcase of completed brand works.'}
             </p>
           </div>
 
-          {/* Sub Tab Switcher: Canva vs Configurator */}
-          <div className="flex bg-white/50 border border-charcoal/5 max-w-sm mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-16 shadow-sm">
+          {/* Sub Tab Switcher */}
+          <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
             <button
               id="subtab-print"
               onClick={() => setBrandingSubTab(brandingSubTab === 'print' ? null : 'print')}
-              className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
                 brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
-              Print
+              Print Configurator
             </button>
             <button
               id="subtab-logo"
               onClick={() => setBrandingSubTab(brandingSubTab === 'logo' ? null : 'logo')}
-              className={`flex-1 py-4 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
                 brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-charcoal/40 hover:bg-white'
               }`}
             >
@@ -510,19 +467,13 @@ function LandingPage() {
             </AnimatePresence>
           </div>
 
+          {/* Integrated Printing Portfolio Showcase */}
+          <div className="mt-16 pt-12 border-t border-charcoal/5">
+            <PrintingJobsGallery />
+          </div>
+
         </div>
       </motion.section>
-
-      {/* PRINTING JOBS GALLERY SECTION */}
-      <motion.div
-        id="printing-jobs"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={fadeInUp}
-      >
-        <PrintingJobsGallery />
-      </motion.div>
 
       {/* DIGITAL MARKETING CORE SEC */}
       <motion.div
@@ -534,10 +485,7 @@ function LandingPage() {
         <DigitalMarketing />
       </motion.div>
 
-      {/* ABOUT US story, mission, crew blocks */}
-      <AboutUs />
-
-      {/* TESTIMONIALS catalog and TrustpilotScoreboard */}
+      {/* TESTIMONIALS catalog */}
       <Testimonials />
 
       {/* RECENT BLOG POSTS — latest 3 with link to the full Journal */}
@@ -589,7 +537,7 @@ function LandingPage() {
                 </div>
               ) : (
                 <form onSubmit={handleGlobalSubmit} className="p-8 pt-2 space-y-5 font-sans">
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Your Name</label>
                     <input
@@ -636,7 +584,7 @@ function LandingPage() {
                   >
                     Send Request
                   </button>
-                  
+
                   <p className="text-[10px] text-charcoal/30 text-center px-4">
                     By submitting, you agree to our data handling protocols. We strictly never sell your information.
                   </p>
@@ -661,8 +609,7 @@ export default function App() {
     };
 
     window.addEventListener('popstate', handleLocationChange);
-    
-    // Polyfill for manual pushState
+
     const originalPushState = window.history.pushState;
     window.history.pushState = function(...args: any[]) {
       originalPushState.apply(window.history, args as any);
@@ -682,9 +629,112 @@ export default function App() {
           {path === '/admin' ? <AdminDashboard /> :
            path === '/blog' ? <BlogList /> :
            path.startsWith('/blog/') ? <BlogPost /> :
+           path === '/it-services' ? (
+             <PageWrapper activeSection="it-services">
+               <ITServices />
+             </PageWrapper>
+           ) :
+           path === '/branding-and-printing' ? (
+             <PageWrapper activeSection="branding-printing">
+               <BrandingPage />
+             </PageWrapper>
+           ) :
+           path === '/digital-marketing' ? (
+             <PageWrapper activeSection="digital-marketing">
+               <DigitalMarketing />
+             </PageWrapper>
+           ) :
+           path === '/about' ? (
+             <PageWrapper activeSection="about-us">
+               <AboutUs />
+             </PageWrapper>
+           ) :
+           path === '/contact' ? (
+             <PageWrapper activeSection="contact">
+               <ContactForm />
+             </PageWrapper>
+           ) :
            <LandingPage />}
         </ContentProvider>
       </SiteInfoProvider>
     </OrderProvider>
+  );
+}
+
+function BrandingPage() {
+  const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print' | null>('print');
+  return (
+    <div className="py-16 sm:py-20 bg-bg relative min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal leading-tight mb-4">
+            Branding & Printing Portfolio
+          </h1>
+          <p className="font-sans text-base sm:text-lg text-charcoal/60 leading-relaxed max-w-2xl mx-auto">
+            Our full-service print shop, logo studio, and live portfolio showcase of completed brand works.
+          </p>
+        </div>
+
+        <div className="flex bg-white/50 border border-charcoal/5 max-w-md mx-auto rounded-[1.5rem] p-1.5 text-xs sm:text-sm font-bold mb-12 shadow-sm">
+          <button
+            onClick={() => setBrandingSubTab(brandingSubTab === 'print' ? null : 'print')}
+            className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
+              brandingSubTab === 'print' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
+            }`}
+          >
+            Print Configurator
+          </button>
+          <button
+            onClick={() => setBrandingSubTab(brandingSubTab === 'logo' ? null : 'logo')}
+            className={`flex-1 py-3.5 rounded-xl transition-all cursor-pointer ${
+              brandingSubTab === 'logo' ? 'bg-charcoal text-white shadow-xl' : 'text-charcoal/40 hover:bg-white'
+            }`}
+          >
+            Logos & Graphics
+          </button>
+        </div>
+
+        <div>
+          {brandingSubTab === 'logo' && <CanvaIntegration />}
+          {brandingSubTab === 'print' && <PrintingConfigurator />}
+        </div>
+
+        <div className="mt-16 pt-12 border-t border-charcoal/5">
+          <PrintingJobsGallery />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PageWrapper({ children, activeSection }: { children: React.ReactNode; activeSection: string }) {
+  const [isConsultOpen, setIsConsultOpen] = useState(false);
+  const handleNavigate = (id: string) => {
+    const routeMap: Record<string, string> = {
+      'hero': '/',
+      'it-services': '/it-services',
+      'branding-printing': '/branding-and-printing',
+      'digital-marketing': '/digital-marketing',
+      'about-us': '/about',
+      'contact': '/contact'
+    };
+    if (routeMap[id]) {
+      window.history.pushState({ path: routeMap[id] }, '', routeMap[id]);
+    }
+  };
+
+  return (
+    <div className="bg-bg text-charcoal min-h-screen font-sans antialiased">
+      <Navbar
+        activeSection={activeSection}
+        onNavigate={handleNavigate}
+        onOpenConsultForm={() => setIsConsultOpen(true)}
+      />
+      <div className="pt-20">
+        {children}
+      </div>
+      <Testimonials />
+      <Footer onNavigate={handleNavigate} />
+    </div>
   );
 }
