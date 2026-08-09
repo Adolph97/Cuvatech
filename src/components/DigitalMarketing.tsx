@@ -79,13 +79,13 @@ export default function DigitalMarketing() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={staggerContainer}
-      className="py-24 bg-bg relative overflow-hidden"
+      className="py-10 sm:py-14 bg-bg relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-white/20 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
+        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
           <span className="font-sans font-bold text-xs text-primary tracking-widest uppercase block mb-3">
           </span>
           <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-extrabold text-charcoal leading-tight mb-6 text-center">
@@ -97,7 +97,7 @@ export default function DigitalMarketing() {
         </motion.div>
 
         {/* Tab Selection */}
-        <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-16 select-none">
+        <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 select-none">
           {[
             { id: 'seo', label: 'SEO Engine', icon: <Search className="w-4 h-4" /> },
             { id: 'ads', label: 'ADS (Google/SM)', icon: <Megaphone className="w-4 h-4" /> },
@@ -225,7 +225,7 @@ export default function DigitalMarketing() {
                   {seo.eyebrow || 'Organic Traffic Engine [SEO]'}
                 </span>
                 <h3 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight">
-                  {seo.headline || 'SEO audits with '} <br /><span className="text-primary italic">{seo.headlineAccent || 'high-intent precision.'}</span>
+                  {seo.headline || 'SEO audits with '} <br /><span className="text-primary">{seo.headlineAccent || 'high-intent precision.'}</span>
                 </h3>
                 
                 <p className="font-sans text-base text-charcoal/60 leading-relaxed">

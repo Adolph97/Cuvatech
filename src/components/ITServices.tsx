@@ -126,7 +126,7 @@ export default function ITServices() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={staggerContainer}
-      className="py-20 bg-bg border-b border-charcoal/5 relative"
+      className="py-10 sm:py-14 bg-bg border-b border-charcoal/5 relative"
     >
       {/* Visual Organic Accent Grid line background */}
       <div className="absolute inset-0 bg-[radial-gradient(#1e1b18_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none" />
@@ -134,7 +134,7 @@ export default function ITServices() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Section Header */}
-        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-16">
+        <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-charcoal leading-tight mb-4">
             {content.homepage?.itSection?.title || 'IT Solutions & Systems'}
           </h2>

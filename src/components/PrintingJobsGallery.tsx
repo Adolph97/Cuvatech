@@ -31,12 +31,12 @@ export default function PrintingJobsGallery() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={fadeInUp}
-      className="py-24 bg-bg relative overflow-hidden"
+      className="py-10 sm:py-14 bg-bg relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={fadeInUp}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-10"
         >
           <span className="font-sans text-xs font-bold text-primary uppercase tracking-[0.2em] block mb-2">
             Portfolio Showcase
