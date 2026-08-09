@@ -118,7 +118,7 @@ export default function Testimonials() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       variants={staggerContainer}
-      className="py-20 bg-bg border-b border-charcoal/5 relative"
+      className="py-10 sm:py-14 bg-bg border-b border-charcoal/5 relative"
     >
       <div className="absolute inset-0 bg-primary/5 opacity-30 pointer-events-none" />
 
