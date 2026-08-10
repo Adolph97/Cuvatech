@@ -12,7 +12,11 @@ const fadeInScale = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
 };
 
-export default function PrintingJobsGallery() {
+interface PrintingJobsGalleryProps {
+  onNavigateToConfigurator?: () => void;
+}
+
+export default function PrintingJobsGallery({ onNavigateToConfigurator }: PrintingJobsGalleryProps) {
   const [items, setItems] = useState<PortfolioItem[]>([]);
 
   useEffect(() => {
@@ -88,6 +92,12 @@ export default function PrintingJobsGallery() {
                 </motion.div>
               );
 
+              const handleClick = () => {
+                if (onNavigateToConfigurator) {
+                  onNavigateToConfigurator();
+                }
+              };
+
               return item.link ? (
                 <a
                   key={item.id}
@@ -95,11 +105,15 @@ export default function PrintingJobsGallery() {
                   target="_blank"
                   rel="noreferrer"
                   className="contents"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleClick();
+                  }}
                 >
                   {cardContent}
                 </a>
               ) : (
-                <div key={item.id} className="contents">
+                <div key={item.id} className="contents cursor-pointer" onClick={handleClick}>
                   {cardContent}
                 </div>
               );
