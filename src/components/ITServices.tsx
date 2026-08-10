@@ -171,9 +171,9 @@ export default function ITServices() {
                     {service.title}
                   </h3>
 
-                  <p className="font-hand font-bold text-base text-primary mb-4">
+              {/*<p className="font-hand font-bold text-base text-primary mb-4">
                     “{service.tagline}”
-                  </p>
+                  </p>*/}
 
                   <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed mb-6">
                     {service.description}
