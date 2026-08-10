@@ -328,7 +328,15 @@ function LandingPage() {
 
           {/* Integrated Printing Portfolio Showcase */}
           <div className="mt-10 pt-8 border-t border-charcoal/5">
-            <PrintingJobsGallery />
+            <PrintingJobsGallery
+              onNavigateToConfigurator={() => {
+                setBrandingSubTab('print');
+                setTimeout(() => {
+                  const el = document.getElementById('branding-workspace-canvas');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+              }}
+            />
           </div>
 
         </div>
@@ -566,7 +574,15 @@ function BrandingPrintingPage() {
           {activeTab === 'print' && (
             <div className="space-y-10">
               <PrintingConfigurator />
-              <PrintingJobsGallery />
+              <PrintingJobsGallery
+                onNavigateToConfigurator={() => {
+                  setActiveTab('print');
+                  setTimeout(() => {
+                    const el = document.querySelector('#branding-and-printing .space-y-10 > div:first-child');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 50);
+                }}
+              />
             </div>
           )}
         </div>
