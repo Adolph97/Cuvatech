@@ -38,7 +38,7 @@ export default function ContactForm() {
     message: '',
     consent: true
   });
-  
+
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -73,7 +73,7 @@ export default function ContactForm() {
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
-    
+
     if (!formInputs.fullName.trim()) newErrors.fullName = 'Please let us know your name.';
     if (!formInputs.email.trim()) {
       newErrors.email = 'An email coordinates is necessary.';
@@ -104,8 +104,8 @@ export default function ContactForm() {
   };
 
   return (
-    <motion.section 
-      id="contact" 
+    <motion.section
+      id="contact"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -115,9 +115,9 @@ export default function ContactForm() {
       <div className="absolute inset-0 bg-white/20 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
+
           {/* Left Side: Custom map & Contact Specifications */}
           <motion.div variants={fadeInUp} className="lg:col-span-5 space-y-8">
             <div className="space-y-3">
@@ -126,38 +126,18 @@ export default function ContactForm() {
                 Establish Direct Contact
               </h3>
               <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
-                Whether you need server systems aligned, organic booklets bound, or organic search 
+                Whether you need server systems aligned, organic booklets bound, or organic search
                 campaigns mapped, we keep the line warm. Get in touch directly, with no bot gates.
               </p>
             </div>
 
             {/* Custom Hand-Drawn Map (SVG layout of Temple Lane, Dublin) */}
-            <div className="bg-white border border-charcoal/5 p-5 rounded-2xl shadow-sm space-y-4">
+            {/*<div className="bg-white border border-charcoal/5 p-5 rounded-2xl shadow-sm space-y-4">
               <span className="font-mono text-[10px] font-bold text-primary/60 uppercase block tracking-widest">OUR WORKSPACE POSITION SPEC</span>
-              
-              <div className="h-48 bg-bg border border-charcoal/5 rounded-xl relative overflow-hidden flex items-center justify-center">
-                
-                {/* Visual sketch map shapes */}
-                <svg className="absolute inset-0 w-full h-full text-charcoal/10 stroke-[1.2]" viewBox="0 0 300 200" fill="none">
-                  {/* Street grids */}
-                  <path d="M0,45h300M0,150h300M120,0v200M220,0v200" stroke="currentColor" strokeWidth="4" />
-                  {/* Small back alleys */}
-                  <path d="M40,45v105M120,95h100" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3"/>
-                  
-                  {/* Blocks shapes representing buildings */}
-                  <rect x="20" y="10" width="80" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
-                  <rect x="140" y="10" width="60" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
-                  <rect x="240" y="10" width="50" height="120" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
-                  <rect x="20" y="60" width="80" height="75" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
-                  <rect x="140" y="60" width="60" height="25" fill="#fcfbf9" stroke="currentColor" strokeWidth="1" />
-                  {/* Cuva studio block highlighted */}
-                  <rect x="140" y="105" width="60" height="30" fill="rgba(229, 139, 109, 0.1)" stroke="var(--color-primary)" strokeWidth="1" />
-                  
-                  {/* River Liffey representation at bottom */}
-                  <path d="M0,185 Q100,180 200,190 T300,182" stroke="var(--color-primary)" strokeWidth="4" strokeOpacity="0.1" />
-                </svg>
 
-                {/* Animated Map Pin */}
+              <div className="h-48 bg-bg border border-charcoal/5 rounded-xl relative overflow-hidden flex items-center justify-center">
+
+
                 <div className="absolute top-[105px] left-[155px] flex flex-col items-center group cursor-pointer">
                   <div className="bg-primary text-white p-1.5 rounded-full shadow-lg animate-bounce">
                     <MapPin className="w-5 h-5" />
@@ -171,7 +151,7 @@ export default function ContactForm() {
               <span className="font-sans text-[10px] text-charcoal/40 text-center block font-medium">
                 ({address})
               </span>
-            </div>
+            </div>*/}
 
             {/* Direct addresses points */}
             <div className="space-y-5 font-sans text-sm text-charcoal">
@@ -241,7 +221,7 @@ export default function ContactForm() {
 
           {/* Right Side: Inquiry Contact Form */}
           <motion.div variants={fadeInUp} className="lg:col-span-7 bg-white border border-charcoal/5 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg w-full overflow-hidden">
-            
+
             {submitted ? (
               <div id="contact-success-state" className="py-12 text-center space-y-8">
                 <div className="inline-block p-6 bg-primary/10 border border-primary/20 rounded-full text-primary animate-bounce shadow-sm">
@@ -287,7 +267,7 @@ export default function ContactForm() {
               </div>
             ) : (
               <form onSubmit={handleFormSubmit} className="space-y-6">
-                
+
                 <div className="border-b border-charcoal/5 pb-6 mb-2">
                   <h4 className="font-display text-3xl font-bold text-charcoal">
                     Write to our Studio
