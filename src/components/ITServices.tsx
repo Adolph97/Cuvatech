@@ -203,19 +203,19 @@ export default function ITServices() {
           </AnimatePresence>
         </div>
 
-        {/* Reveal All Button */}
-        {!showAll && services.length > 2 && (
+        {/* Reveal All / Show Less Button */}
+        {services.length > 2 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mt-12 text-center"
           >
             <button
-              id="reveal-all-it-services"
-              onClick={() => setShowAll(true)}
+              id={showAll ? "collapse-it-services" : "reveal-all-it-services"}
+              onClick={() => setShowAll(!showAll)}
               className="btn-secondary px-10 py-4 text-sm font-bold rounded-2xl border border-charcoal/10 hover:bg-white transition-all shadow-sm cursor-pointer"
             >
-              Reveal All Services
+              {showAll ? 'Show Less' : 'Reveal All Services'}
             </button>
           </motion.div>
         )}
