@@ -356,7 +356,7 @@ function LandingPage() {
       <Testimonials />
 
       {/* RECENT BLOG POSTS — latest 3 with link to the full Journal */}
-      <BlogPreview />
+     {/*<BlogPreview />*/}
 
       {/* CONTACT FORM & custom coordinate maps */}
       <ContactForm />
