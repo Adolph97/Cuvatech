@@ -359,7 +359,7 @@ function LandingPage() {
      {/*<BlogPreview />*/}
 
       {/* CONTACT FORM & custom coordinate maps */}
-      <ContactForm />
+    {/* <ContactForm /> */}
 
       {/* STANDARD SITE FOOTER */}
       <Footer onNavigate={handleNavigate} />
