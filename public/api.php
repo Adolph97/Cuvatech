@@ -376,14 +376,13 @@ if ($path === 'create-payment-intent' && $_SERVER['REQUEST_METHOD'] === 'POST') 
     $order_id = isset($input['orderId']) ? $input['orderId'] : '';
 
     // Create PaymentIntent via Stripe API using curl
-    $payload = json_encode([
+    // Stripe requires application/x-www-form-urlencoded, NOT JSON
+    $payload = http_build_query([
         "amount" => $amount_cents,
         "currency" => $currency,
-        "automatic_payment_methods" => ["enabled" => true],
-        "metadata" => [
-            "order_id" => $order_id,
-            "platform" => "cuvatech"
-        ]
+        "automatic_payment_methods[enabled]" => "true",
+        "metadata[order_id]" => $order_id,
+        "metadata[platform]" => "cuvatech"
     ]);
 
     $ch = curl_init("https://api.stripe.com/v1/payment_intents");
@@ -391,8 +390,7 @@ if ($path === 'create-payment-intent' && $_SERVER['REQUEST_METHOD'] === 'POST') 
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Authorization: Bearer " . $secret_key,
-        "Content-Type: application/json"
+        "Authorization: Bearer " . $secret_key
     ]);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
