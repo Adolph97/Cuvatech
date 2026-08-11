@@ -230,7 +230,7 @@ export default function ContactForm() {
                 <div className="space-y-3">
                   <h4 className="font-display text-3xl font-bold text-charcoal">Brief lodged!</h4>
                   <p className="font-sans text-sm text-charcoal/60 max-w-sm mx-auto leading-relaxed">
-                    Thank you <strong className="font-bold text-charcoal">{formInputs.fullName}</strong>. Your inquiry of interest has been scheduled on Sarah’s creative layout docket.
+                    Thank you <strong className="font-bold text-charcoal">{formInputs.fullName}</strong>. Your inquiry of interest has been scheduled.
                   </p>
                 </div>
 
