@@ -159,6 +159,45 @@ app.post("/api/admin/settings", (req, res) => {
   const { password, ...safeSettings } = config;
   res.json(safeSettings);
 });
+app.post("/api/create-payment-intent", async (req, res) => {
+  const config = readConfig();
+  const secretKey = config.stripeSecretKey || "";
+  if (!secretKey) {
+    return res.status(500).json({ error: "Stripe secret key not configured. Please set it in Admin Settings." });
+  }
+  const { amount, currency = "usd", orderId = "" } = req.body;
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return res.status(400).json({ error: "Invalid amount. Amount must be in cents and greater than zero." });
+  }
+  try {
+    const params = new URLSearchParams();
+    params.append("amount", String(Math.round(amount)));
+    params.append("currency", currency);
+    params.append("automatic_payment_methods[enabled]", "true");
+    params.append("metadata[orderId]", orderId);
+    params.append("metadata[platform]", "cuvatech");
+    const stripeRes = await fetch("https://api.stripe.com/v1/payment_intents", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params.toString()
+    });
+    const data = await stripeRes.json();
+    if (!stripeRes.ok) {
+      const msg = data?.error?.message || "Stripe API error";
+      return res.status(402).json({ error: msg });
+    }
+    res.json({
+      clientSecret: data.client_secret,
+      paymentIntentId: data.id
+    });
+  } catch (err) {
+    console.error("Stripe PaymentIntent error:", err?.message || err);
+    res.status(502).json({ error: "Failed to connect to Stripe API" });
+  }
+});
 app.get("/api/settings/public", (req, res) => {
   const config = readConfig();
   res.json({
