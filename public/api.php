@@ -352,6 +352,76 @@ if ($path === 'admin/settings') {
     exit();
 }
 
+// Route: create-payment-intent (POST)
+if ($path === 'create-payment-intent' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $config = getConfigWithDeliveryDefaults($config_file);
+    $secret_key = isset($config['stripeSecretKey']) ? $config['stripeSecretKey'] : '';
+
+    if ($secret_key === '') {
+        http_response_code(500);
+        echo json_encode(["error" => "Stripe secret key not configured. Please set it in Admin Settings."]);
+        exit();
+    }
+
+    $input = getJsonInput();
+    $amount_cents = isset($input['amount']) ? intval($input['amount']) : 0;
+    $currency = isset($input['currency']) ? strtolower($input['currency']) : 'usd';
+
+    if ($amount_cents <= 0) {
+        http_response_code(400);
+        echo json_encode(["error" => "Invalid amount. Amount must be in cents and greater than zero."]);
+        exit();
+    }
+
+    $order_id = isset($input['orderId']) ? $input['orderId'] : '';
+
+    // Create PaymentIntent via Stripe API using curl
+    $payload = json_encode([
+        "amount" => $amount_cents,
+        "currency" => $currency,
+        "automatic_payment_methods" => ["enabled" => true],
+        "metadata" => [
+            "order_id" => $order_id,
+            "platform" => "cuvatech"
+        ]
+    ]);
+
+    $ch = curl_init("https://api.stripe.com/v1/payment_intents");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: Bearer " . $secret_key,
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false) {
+        http_response_code(502);
+        echo json_encode(["error" => "Failed to connect to Stripe API"]);
+        exit();
+    }
+
+    $decoded = json_decode($response, true);
+
+    if ($http_code !== 200) {
+        $msg = isset($decoded['error']['message']) ? $decoded['error']['message'] : 'Stripe API error';
+        http_response_code(402);
+        echo json_encode(["error" => $msg]);
+        exit();
+    }
+
+    echo json_encode([
+        "clientSecret" => $decoded['client_secret'],
+        "paymentIntentId" => $decoded['id']
+    ]);
+    exit();
+}
+
 // Route: settings/public
 if ($path === 'settings/public') {
     $config = getConfigWithDeliveryDefaults($config_file);
