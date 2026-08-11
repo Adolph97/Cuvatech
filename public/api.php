@@ -48,7 +48,8 @@ if (!file_exists($config_file)) {
         "paymentMode" => "sandbox",
         "deliveryFee" => 35,
         "premiumDeliveryFee" => 45,
-        "premiumClients" => ["Jastel Water", "Surjen Healthcare"]
+        "premiumClients" => ["Jastel Water", "Surjen Healthcare"],
+        "servicePricing" => ["logoDesign" => 199, "seoAudit" => 299, "adCampaign" => 499, "socialStrategy" => 399, "analyticsEmail" => 349]
       ];
       file_put_contents($config_file, json_encode($default_config, JSON_PRETTY_PRINT));
 }
@@ -343,6 +344,7 @@ if ($path === 'admin/settings') {
         if (array_key_exists('deliveryFee', $input)) $config['deliveryFee'] = floatval($input['deliveryFee']);
         if (array_key_exists('premiumDeliveryFee', $input)) $config['premiumDeliveryFee'] = floatval($input['premiumDeliveryFee']);
         if (array_key_exists('premiumClients', $input) && is_array($input['premiumClients'])) $config['premiumClients'] = $input['premiumClients'];
+        if (array_key_exists('servicePricing', $input) && is_array($input['servicePricing'])) $config['servicePricing'] = array_merge($config['servicePricing'] ?? [], $input['servicePricing']);
         if (array_key_exists('canva', $input) && is_array($input['canva'])) $config['canva'] = $input['canva'];
 
         file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
@@ -430,6 +432,7 @@ if ($path === 'settings/public') {
         "deliveryFee" => $config['deliveryFee'],
         "premiumDeliveryFee" => $config['premiumDeliveryFee'],
         "premiumClients" => $config['premiumClients'],
+        "servicePricing" => isset($config['servicePricing']) ? $config['servicePricing'] : ['logoDesign' => 199, 'seoAudit' => 299, 'adCampaign' => 499, 'socialStrategy' => 399, 'analyticsEmail' => 349],
         "canva" => isset($config['canva']) ? $config['canva'] : ["createUrl" => "https://www.canva.com/", "templates" => []]
     ]);
     exit();
