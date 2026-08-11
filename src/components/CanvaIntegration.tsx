@@ -1,21 +1,151 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   AlertTriangle,
   ArrowRight,
   CheckCircle,
   CloudUpload,
   ExternalLink,
+  Lock,
   RefreshCw,
   Sparkles,
   Trash2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useOrders } from '../OrderStore';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const LOGO_SERVICE_FALLBACK = 199;
+
+const cardElementStyle = {
+  style: {
+    base: {
+      fontSize: '16px',
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      color: '#1E1B18',
+      '::placeholder': { color: 'rgba(30,27,24,0.3)' },
+      padding: '16px',
+    },
+    invalid: { color: '#ef4444' },
+  },
+};
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
+
+// Stripe payment form for logo design service
+function LogoPaymentForm({
+  price,
+  name,
+  email,
+  onSuccess,
+  onError,
+  onBack,
+  submitOrder,
+  submitting,
+  setSubmitting,
+}: {
+  price: number;
+  name: string;
+  email: string;
+  stripePromise: Promise<any> | null;
+  onSuccess: (ref: string) => void;
+  onError: (msg: string) => void;
+  onBack: () => void;
+  submitOrder: (paymentStatus?: string) => Promise<void>;
+  submitting: boolean;
+  setSubmitting: (v: boolean) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState('');
+
+  const handlePay = async () => {
+    if (!stripe || !elements) {
+      setError('Stripe is still loading. Please wait.');
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement) as any;
+    if (!cardElement) {
+      setError('Card element not found.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Math.round(price * 100),
+          currency: 'usd',
+          orderId: `CUVA-BRAND-${Math.floor(100000 + Math.random() * 900000)}`
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create payment');
+
+      const { error: confirmError } = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name, email },
+        },
+      });
+
+      if (confirmError) throw new Error(confirmError.message || 'Payment failed');
+
+      // Payment succeeded — now submit the order
+      await submitOrder('paid');
+    } catch (err: any) {
+      setError(err.message || 'Payment failed. Please try again.');
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white border border-charcoal/5 px-5 py-4 sm:py-5 rounded-2xl">
+        <CardElement options={cardElementStyle} />
+      </div>
+
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2">
+          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+          <p className="font-sans text-xs text-red-600 font-medium">{error}</p>
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={submitting}
+          className="px-6 py-4 bg-white border border-charcoal/5 text-charcoal rounded-2xl font-bold text-sm hover:bg-bg transition-all cursor-pointer disabled:opacity-50"
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          disabled={!stripe || submitting}
+          onClick={handlePay}
+          className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+        >
+          {submitting ? (
+            <><svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
+          ) : (
+            <><Lock className="w-4 h-4" /><span>Pay ${price.toFixed(2)} & Submit</span></>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function CanvaIntegration() {
   const { addOrder } = useOrders();
@@ -30,12 +160,21 @@ export default function CanvaIntegration() {
   const [briefForm, setBriefForm] = useState({ name: '', email: '', note: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Read the configurable Canva URL (create page or template link) from public settings.
+  // Stripe payment state
+  const [publishableKey, setPublishableKey] = useState('');
+  const [logoPrice, setLogoPrice] = useState(LOGO_SERVICE_FALLBACK);
+  const [paymentStep, setPaymentStep] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [successRef, setSuccessRef] = useState('');
+
+  // Read the configurable Canva URL, Stripe publishable key, and service pricing from public settings.
   useEffect(() => {
     fetch('/api/settings/public')
       .then((res) => res.json())
       .then((data) => {
         if (data?.canva?.createUrl) setCanvaUrl(data.canva.createUrl);
+        if (data?.stripePublishableKey) setPublishableKey(data.stripePublishableKey);
+        if (data?.servicePricing?.logoDesign) setLogoPrice(data.servicePricing.logoDesign);
       })
       .catch(() => { /* keep default */ });
   }, []);
@@ -89,6 +228,30 @@ export default function CanvaIntegration() {
     setBriefForm({ name: '', email: '', note: '' });
   };
 
+  // Stripe payment form for logo service
+  const stripePromise = useMemo(() => publishableKey ? loadStripe(publishableKey) : null, [publishableKey]);
+
+  if (successRef) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-3xl mx-auto overflow-hidden rounded-[2.5rem] bg-white border border-charcoal/5 shadow-2xl shadow-charcoal/5 p-16 text-center space-y-6"
+      >
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full text-primary animate-bounce">
+          <CheckCircle className="w-10 h-10" />
+        </div>
+        <h4 className="font-display text-3xl font-extrabold text-charcoal">Design Submitted!</h4>
+        <p className="font-sans text-sm text-charcoal/50 max-w-md mx-auto">
+          Payment confirmed and your logo design has been received. We'll be in touch shortly.
+        </p>
+        <span className="font-mono bg-primary/10 font-bold px-4 py-1 rounded-full border border-primary/20 inline-block text-primary text-sm select-all">
+          {successRef}
+        </span>
+      </motion.div>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -101,33 +264,53 @@ export default function CanvaIntegration() {
       return;
     }
 
+    // If Stripe is configured, show payment step instead of submitting directly
+    if (publishableKey) {
+      setPaymentStep(true);
+      setUploadError('');
+      return;
+    }
+
+    // Fallback: submit without payment if Stripe not configured
+    await submitOrder();
+  };
+
+  const submitOrder = async (paymentStatus?: string) => {
     setSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append('file', designFile);
+      formData.append('file', designFile!);
 
       const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
       if (!uploadRes.ok) throw new Error('Upload failed');
       const uploadData: { name: string; url: string; type: string } = await uploadRes.json();
+
+      const ref = `CUVA-BRAND-${Math.floor(100000 + Math.random() * 900000)}`;
 
       await addOrder({
         type: 'Branding',
         customerName: briefForm.name.trim(),
         customerEmail: briefForm.email.trim(),
         details: {
-          requestType: 'Canva design upload',
+          requestType: 'Logo & Design',
           note: briefForm.note.trim(),
           logoFile: uploadData.name,
           logoUrl: uploadData.url,
-          fileType: uploadData.type
+          fileType: uploadData.type,
+           total: logoPrice,
+          paymentStatus: paymentStatus || 'unpaid',
+          reference: ref
         }
       });
 
+      setSuccessRef(ref);
       setUploadSuccess(true);
       setTimeout(() => {
         setUploadSuccess(false);
+        setPaymentStep(false);
+        setSuccessRef('');
         resetForm();
-      }, 3000);
+      }, 4000);
     } catch {
       setUploadError('Failed to submit your design. Please try again.');
     } finally {
@@ -305,14 +488,44 @@ export default function CanvaIntegration() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100"
-          >
-            <span>{submitting ? 'Submitting...' : 'Submit Design'}</span>
-            {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-          </button>
+          {/* Payment Step */}
+          {paymentStep && publishableKey && !uploadSuccess ? (
+            <div className="space-y-5 p-6 bg-bg border border-charcoal/5 rounded-[2rem]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block mb-1">Secure Payment</span>
+                  <h4 className="font-display text-lg font-extrabold text-charcoal">Logo Design Service</h4>
+                </div>
+                 <span className="font-display font-extrabold text-charcoal text-2xl">${logoPrice}</span>
+              </div>
+
+              {stripePromise && (
+                <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
+                  <LogoPaymentForm
+                     price={logoPrice}
+                    name={briefForm.name}
+                    email={briefForm.email}
+                    stripePromise={stripePromise}
+                    onSuccess={(ref) => { setSuccessRef(ref); setUploadSuccess(true); }}
+                    onError={(msg) => setPaymentError(msg)}
+                    onBack={() => setPaymentStep(false)}
+                    submitOrder={submitOrder}
+                    submitting={submitting}
+                    setSubmitting={setSubmitting}
+                  />
+                </Elements>
+              )}
+            </div>
+          ) : (
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 cursor-pointer"
+            >
+              <span>{submitting ? 'Submitting...' : publishableKey ? 'Review & Pay' : 'Submit Design'}</span>
+              {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+            </button>
+          )}
         </form>
       </section>
     </motion.div>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Search, Megaphone, Calendar, Check, Play, Eye, Sparkles, Sliders, BarChart } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Megaphone, Calendar, Check, Play, Eye, Sparkles, Sliders, BarChart, CreditCard, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useContent } from '../ContentStore';
+import ServiceCheckoutModal from './ServiceCheckoutModal';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,6 +27,78 @@ export default function DigitalMarketing() {
   const ads = marketing.ads || {};
   const social = marketing.social || {};
   const analytics = marketing.analytics || {};
+
+  // Public settings for Stripe + service pricing
+  const [publishableKey, setPublishableKey] = useState('');
+  const [pricing, setPricing] = useState<Record<string, number>>({});
+  React.useEffect(() => {
+    fetch('/api/settings/public')
+      .then(r => r.json())
+      .then(d => {
+        setPublishableKey(d.stripePublishableKey || '');
+        if (d.servicePricing) setPricing(d.servicePricing);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Service packages — prices driven by admin config
+  const servicePackages = useMemo(() => ({
+    seo: {
+      id: 'seo-audit',
+      name: 'SEO Audit & Strategy',
+      description: 'Deep technical SEO audit with keyword mapping and actionable roadmap.',
+      price: pricing.seoAudit ?? 299,
+      features: [
+        'Full technical SEO crawl & diagnostics',
+        'Keyword strategy mapping (up to 50 terms)',
+        'Schema markup recommendations',
+        'Competitor gap analysis',
+        'Actionable 30-day roadmap'
+      ]
+    },
+    ads: {
+      id: 'ad-campaign',
+      name: 'Ad Campaign Setup',
+      description: 'Google Search & Meta Social campaign architecture with audience targeting.',
+      price: pricing.adCampaign ?? 499,
+      features: [
+        'Google Search & Meta campaign setup',
+        'Audience targeting & segmentation',
+        'Ad copy & creative direction',
+        'Conversion tracking implementation',
+        'First 30 days performance report'
+      ]
+    },
+    social: {
+      id: 'social-strategy',
+      name: 'Social Media Strategy',
+      description: 'Custom content calendar and posting strategy across LinkedIn, Instagram & X.',
+      price: pricing.socialStrategy ?? 399,
+      features: [
+        '30-day content calendar',
+        'Platform-specific posting strategy',
+        'Brand voice & tone guidelines',
+        'Engagement playbook',
+        'Monthly performance review'
+      ]
+    },
+    analytics: {
+      id: 'analytics-email',
+      name: 'Analytics & Email Setup',
+      description: 'GA4 implementation, dashboard setup, and email automation architecture.',
+      price: pricing.analyticsEmail ?? 349,
+      features: [
+        'GA4 & GTM implementation',
+        'Custom performance dashboard',
+        'Email drip-campaign architecture',
+        'A/B testing protocols',
+        'Monthly reporting template'
+      ]
+    }
+  }), [pricing]);
+
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<typeof servicePackages.seo | null>(null);
 
   // Interactive state for SEO checker
   const [keywordInput, setKeywordInput] = useState('');
@@ -559,7 +632,53 @@ export default function DigitalMarketing() {
 
         </motion.div>
 
+        {/* Service Package Booking Bar */}
+        {publishableKey && (
+          <motion.div variants={fadeInUp} className="mt-8">
+            <div className="bg-white border border-charcoal/5 rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-charcoal/5">
+              <div className="text-center sm:text-left">
+                <span className="font-sans text-[10px] font-bold text-primary uppercase tracking-[0.2em] block mb-1">
+                  {activeTab === 'seo' && 'SEO Package'}
+                  {activeTab === 'ads' && 'Ad Campaign Package'}
+                  {activeTab === 'social' && 'Social Strategy Package'}
+                  {activeTab === 'analytics' && 'Analytics & Email Package'}
+                </span>
+                <h4 className="font-display text-xl sm:text-2xl font-extrabold text-charcoal">
+                  {servicePackages[activeTab].name}
+                </h4>
+                <p className="font-sans text-xs sm:text-sm text-charcoal/50 mt-1 max-w-md">
+                  {servicePackages[activeTab].description}
+                </p>
+              </div>
+              <div className="flex items-center gap-4 shrink-0">
+                <span className="font-display font-extrabold text-charcoal text-3xl sm:text-4xl">
+                  ${servicePackages[activeTab].price}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedService(servicePackages[activeTab]); setCheckoutOpen(true); }}
+                  className="bg-primary text-white px-8 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center space-x-2 cursor-pointer"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Book Now</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
       </div>
+
+      {/* Service Checkout Modal */}
+      {selectedService && (
+        <ServiceCheckoutModal
+          isOpen={checkoutOpen}
+          onClose={() => { setCheckoutOpen(false); setSelectedService(null); }}
+          service={selectedService}
+          publishableKey={publishableKey}
+          serviceType="Digital Marketing"
+        />
+      )}
     </motion.section>
   );
 }
