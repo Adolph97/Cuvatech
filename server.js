@@ -38,7 +38,8 @@ var readConfig = () => {
         // Delivery fee settings
         deliveryFee: 35,
         premiumDeliveryFee: 45,
-        premiumClients: ["Jastel Water", "Surjen Healthcare"]
+        premiumClients: ["Jastel Water", "Surjen Healthcare"],
+        servicePricing: { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 }
       };
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
       return defaultConfig;
@@ -48,6 +49,7 @@ var readConfig = () => {
     if (config.deliveryFee === void 0) config.deliveryFee = 35;
     if (config.premiumDeliveryFee === void 0) config.premiumDeliveryFee = 45;
     if (!config.premiumClients) config.premiumClients = ["Jastel Water", "Surjen Healthcare"];
+    if (!config.servicePricing) config.servicePricing = { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 };
     if (!config.canva) config.canva = { createUrl: "https://www.canva.com/", templates: [] };
     return config;
   } catch (err) {
@@ -137,7 +139,8 @@ app.post("/api/admin/settings", (req, res) => {
     paymentMode,
     deliveryFee,
     premiumDeliveryFee,
-    premiumClients
+    premiumClients,
+    servicePricing
   } = req.body;
   const config = readConfig();
   if (deliveryFee !== void 0 && (!Number.isFinite(Number(deliveryFee)) || Number(deliveryFee) < 0)) {
@@ -154,6 +157,7 @@ app.post("/api/admin/settings", (req, res) => {
   if (deliveryFee !== void 0) config.deliveryFee = Number(deliveryFee);
   if (premiumDeliveryFee !== void 0) config.premiumDeliveryFee = Number(premiumDeliveryFee);
   if (premiumClients !== void 0) config.premiumClients = premiumClients;
+  if (servicePricing !== void 0) config.servicePricing = { ...config.servicePricing || {}, ...servicePricing };
   if (req.body.canva !== void 0) config.canva = req.body.canva;
   writeConfig(config);
   const { password, ...safeSettings } = config;
@@ -208,7 +212,9 @@ app.get("/api/settings/public", (req, res) => {
     deliveryFee: config.deliveryFee ?? 35,
     premiumDeliveryFee: config.premiumDeliveryFee ?? 45,
     premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"],
-    canva: config.canva || { createUrl: "https://www.canva.com/", templates: [] }
+    canva: config.canva || { createUrl: "https://www.canva.com/", templates: [] },
+    // Service pricing for frontend
+    servicePricing: config.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 }
   });
 });
 app.post("/api/upload", (req, res) => {
