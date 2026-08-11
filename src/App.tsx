@@ -398,7 +398,7 @@ function LandingPage() {
                   <div className="space-y-2">
                     <h4 className="font-display text-2xl font-bold text-charcoal">Session Reserved!</h4>
                     <p className="font-sans text-sm text-charcoal/50 leading-relaxed">
-                      Thank you. We have blocked space in Efe and Sarah’s schedule. We will reach out shortly.
+                      Thank you. We have blocked space in our schedule. We will reach out shortly.
                     </p>
                   </div>
                 </div>

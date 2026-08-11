@@ -10,6 +10,8 @@ import {
   getProductMinOrderWeightKg,
   getProductWeightPerUnitKg
 } from '../printingWeight';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -423,6 +425,145 @@ const DeliveryInfoModal: React.FC<{
   );
 };
 
+// Stripe Elements card style
+const cardElementStyle = {
+  style: {
+    base: {
+      fontSize: '16px',
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      color: '#1E1B18',
+      '::placeholder': { color: 'rgba(30,27,24,0.3)' },
+      padding: '16px',
+    },
+    invalid: {
+      color: '#ef4444',
+    },
+  },
+};
+
+// Stripe Card Section - wraps Elements provider with stable promise
+const StripeCardSection: React.FC<{
+  publishableKey: string;
+  amount: number;
+  grandTotal: number;
+  customerEmail: string;
+  cardHolder: string;
+  onSuccess: () => void;
+  onError: (msg: string) => void;
+  submitting: boolean;
+  setSubmitting: (v: boolean) => void;
+}> = ({ publishableKey, amount, grandTotal, customerEmail, cardHolder, onSuccess, onError, submitting, setSubmitting }) => {
+  const stripePromise = React.useMemo(() => loadStripe(publishableKey), [publishableKey]);
+
+  return (
+    <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
+      <StripeCheckoutForm
+        amount={amount}
+        grandTotal={grandTotal}
+        customerEmail={customerEmail}
+        cardHolder={cardHolder}
+        onSuccess={onSuccess}
+        onError={onError}
+        submitting={submitting}
+        setSubmitting={setSubmitting}
+      />
+    </Elements>
+  );
+};
+
+// Stripe Checkout Form Component
+const StripeCheckoutForm: React.FC<{
+  amount: number;
+  grandTotal: number;
+  customerEmail: string;
+  cardHolder: string;
+  onSuccess: () => void;
+  onError: (msg: string) => void;
+  submitting: boolean;
+  setSubmitting: (v: boolean) => void;
+}> = ({ amount, grandTotal, customerEmail, cardHolder, onSuccess, onError, submitting, setSubmitting }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const handlePayment = async () => {
+    if (!stripe || !elements) {
+      onError('Stripe is still loading. Please wait a moment and try again.');
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cardElement = elements.getElement(CardElement) as any;
+    if (!cardElement) {
+      onError('Card element not found. Please refresh the page.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const orderRes = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Math.round(amount * 100),
+          currency: 'usd',
+          orderId: `CUVA-PRNT-${Math.floor(100000 + Math.random() * 900000)}`
+        })
+      });
+
+      const orderData = await orderRes.json();
+
+      if (!orderRes.ok) {
+        throw new Error(orderData.error || 'Failed to create payment intent');
+      }
+
+      const { clientSecret } = orderData;
+
+      const { error: confirmError } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: cardHolder,
+            email: customerEmail,
+          },
+        },
+      });
+
+      if (confirmError) {
+        throw new Error(confirmError.message || 'Payment failed');
+      }
+
+      onSuccess();
+    } catch (err: any) {
+      onError(err.message || 'Payment processing failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5 sm:space-y-6">
+      <div className="bg-white border border-charcoal/5 px-5 py-5 sm:px-6 sm:py-6 rounded-2xl">
+        <CardElement options={cardElementStyle} />
+      </div>
+
+      <button
+        id="submit-payment-btn"
+        type="button"
+        disabled={!stripe || submitting}
+        onClick={handlePayment}
+        className="bg-primary text-white w-full py-5 sm:py-6 rounded-2xl font-bold text-xs sm:text-sm shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer disabled:opacity-50"
+      >
+        {submitting ? (
+          <><svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
+        ) : (
+          <><Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /><span>Confirm Order: ${grandTotal.toFixed(2)}</span></>
+        )}
+      </button>
+    </div>
+  );
+};
+
 export default function PrintingConfigurator() {
   const { addOrder } = useOrders();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -445,10 +586,11 @@ export default function PrintingConfigurator() {
   // Billing Page
   const [cardHolder, setCardHolder] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
   const [consentGdpr, setConsentGdpr] = useState(true);
+
+  // Stripe state
+  const [paymentError, setPaymentError] = useState('');
+  const [stripeReady, setStripeReady] = useState(false);
 
   // Public settings from admin console
   const [publicSettings, setPublicSettings] = useState({
@@ -622,16 +764,12 @@ export default function PrintingConfigurator() {
     if (currentStep === 3) setCurrentStep(2);
   };
 
-  const handleCheckoutSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingOrder(true);
-
+  const handlePaymentSuccess = async () => {
     try {
       let fileUrl = '';
       let fileName = '';
       let fileType = '';
 
-      // Upload design file to server if present
       if (rawFile) {
         const formData = new FormData();
         formData.append('file', rawFile);
@@ -646,8 +784,6 @@ export default function PrintingConfigurator() {
           fileUrl = uploadData.url;
           fileName = uploadData.name;
           fileType = uploadData.type;
-        } else {
-          throw new Error('File upload failed');
         }
       }
 
@@ -669,17 +805,16 @@ export default function PrintingConfigurator() {
           notes: additionalNotes,
           fileName: fileName || designFile?.name,
           fileUrl: fileUrl,
-          fileType: fileType || designFile?.type
+          fileType: fileType || designFile?.type,
+          paymentStatus: 'paid'
         }
       });
 
-      setSubmittingOrder(false);
       setOrderComplete(true);
       setOrderReference(`CUVA-PRNT-${Math.floor(100000 + Math.random() * 900000)}`);
     } catch (err) {
-      console.error('Checkout error:', err);
-      setSubmittingOrder(false);
-      alert('There was an error processing your order. Please try again.');
+      console.error('Order creation error after payment:', err);
+      setPaymentError('Payment succeeded but order creation failed. Please contact support with your payment confirmation.');
     }
   };
 
@@ -943,7 +1078,7 @@ export default function PrintingConfigurator() {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <form id="print-billing-form" onSubmit={handleCheckoutSubmit} className="space-y-6 sm:space-y-8">
+                  <div id="print-billing-form" className="space-y-6 sm:space-y-8">
                 <span className="font-sans text-[9px] sm:text-[10px] text-charcoal/30 font-bold block uppercase tracking-[0.2em]">
                   [03] Secure SSL Checkout Gate
                 </span>
@@ -954,18 +1089,25 @@ export default function PrintingConfigurator() {
                   </div>
                   <div>
                     <span className="font-display font-bold block text-green-900 text-base sm:text-lg">
-                      {publicSettings.stripePublishableKey ? 'Stripe Gateway Active' : 'Encrypted gateway active'}
+                      {publicSettings.stripePublishableKey ? 'Stripe Gateway Active' : 'Simulated Payment'}
                     </span>
                     <p className="text-green-800/60 text-xs sm:text-sm mt-1 font-medium leading-relaxed">
                       {publicSettings.stripePublishableKey
-                        ? `Secure checkout via Stripe (${publicSettings.paymentMode.toUpperCase()}). Order invoice will be dispatched.`
+                        ? `Secure checkout via Stripe (${publicSettings.paymentMode.toUpperCase()}). Card details are encrypted by Stripe.`
                         : 'Simulated payment gateway active. Set Stripe Publishable Keys in Admin Settings to process live client charges.'
                       }
                     </p>
                   </div>
                 </div>
 
-                {/* Card inputs */}
+                {paymentError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3">
+                    <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                    <p className="font-sans text-sm text-red-600 font-medium">{paymentError}</p>
+                  </div>
+                )}
+
+                {/* Cardholder Info */}
                 <div className="grid grid-cols-1 gap-5 sm:gap-6">
                   <div className="space-y-2">
                     <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
@@ -986,52 +1128,49 @@ export default function PrintingConfigurator() {
                       className="w-full bg-white border border-charcoal/5 px-5 py-4 sm:px-6 sm:py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold"
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Credit Card Number</label>
-                    <div className="relative">
-                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-charcoal/10 absolute left-5 sm:left-6 top-1/2 -translate-y-1/2" />
-                      <input
-                        id="card-number-input" type="text" required
-                        value={cardNumber} onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                        maxLength={19} placeholder="4111 8888 2222 3912"
-                        className="w-full bg-white border border-charcoal/5 px-5 sm:px-6 pl-12 sm:pl-14 py-4 sm:py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono tracking-[0.2em] font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-5 sm:gap-6">
-                    <div className="space-y-2">
-                      <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Expiry</label>
-                      <input
-                        id="card-expiry-input" type="text" required placeholder="MM/YY" maxLength={5}
-                        value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)}
-                        className="w-full bg-white border border-charcoal/5 px-5 py-4 sm:px-6 sm:py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center font-bold"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-sans text-[9px] sm:text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">CVV</label>
-                      <input
-                        id="card-cvv-input" type="password" required maxLength={3}
-                        value={cardCvv} onChange={(e) => setCardCvv(e.target.value.replace(/\D/g,''))}
-                        placeholder="***"
-                        className="w-full bg-white border border-charcoal/5 px-5 py-4 sm:px-6 sm:py-5 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-mono text-center font-bold"
-                      />
-                    </div>
-                  </div>
                 </div>
 
-                <button
-                  id="submit-payment-btn" type="submit" disabled={submittingOrder}
-                  className="bg-primary text-white w-full py-5 sm:py-6 rounded-2xl font-bold text-xs sm:text-sm shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer disabled:opacity-50"
-                >
-                  {submittingOrder ? (
-                    <><svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
-                  ) : (
-                    <><Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /><span>Confirm Order: ${grandTotal.toFixed(2)}</span></>
-                  )}
-                </button>
-              </form>
+                {/* Stripe Card Element */}
+                {publicSettings.stripePublishableKey ? (
+                  <StripeCardSection
+                    publishableKey={publicSettings.stripePublishableKey}
+                    amount={grandTotal}
+                    grandTotal={grandTotal}
+                    customerEmail={customerEmail}
+                    cardHolder={cardHolder}
+                    onSuccess={handlePaymentSuccess}
+                    onError={(msg) => setPaymentError(msg)}
+                    submitting={submittingOrder}
+                    setSubmitting={setSubmittingOrder}
+                  />
+                ) : (
+                  <div className="space-y-5 sm:space-y-6">
+                    <div className="p-8 bg-white border border-charcoal/5 rounded-2xl text-center">
+                      <CreditCard className="w-10 h-10 text-charcoal/10 mx-auto mb-3" />
+                      <p className="font-sans text-sm text-charcoal/40 font-medium">
+                        Payment gateway not configured. Set your Stripe keys in Admin Settings.
+                      </p>
+                    </div>
+                    <button
+                      id="submit-payment-btn"
+                      type="button"
+                      disabled={submittingOrder}
+                      onClick={async () => {
+                        setSubmittingOrder(true);
+                        await handlePaymentSuccess();
+                        setSubmittingOrder(false);
+                      }}
+                      className="bg-primary text-white w-full py-5 sm:py-6 rounded-2xl font-bold text-xs sm:text-sm shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer disabled:opacity-50"
+                    >
+                      {submittingOrder ? (
+                        <><svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg><span>Processing...</span></>
+                      ) : (
+                        <><Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /><span>Confirm Order: ${grandTotal.toFixed(2)}</span></>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
               </motion.div>
             )}
             </AnimatePresence>
