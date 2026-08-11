@@ -860,18 +860,15 @@ export default function PrintingConfigurator() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-display text-3xl sm:text-4xl font-extrabold text-charcoal leading-none">Order Lodged!</h4>
+            <h4 className="font-display text-3xl sm:text-4xl font-extrabold text-charcoal leading-none">Order Confirmed!</h4>
             <p className="font-sans text-sm sm:text-base text-charcoal/50 max-w-lg mx-auto leading-relaxed">
-              Your payment has cleared successfully. The design and dimensions have been locked under Reference ID:
+              Your payment was received successfully. The order can tracked with the Reference ID:
               <span className="font-mono bg-primary/10 font-bold px-3 sm:px-4 py-1 rounded-full border border-primary/20 inline-block mt-3 select-all text-primary text-sm sm:text-base">
                 {orderReference}
               </span>
             </p>
           </div>
 
-          <div className="max-w-md mx-auto font-hand text-xl sm:text-2xl text-primary font-bold opacity-80 leading-relaxed rotate-[-1deg]">
-            "Our press technicians are inspecting your vector format resolution now. PDF proof coming soon!"
-          </div>
 
           <button
             id="re-config-btn"
