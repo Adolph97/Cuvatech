@@ -122,9 +122,9 @@ export default function ContactForm() {
           <motion.div variants={fadeInUp} className="lg:col-span-5 space-y-8">
             <div className="space-y-3">
               <span className="font-hand font-bold text-lg text-primary block">Say Hello</span>
-              <h3 className="font-display text-4xl sm:text-5xl font-bold text-charcoal leading-tight">
+    {/* <h3 className="font-display text-4xl sm:text-5xl font-bold text-charcoal leading-tight">
                 Establish Direct Contact
-              </h3>
+              </h3> */}
               <p className="font-sans text-sm sm:text-base text-charcoal/70 leading-relaxed">
                 Whether you need server systems aligned, organic booklets bound, or organic search
                 campaigns mapped, we keep the line warm. Get in touch directly, with no bot gates.

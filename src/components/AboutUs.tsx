@@ -184,8 +184,8 @@ export default function AboutUs() {
                   </p>
 
                   <div className="pt-6 border-t border-charcoal/5 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
-                    <span className="text-charcoal/20">CUVA-TEAM-{member.id}</span>
-                    <span className="text-primary/40">Active Spec</span>
+                    {/* <span className="text-charcoal/20">CUVA-TEAM-{member.id}</span>
+                    <span className="text-primary/40">Active Spec</span> */}
                   </div>
                 </div>
               </motion.div>
