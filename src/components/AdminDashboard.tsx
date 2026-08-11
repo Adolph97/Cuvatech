@@ -203,6 +203,15 @@ export default function AdminDashboard() {
     premiumClients: ['Jastel Water', 'Surjen Healthcare']
   });
 
+  // Service pricing state
+  const [servicePricing, setServicePricing] = useState({
+    logoDesign: 199,
+    seoAudit: 299,
+    adCampaign: 499,
+    socialStrategy: 399,
+    analyticsEmail: 349
+  });
+
   // Password form
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -224,9 +233,9 @@ export default function AdminDashboard() {
           setDeliverySettings({
             deliveryFee: data.deliveryFee ?? 35,
             premiumDeliveryFee: data.premiumDeliveryFee ?? 45,
-            minOrderWeightKg: data.minOrderWeightKg ?? 10,
             premiumClients: data.premiumClients || ['Jastel Water', 'Surjen Healthcare']
           });
+          setServicePricing(data.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 });
         })
         .catch(err => console.error('Error loading settings:', err));
 
@@ -734,7 +743,28 @@ export default function AdminDashboard() {
         alert('Failed to save delivery settings.');
       }
     } catch {
-      alert('Error connecting to backend settings.');
+      alert('Error connecting to backend.');
+    }
+  };
+
+  // ── Service Pricing Settings ──────────────────────────────────────────
+  const handleSaveServicePricing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ servicePricing })
+      });
+      if (res.ok) {
+        const updatedSettings = await res.json();
+        setSettings({ ...settings, ...updatedSettings });
+        alert('Service pricing saved successfully.');
+      } else {
+        alert('Failed to save service pricing.');
+      }
+    } catch {
+      alert('Error connecting to backend.');
     }
   };
 
@@ -2000,6 +2030,73 @@ export default function AdminDashboard() {
                 Save Delivery Settings
               </button>
             </form>
+        </div>
+
+            {/* Service Pricing */}
+            <div className="bg-white border border-charcoal/5 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+              <div className="flex items-center space-x-3 border-b border-charcoal/5 pb-6">
+                <div className="bg-primary/10 p-3 rounded-xl text-primary"><Coins className="w-5 h-5" /></div>
+                <h3 className="font-display text-xl font-bold">Service Pricing</h3>
+              </div>
+
+              <form onSubmit={handleSaveServicePricing} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Logo Design Service ($)</label>
+                  <input
+                    type="number" required step="0.01" min="0"
+                    value={servicePricing.logoDesign}
+                    onChange={(e) => setServicePricing({ ...servicePricing, logoDesign: Number(e.target.value) })}
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">SEO Audit & Strategy ($)</label>
+                  <input
+                    type="number" required step="0.01" min="0"
+                    value={servicePricing.seoAudit}
+                    onChange={(e) => setServicePricing({ ...servicePricing, seoAudit: Number(e.target.value) })}
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Ad Campaign Setup ($)</label>
+                  <input
+                    type="number" required step="0.01" min="0"
+                    value={servicePricing.adCampaign}
+                    onChange={(e) => setServicePricing({ ...servicePricing, adCampaign: Number(e.target.value) })}
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Social Media Strategy ($)</label>
+                  <input
+                    type="number" required step="0.01" min="0"
+                    value={servicePricing.socialStrategy}
+                    onChange={(e) => setServicePricing({ ...servicePricing, socialStrategy: Number(e.target.value) })}
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Analytics & Email Setup ($)</label>
+                  <input
+                    type="number" required step="0.01" min="0"
+                    value={servicePricing.analyticsEmail}
+                    onChange={(e) => setServicePricing({ ...servicePricing, analyticsEmail: Number(e.target.value) })}
+                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-primary text-white w-full py-5 rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4"
+                >
+                  Save Service Pricing
+                </button>
+              </form>
         </div>
 
             {/* Canva Studio */}
