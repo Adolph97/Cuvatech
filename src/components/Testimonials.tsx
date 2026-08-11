@@ -153,10 +153,10 @@ export default function Testimonials() {
         {/* Filters and Section Intro */}
         <motion.div variants={fadeInUp} className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-charcoal/5 relative">
           <div>
-            <span className="font-hand font-bold text-lg text-primary flex items-center space-x-1">
+            {/* <span className="font-hand font-bold text-lg text-primary flex items-center space-x-1">
               <span>Client Ledger</span>
               <ScribbleStar className="w-4 h-4 text-primary opacity-50 animate-pulse" />
-            </span>
+            </span> */}
             <h4 className="font-display text-3xl sm:text-4xl font-bold text-charcoal leading-tight mt-1">
               Trusted by{' '}
               <span className="relative inline-block px-1">
