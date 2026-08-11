@@ -412,24 +412,11 @@ export default function ITServices() {
 
                   <div className="space-y-2">
                     <h4 className="font-display text-2xl font-bold text-charcoal">
-                      Blueprint Registered!
+                      Request Confirmed!
                     </h4>
                     <p className="font-sans text-sm text-charcoal/80 max-w-sm mx-auto leading-relaxed">
-                      Thank you <strong className="font-bold">{formInputs.fullName}</strong>. We have logged your request under reference number:
-                      <span className="font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20 mx-1 select-all font-bold">
-                        CUVA-IT-{Math.floor(1000 + Math.random() * 9000)}
-                      </span>
+                      Thank you <strong className="font-bold">{formInputs.fullName}</strong>. Our team is reviewing your request. Give us some time to respond to you.
                     </p>
-                  </div>
-
-                  {/* Simulated Handdrawn Note */}
-                  <div className="bg-primary/5 border border-primary/10 p-6 rounded-2xl shadow-sm text-left max-w-sm mx-auto">
-                    <span className="font-hand font-bold text-xs text-primary block mb-2 opacity-65">HAND-WRITTEN CONFIRMATION —</span>
-                    <p className="font-hand text-base leading-relaxed text-charcoal font-semibold">
-                      "Sarah or Sarah’s assistant is reviewing Scribe Editorial's request details today.
-                      Expect a warm response with a sketched deployment mock-up in your inbox inside 4 hours."
-                    </p>
-                    <span className="font-hand text-sm font-bold text-primary block text-right mt-3">- Cuva Studio</span>
                   </div>
 
                   <button
