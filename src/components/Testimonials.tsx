@@ -125,7 +125,7 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Client Feedback Header */}
-        <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-6 sm:p-8 rounded-3xl shadow-lg mb-12 flex flex-col md:flex-row items-center justify-between gap-8">
+    {/* <motion.div variants={fadeInUp} className="bg-white border border-charcoal/5 p-6 sm:p-8 rounded-3xl shadow-lg mb-12 flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
             <span className="font-sans font-bold text-xs text-primary uppercase tracking-widest block mb-1">
               Client Feedback
@@ -148,7 +148,7 @@ export default function Testimonials() {
               <span>Write a Testimonial</span>
             </button>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* Filters and Section Intro */}
         <motion.div variants={fadeInUp} className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-charcoal/5 relative">
