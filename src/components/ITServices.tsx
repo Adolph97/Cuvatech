@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { IT_SERVICES } from '../data';
+import React, { useState, useEffect } from 'react';
+import { IT_SERVICES, DEFAULT_IT_PRICES } from '../data';
 import { ITService } from '../types';
 import { Server, Cpu, Cloud, HelpCircle, FileText, CheckCircle, Send, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOrders } from '../OrderStore';
 import { useContent } from '../ContentStore';
+import ServiceCheckoutModal from './ServiceCheckoutModal';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -41,6 +42,21 @@ export default function ITServices() {
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Service pricing + Stripe for checkout
+  const [itPrices, setItPrices] = useState<Record<string, number>>({});
+  const [stripeKey, setStripeKey] = useState('');
+  const [checkoutService, setCheckoutService] = useState<{ id: string; name: string; description: string; price: number; features: string[] } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/settings/public')
+      .then(r => r.json())
+      .then(d => {
+        if (d.servicePricing) setItPrices(d.servicePricing);
+        if (d.stripePublishableKey) setStripeKey(d.stripePublishableKey);
+      })
+      .catch(() => {});
+  }, []);
 
   const openFormFor = (service: ITService) => {
     setSelectedService(service);
@@ -192,11 +208,38 @@ export default function ITServices() {
                   </ul>
                 </div>
 
-                <div className="pt-4 border-t border-charcoal/5 flex items-center justify-between text-xs sm:text-sm font-bold text-charcoal group-hover:text-primary transition-colors">
-                  <span>Request details & pricing spec</span>
-                  <span className="font-hand font-semibold text-primary group-hover:translate-x-1 transition-transform">
-                    Let’s Work →
-                  </span>
+                <div className="pt-4 border-t border-charcoal/5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      {itPrices[service.id] && (
+                        <span className="font-display text-2xl font-extrabold text-charcoal">${itPrices[service.id]}</span>
+                      )}
+                    </div>
+                    {stripeKey && itPrices[service.id] ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCheckoutService({
+                            id: service.id,
+                            name: service.title,
+                            description: service.description,
+                            price: itPrices[service.id],
+                            features: service.bullets,
+                          });
+                        }}
+                        className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer"
+                      >
+                        Book Now
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openFormFor(service); }}
+                        className="text-xs sm:text-sm font-bold text-charcoal group-hover:text-primary transition-colors cursor-pointer"
+                      >
+                        Request details →
+                      </button>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -432,6 +475,17 @@ export default function ITServices() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* IT Service Checkout Modal */}
+      {checkoutService && stripeKey && (
+        <ServiceCheckoutModal
+          isOpen={!!checkoutService}
+          onClose={() => setCheckoutService(null)}
+          service={checkoutService}
+          publishableKey={stripeKey}
+          serviceType="IT"
+        />
+      )}
     </motion.section>
   );
 }

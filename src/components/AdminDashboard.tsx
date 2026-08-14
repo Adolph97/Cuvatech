@@ -209,8 +209,14 @@ export default function AdminDashboard() {
     seoAudit: 299,
     adCampaign: 499,
     socialStrategy: 399,
-    analyticsEmail: 349
+    analyticsEmail: 349,
+    hardwareSoftwareSetup: 499,
+    itInfrastructure: 799,
+    webDevelopment: 2499,
+    cloudSolutions: 1499,
+    softwareDevelopment: 2999
   });
+  const [pricingCategory, setPricingCategory] = useState<'all' | 'it' | 'branding' | 'marketing'>('all');
 
   // Password form
   const [passwordForm, setPasswordForm] = useState({
@@ -235,7 +241,7 @@ export default function AdminDashboard() {
             premiumDeliveryFee: data.premiumDeliveryFee ?? 45,
             premiumClients: data.premiumClients || ['Jastel Water', 'Surjen Healthcare']
           });
-          setServicePricing(data.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 });
+          setServicePricing(data.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349, hardwareSoftwareSetup: 499, itInfrastructure: 799, webDevelopment: 2499, cloudSolutions: 1499, softwareDevelopment: 2999 });
         })
         .catch(err => console.error('Error loading settings:', err));
 
@@ -2039,56 +2045,145 @@ export default function AdminDashboard() {
                 <h3 className="font-display text-xl font-bold">Service Pricing</h3>
               </div>
 
-              <form onSubmit={handleSaveServicePricing} className="space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Logo Design Service ($)</label>
-                  <input
-                    type="number" required step="0.01" min="0"
-                    value={servicePricing.logoDesign}
-                    onChange={(e) => setServicePricing({ ...servicePricing, logoDesign: Number(e.target.value) })}
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
+              {/* Category filter */}
+              <div className="flex flex-wrap gap-2">
+                {([['all', 'All Services'], ['it', 'IT Services'], ['branding', 'Branding'], ['marketing', 'Digital Marketing']] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setPricingCategory(key)}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      pricingCategory === key
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                        : 'bg-bg text-charcoal/40 hover:text-charcoal/60'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">SEO Audit & Strategy ($)</label>
-                  <input
-                    type="number" required step="0.01" min="0"
-                    value={servicePricing.seoAudit}
-                    onChange={(e) => setServicePricing({ ...servicePricing, seoAudit: Number(e.target.value) })}
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
+              <form onSubmit={handleSaveServicePricing} className="space-y-8">
+                {/* IT Services */}
+                {(pricingCategory === 'all' || pricingCategory === 'it') && (
+                  <div className="space-y-4">
+                    {pricingCategory === 'all' && (
+                      <h4 className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em]">IT Services</h4>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Hardware/Software Setup ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.hardwareSoftwareSetup}
+                          onChange={(e) => setServicePricing({ ...servicePricing, hardwareSoftwareSetup: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">IT Infrastructure Support ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.itInfrastructure}
+                          onChange={(e) => setServicePricing({ ...servicePricing, itInfrastructure: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Web Development ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.webDevelopment}
+                          onChange={(e) => setServicePricing({ ...servicePricing, webDevelopment: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Cloud Solutions ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.cloudSolutions}
+                          onChange={(e) => setServicePricing({ ...servicePricing, cloudSolutions: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Software Development ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.softwareDevelopment}
+                          onChange={(e) => setServicePricing({ ...servicePricing, softwareDevelopment: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Ad Campaign Setup ($)</label>
-                  <input
-                    type="number" required step="0.01" min="0"
-                    value={servicePricing.adCampaign}
-                    onChange={(e) => setServicePricing({ ...servicePricing, adCampaign: Number(e.target.value) })}
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
+                {/* Branding */}
+                {(pricingCategory === 'all' || pricingCategory === 'branding') && (
+                  <div className="space-y-4">
+                    {pricingCategory === 'all' && (
+                      <h4 className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em]">Branding</h4>
+                    )}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Logo Design Service ($)</label>
+                      <input
+                        type="number" required step="0.01" min="0"
+                        value={servicePricing.logoDesign}
+                        onChange={(e) => setServicePricing({ ...servicePricing, logoDesign: Number(e.target.value) })}
+                        className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                      />
+                    </div>
+                  </div>
+                )}
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Social Media Strategy ($)</label>
-                  <input
-                    type="number" required step="0.01" min="0"
-                    value={servicePricing.socialStrategy}
-                    onChange={(e) => setServicePricing({ ...servicePricing, socialStrategy: Number(e.target.value) })}
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Analytics & Email Setup ($)</label>
-                  <input
-                    type="number" required step="0.01" min="0"
-                    value={servicePricing.analyticsEmail}
-                    onChange={(e) => setServicePricing({ ...servicePricing, analyticsEmail: Number(e.target.value) })}
-                    className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
-                  />
-                </div>
+                {/* Digital Marketing */}
+                {(pricingCategory === 'all' || pricingCategory === 'marketing') && (
+                  <div className="space-y-4">
+                    {pricingCategory === 'all' && (
+                      <h4 className="font-sans text-[10px] font-bold text-charcoal/30 uppercase tracking-[0.2em]">Digital Marketing</h4>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">SEO Audit & Strategy ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.seoAudit}
+                          onChange={(e) => setServicePricing({ ...servicePricing, seoAudit: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Ad Campaign Setup ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.adCampaign}
+                          onChange={(e) => setServicePricing({ ...servicePricing, adCampaign: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Social Media Strategy ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.socialStrategy}
+                          onChange={(e) => setServicePricing({ ...servicePricing, socialStrategy: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Analytics & Email Setup ($)</label>
+                        <input
+                          type="number" required step="0.01" min="0"
+                          value={servicePricing.analyticsEmail}
+                          onChange={(e) => setServicePricing({ ...servicePricing, analyticsEmail: Number(e.target.value) })}
+                          className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"
