@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from './components/Navbar';
 import AboutUs from './components/AboutUs';
 import PrintingJobsGallery from './components/PrintingJobsGallery';
@@ -9,10 +9,13 @@ import DigitalMarketing from './components/DigitalMarketing';
 import Testimonials from './components/Testimonials';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
+import ServiceCheckoutModal from './components/ServiceCheckoutModal';
+import { IT_SERVICES, DEFAULT_IT_PRICES } from './data';
 import { ITIllustration, PrintIllustration, MarketingIllustration, MasterHeroIllustration, ScribbleUnderline, HanddrawnArrow, ScribbleStar, ScribbleCircle } from './components/NotionIllustrations';
 
-import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone, ChevronDown } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckSquare, Layers, Newspaper, Shield, FileText, Send, CheckCircle, Smartphone, X, Server, Shirt, Search, Cpu, Cloud, PenTool, Type, TrendingUp, BarChart, Megaphone, ChevronDown, Globe, Code, HardDrive, Wifi, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { loadStripe } from '@stripe/stripe-js';
 
 // Admin System Imports
 import { OrderProvider, useOrders } from './OrderStore';
@@ -55,6 +58,12 @@ function LandingPage() {
   // Hero interactive visual switcher states
   const [activeSketch, setActiveSketch] = useState<'it' | 'print' | 'marketing'>('it');
 
+  // All Services catalog state
+  const [catalogFilter, setCatalogFilter] = useState<'all' | 'it' | 'branding' | 'marketing'>('all');
+  const [catalogPrices, setCatalogPrices] = useState<Record<string, number>>({});
+  const [catalogStripeKey, setCatalogStripeKey] = useState('');
+  const [catalogModalService, setCatalogModalService] = useState<{ id: string; name: string; description: string; price: number; features: string[]; category: string } | null>(null);
+
   // Multi-section tracking active ID on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -78,6 +87,17 @@ function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Fetch service pricing + Stripe key for catalog checkout
+  useEffect(() => {
+    fetch('/api/settings/public')
+      .then(r => r.json())
+      .then(d => {
+        if (d.servicePricing) setCatalogPrices(d.servicePricing);
+        if (d.stripePublishableKey) setCatalogStripeKey(d.stripePublishableKey);
+      })
+      .catch(() => {});
+  }, []);
+
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -88,6 +108,81 @@ function LandingPage() {
       }, 50);
     }
   };
+
+  // Unified catalog of all services
+  const catalogItems = useMemo(() => {
+    const itIcons: Record<string, any> = {
+      'hardware-software-setup': Wrench,
+      'it-infrastructure': Wifi,
+      'web-development': Globe,
+      'cloud-solutions': Cloud,
+      'software-development': Code,
+    };
+    const itServices = IT_SERVICES.map(s => ({
+      id: s.id,
+      name: s.title,
+      description: s.description,
+      price: catalogPrices[s.id] ?? DEFAULT_IT_PRICES[s.id] ?? 0,
+      features: s.bullets,
+      category: 'it' as const,
+      icon: itIcons[s.id] || Server,
+    }));
+
+    const brandingServices = [
+      {
+        id: 'logo-design',
+        name: 'Logo Design Service',
+        description: 'Professional logo design using Canva with expert creative direction and brand identity.',
+        price: catalogPrices.logoDesign ?? 199,
+        features: ['Custom logo concepts', 'Unlimited revisions', 'Full brand kit', 'Source files included'],
+        category: 'branding' as const,
+        icon: PenTool,
+      },
+    ];
+
+    const marketingServices = [
+      {
+        id: 'seo-audit',
+        name: 'SEO Audit & Strategy',
+        description: 'Deep technical SEO audit with keyword mapping and actionable roadmap.',
+        price: catalogPrices.seoAudit ?? 299,
+        features: ['Full technical SEO crawl', 'Keyword strategy (50 terms)', 'Schema markup recommendations', 'Competitor gap analysis', '30-day roadmap'],
+        category: 'marketing' as const,
+        icon: Search,
+      },
+      {
+        id: 'ad-campaign',
+        name: 'Ad Campaign Setup',
+        description: 'Google Search & Meta Social campaign architecture with audience targeting.',
+        price: catalogPrices.adCampaign ?? 499,
+        features: ['Google & Meta campaign setup', 'Audience targeting & segmentation', 'Ad copy & creative direction', 'Conversion tracking', '30-day performance report'],
+        category: 'marketing' as const,
+        icon: Megaphone,
+      },
+      {
+        id: 'social-strategy',
+        name: 'Social Media Strategy',
+        description: 'Custom content calendar and posting strategy across LinkedIn, Instagram & X.',
+        price: catalogPrices.socialStrategy ?? 399,
+        features: ['30-day content calendar', 'Platform-specific strategy', 'Brand voice guidelines', 'Engagement playbook', 'Monthly performance review'],
+        category: 'marketing' as const,
+        icon: TrendingUp,
+      },
+      {
+        id: 'analytics-email',
+        name: 'Analytics & Email Setup',
+        description: 'GA4 implementation, dashboard setup, and email automation architecture.',
+        price: catalogPrices.analyticsEmail ?? 349,
+        features: ['GA4 & GTM implementation', 'Custom performance dashboard', 'Email drip-campaign architecture', 'A/B testing protocols', 'Monthly reporting template'],
+        category: 'marketing' as const,
+        icon: BarChart,
+      },
+    ];
+
+    return [...itServices, ...brandingServices, ...marketingServices];
+  }, [catalogPrices]);
+
+  const filteredCatalog = catalogFilter === 'all' ? catalogItems : catalogItems.filter(s => s.category === catalogFilter);
 
   const handleGlobalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,6 +340,127 @@ function LandingPage() {
           </div>
         </div>
       </motion.section>
+
+      {/* UNIFIED ALL SERVICES CATALOG */}
+      <motion.section
+        id="all-services"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="py-14 sm:py-20 bg-white relative"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div variants={fadeInUp} className="max-w-3xl mx-auto text-center mb-10 sm:mb-14">
+            <span className="font-sans text-xs font-bold text-charcoal/30 uppercase tracking-[0.2em] block mb-3">
+              Our Services
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal mb-4">
+              Everything You Need to Grow
+            </h2>
+            <p className="font-sans text-base text-charcoal/50 leading-relaxed">
+              From web development to digital marketing — browse all services, see transparent pricing, and book instantly.
+            </p>
+          </motion.div>
+
+          {/* Filter tabs */}
+          <motion.div variants={fadeInUp} className="flex flex-wrap justify-center gap-2 mb-10">
+            {([['all', 'All Services'], ['it', 'IT Services'], ['branding', 'Branding'], ['marketing', 'Digital Marketing']] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setCatalogFilter(key)}
+                className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  catalogFilter === key
+                    ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20'
+                    : 'bg-bg text-charcoal/40 hover:text-charcoal/60 border border-charcoal/5'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Service cards grid */}
+          <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCatalog.map((service) => {
+              const Icon = service.icon;
+              return (
+                <motion.div
+                  key={service.id}
+                  variants={fadeInUp}
+                  whileHover={{ y: -8 }}
+                  className="bg-bg border border-charcoal/5 rounded-[2rem] p-7 flex flex-col justify-between group transition-all"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="bg-primary/10 p-3 rounded-xl text-primary">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+                        service.category === 'it' ? 'bg-blue-50 text-blue-600' :
+                        service.category === 'branding' ? 'bg-purple-50 text-purple-600' :
+                        'bg-amber-50 text-amber-600'
+                      }`}>
+                        {service.category === 'it' ? 'IT' : service.category === 'branding' ? 'Branding' : 'Marketing'}
+                      </span>
+                    </div>
+                    <h3 className="font-display text-lg font-bold text-charcoal mb-2">{service.name}</h3>
+                    <p className="font-sans text-xs text-charcoal/40 leading-relaxed mb-4 line-clamp-2">{service.description}</p>
+                    <ul className="space-y-1.5 mb-6">
+                      {service.features.slice(0, 3).map((f, i) => (
+                        <li key={i} className="flex items-center text-[11px] text-charcoal/50">
+                          <CheckCircle className="w-3 h-3 text-primary mr-2 shrink-0" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                      {service.features.length > 3 && (
+                        <li className="text-[11px] text-charcoal/30 ml-5">+{service.features.length - 3} more</li>
+                      )}
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-charcoal/5">
+                    <div>
+                      <span className="font-display text-2xl font-extrabold text-charcoal">${service.price}</span>
+                    </div>
+                    {catalogStripeKey ? (
+                      <button
+                        onClick={() => setCatalogModalService(service)}
+                        className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer"
+                      >
+                        Book Now
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleNavigate('contact')}
+                        className="bg-charcoal/5 text-charcoal/60 px-6 py-3 rounded-xl text-xs font-bold hover:bg-charcoal/10 transition-all cursor-pointer"
+                      >
+                        Inquire
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Checkout Modal for Catalog */}
+      {catalogModalService && (
+        <ServiceCheckoutModal
+          isOpen={!!catalogModalService}
+          onClose={() => setCatalogModalService(null)}
+          service={{
+            id: catalogModalService.id,
+            name: catalogModalService.name,
+            description: catalogModalService.description,
+            price: catalogModalService.price,
+            features: catalogModalService.features,
+          }}
+          publishableKey={catalogStripeKey}
+          serviceType={catalogModalService.category === 'it' ? 'IT' : catalogModalService.category === 'branding' ? 'Branding' : 'Digital Marketing'}
+        />
+      )}
 
       {/* IT SOLUTIONS MODULAR PORTFOLIO */}
       <motion.div
