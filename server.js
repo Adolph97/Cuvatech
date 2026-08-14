@@ -39,7 +39,7 @@ var readConfig = () => {
         deliveryFee: 35,
         premiumDeliveryFee: 45,
         premiumClients: ["Jastel Water", "Surjen Healthcare"],
-        servicePricing: { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 }
+        servicePricing: { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349, hardwareSoftwareSetup: 499, itInfrastructure: 799, webDevelopment: 2499, cloudSolutions: 1499, softwareDevelopment: 2999 }
       };
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
       return defaultConfig;
@@ -49,7 +49,12 @@ var readConfig = () => {
     if (config.deliveryFee === void 0) config.deliveryFee = 35;
     if (config.premiumDeliveryFee === void 0) config.premiumDeliveryFee = 45;
     if (!config.premiumClients) config.premiumClients = ["Jastel Water", "Surjen Healthcare"];
-    if (!config.servicePricing) config.servicePricing = { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 };
+    if (!config.servicePricing) config.servicePricing = { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349, hardwareSoftwareSetup: 499, itInfrastructure: 799, webDevelopment: 2499, cloudSolutions: 1499, softwareDevelopment: 2999 };
+    if (config.servicePricing.hardwareSoftwareSetup === void 0) config.servicePricing.hardwareSoftwareSetup = 499;
+    if (config.servicePricing.itInfrastructure === void 0) config.servicePricing.itInfrastructure = 799;
+    if (config.servicePricing.webDevelopment === void 0) config.servicePricing.webDevelopment = 2499;
+    if (config.servicePricing.cloudSolutions === void 0) config.servicePricing.cloudSolutions = 1499;
+    if (config.servicePricing.softwareDevelopment === void 0) config.servicePricing.softwareDevelopment = 2999;
     if (!config.canva) config.canva = { createUrl: "https://www.canva.com/", templates: [] };
     return config;
   } catch (err) {
@@ -214,7 +219,7 @@ app.get("/api/settings/public", (req, res) => {
     premiumClients: config.premiumClients || ["Jastel Water", "Surjen Healthcare"],
     canva: config.canva || { createUrl: "https://www.canva.com/", templates: [] },
     // Service pricing for frontend
-    servicePricing: config.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349 }
+    servicePricing: config.servicePricing || { logoDesign: 199, seoAudit: 299, adCampaign: 499, socialStrategy: 399, analyticsEmail: 349, hardwareSoftwareSetup: 499, itInfrastructure: 799, webDevelopment: 2499, cloudSolutions: 1499, softwareDevelopment: 2999 }
   });
 });
 app.post("/api/upload", (req, res) => {
