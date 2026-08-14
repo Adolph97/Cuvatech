@@ -49,7 +49,7 @@ if (!file_exists($config_file)) {
         "deliveryFee" => 35,
         "premiumDeliveryFee" => 45,
         "premiumClients" => ["Jastel Water", "Surjen Healthcare"],
-        "servicePricing" => ["logoDesign" => 199, "seoAudit" => 299, "adCampaign" => 499, "socialStrategy" => 399, "analyticsEmail" => 349]
+        "servicePricing" => ["logoDesign" => 199, "seoAudit" => 299, "adCampaign" => 499, "socialStrategy" => 399, "analyticsEmail" => 349, "hardwareSoftwareSetup" => 499, "itInfrastructure" => 799, "webDevelopment" => 2499, "cloudSolutions" => 1499, "softwareDevelopment" => 2999]
       ];
       file_put_contents($config_file, json_encode($default_config, JSON_PRETTY_PRINT));
 }
@@ -432,7 +432,7 @@ if ($path === 'settings/public') {
         "deliveryFee" => $config['deliveryFee'],
         "premiumDeliveryFee" => $config['premiumDeliveryFee'],
         "premiumClients" => $config['premiumClients'],
-        "servicePricing" => isset($config['servicePricing']) ? $config['servicePricing'] : ['logoDesign' => 199, 'seoAudit' => 299, 'adCampaign' => 499, 'socialStrategy' => 399, 'analyticsEmail' => 349],
+        "servicePricing" => isset($config['servicePricing']) ? $config['servicePricing'] : ['logoDesign' => 199, 'seoAudit' => 299, 'adCampaign' => 499, 'socialStrategy' => 399, 'analyticsEmail' => 349, 'hardwareSoftwareSetup' => 499, 'itInfrastructure' => 799, 'webDevelopment' => 2499, 'cloudSolutions' => 1499, 'softwareDevelopment' => 2999],
         "canva" => isset($config['canva']) ? $config['canva'] : ["createUrl" => "https://www.canva.com/", "templates" => []]
     ]);
     exit();
