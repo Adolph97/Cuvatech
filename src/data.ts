@@ -65,6 +65,14 @@ export const IT_SERVICES: ITService[] = [
   }
 ];
 
+export const DEFAULT_IT_PRICES: Record<string, number> = {
+  'hardware-software-setup': 499,
+  'it-infrastructure': 799,
+  'web-development': 2499,
+  'cloud-solutions': 1499,
+  'software-development': 2999,
+};
+
 export const PRINTING_PRODUCTS: PrintingProduct[] = [
   {
     id: 't-shirts',
