@@ -48,6 +48,15 @@ export default function ITServices() {
   const [stripeKey, setStripeKey] = useState('');
   const [checkoutService, setCheckoutService] = useState<{ id: string; name: string; description: string; price: number; features: string[] } | null>(null);
 
+  // Map IT_SERVICES kebab-case IDs to servicePricing camelCase keys
+  const itPriceKeys: Record<string, string> = {
+    'hardware-software-setup': 'hardwareSoftwareSetup',
+    'it-infrastructure': 'itInfrastructure',
+    'web-development': 'webDevelopment',
+    'cloud-solutions': 'cloudSolutions',
+    'software-development': 'softwareDevelopment',
+  };
+
   useEffect(() => {
     fetch('/api/settings/public')
       .then(r => r.json())
@@ -211,11 +220,11 @@ export default function ITServices() {
                 <div className="pt-4 border-t border-charcoal/5">
                   <div className="flex items-center justify-between">
                     <div>
-                      {itPrices[service.id] && (
-                        <span className="font-display text-2xl font-extrabold text-charcoal">${itPrices[service.id]}</span>
+                      {itPrices[itPriceKeys[service.id]] && (
+                        <span className="font-display text-2xl font-extrabold text-charcoal">${itPrices[itPriceKeys[service.id]]}</span>
                       )}
                     </div>
-                    {stripeKey && itPrices[service.id] ? (
+                    {stripeKey && itPrices[itPriceKeys[service.id]] ? (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -223,7 +232,7 @@ export default function ITServices() {
                             id: service.id,
                             name: service.title,
                             description: service.description,
-                            price: itPrices[service.id],
+                            price: itPrices[itPriceKeys[service.id]],
                             features: service.bullets,
                           });
                         }}

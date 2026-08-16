@@ -118,11 +118,19 @@ function LandingPage() {
       'cloud-solutions': Cloud,
       'software-development': Code,
     };
+    // Map IT_SERVICES kebab-case IDs to servicePricing camelCase keys
+    const itPriceKeys: Record<string, string> = {
+      'hardware-software-setup': 'hardwareSoftwareSetup',
+      'it-infrastructure': 'itInfrastructure',
+      'web-development': 'webDevelopment',
+      'cloud-solutions': 'cloudSolutions',
+      'software-development': 'softwareDevelopment',
+    };
     const itServices = IT_SERVICES.map(s => ({
       id: s.id,
       name: s.title,
       description: s.description,
-      price: catalogPrices[s.id] ?? DEFAULT_IT_PRICES[s.id] ?? 0,
+      price: catalogPrices[itPriceKeys[s.id]] ?? DEFAULT_IT_PRICES[s.id] ?? 0,
       features: s.bullets,
       category: 'it' as const,
       icon: itIcons[s.id] || Server,
