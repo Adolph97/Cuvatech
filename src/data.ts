@@ -264,7 +264,7 @@ export const TESTIMONIALS: Testimonial[] = [
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'm1',
-    name: 'Achilike Victor',
+    name: 'ACHILIKE VICTOR',
     role: 'Founder & Infrastructure Lead',
     bio: 'Belives in building solutions that are cost-effective, resilient, practical, and impactful helping organizations do more with less while still achieving high-quality results.',
     image: AchilikeVictor,
@@ -272,7 +272,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
 
   {
     id: 'm2',
-    name: 'Obinna Ihekona',
+    name: 'OBINNA IHEKONA',
     role: 'Development & Design Lead',
     bio: 'A full-stack developer and solutions architect with more than half a decade in the Tech space. He is a seasoned professional that has built and delivered products and solutions for both small and mid scale enterprises with scalable operations. He is literally a 10x developer.',
     image: ObinnaIhekona
