@@ -170,7 +170,7 @@ export default function ContactForm() {
                   <Mail className="w-4 h-4 text-primary" />
                 </span>
                 <div>
-                  <strong className="text-charcoal block font-bold">Email Correspondence</strong>
+                  <strong className="text-charcoal block font-bold">Email</strong>
                   <a href={`mailto:${email}`} className="text-primary hover:underline font-bold">{email}</a>
                 </div>
               </div>
