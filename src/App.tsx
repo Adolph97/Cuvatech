@@ -63,6 +63,7 @@ function LandingPage() {
   const [catalogPrices, setCatalogPrices] = useState<Record<string, number>>({});
   const [catalogStripeKey, setCatalogStripeKey] = useState('');
   const [catalogModalService, setCatalogModalService] = useState<{ id: string; name: string; description: string; price: number; features: string[]; category: string } | null>(null);
+  const [catalogExpanded, setCatalogExpanded] = useState(false);
 
   // Multi-section tracking active ID on scroll
   useEffect(() => {
@@ -366,96 +367,115 @@ function LandingPage() {
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-charcoal mb-4">
               Everything You Need to Grow
             </h2>
-            <p className="font-sans text-base text-charcoal/50 leading-relaxed">
+            <p className="font-sans text-base text-charcoal/50 leading-relaxed mb-8">
               From web development to digital marketing — browse all services, see transparent pricing, and book instantly.
             </p>
+            <button
+              onClick={() => setCatalogExpanded(!catalogExpanded)}
+              className="inline-flex items-center space-x-2 bg-charcoal text-white px-8 py-4 rounded-2xl text-sm font-bold shadow-xl shadow-charcoal/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span>{catalogExpanded ? 'Hide Services' : 'View All Services'}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${catalogExpanded ? 'rotate-180' : ''}`} />
+            </button>
           </motion.div>
 
-          {/* Filter tabs */}
-          <motion.div variants={fadeInUp} className="flex flex-wrap justify-center gap-2 mb-10">
-            {([['all', 'All Services'], ['it', 'IT Services'], ['branding', 'Branding'], ['marketing', 'Digital Marketing']] as const).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setCatalogFilter(key)}
-                className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                  catalogFilter === key
-                    ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20'
-                    : 'bg-bg text-charcoal/40 hover:text-charcoal/60 border border-charcoal/5'
-                }`}
+          <AnimatePresence>
+            {catalogExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
               >
-                {label}
-              </button>
-            ))}
-          </motion.div>
+                {/* Filter tabs */}
+                <div className="flex flex-wrap justify-center gap-2 mb-10">
+                  {([['all', 'All Services'], ['it', 'IT Services'], ['branding', 'Branding'], ['marketing', 'Digital Marketing']] as const).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setCatalogFilter(key)}
+                      className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                        catalogFilter === key
+                          ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20'
+                          : 'bg-bg text-charcoal/40 hover:text-charcoal/60 border border-charcoal/5'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
 
-          {/* Service cards grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence mode="popLayout">
-              {filteredCatalog.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <motion.div
-                    key={service.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ y: -8 }}
-                    className="bg-bg border border-charcoal/5 rounded-[2rem] p-7 flex flex-col justify-between group transition-all"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="bg-primary/10 p-3 rounded-xl text-primary">
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                          service.category === 'it' ? 'bg-blue-50 text-blue-600' :
-                          service.category === 'branding' ? 'bg-purple-50 text-purple-600' :
-                          'bg-amber-50 text-amber-600'
-                        }`}>
-                          {service.category === 'it' ? 'IT' : service.category === 'branding' ? 'Branding' : 'Marketing'}
-                        </span>
-                      </div>
-                      <h3 className="font-display text-lg font-bold text-charcoal mb-2">{service.name}</h3>
-                      <p className="font-sans text-xs text-charcoal/40 leading-relaxed mb-4 line-clamp-2">{service.description}</p>
-                      <ul className="space-y-1.5 mb-6">
-                        {service.features.slice(0, 3).map((f, i) => (
-                          <li key={i} className="flex items-center text-[11px] text-charcoal/50">
-                            <CheckCircle className="w-3 h-3 text-primary mr-2 shrink-0" />
-                            <span>{f}</span>
-                          </li>
-                        ))}
-                        {service.features.length > 3 && (
-                          <li className="text-[11px] text-charcoal/30 ml-5">+{service.features.length - 3} more</li>
-                        )}
-                      </ul>
-                    </div>
-                    <div className="flex items-center justify-between pt-4 border-t border-charcoal/5">
-                      <div>
-                        <span className="font-display text-2xl font-extrabold text-charcoal">${service.price}</span>
-                      </div>
-                      {catalogStripeKey ? (
-                        <button
-                          onClick={() => setCatalogModalService(service)}
-                          className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer"
+                {/* Service cards grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <AnimatePresence mode="popLayout">
+                    {filteredCatalog.map((service) => {
+                      const Icon = service.icon;
+                      return (
+                        <motion.div
+                          key={service.id}
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{ duration: 0.3 }}
+                          whileHover={{ y: -8 }}
+                          className="bg-bg border border-charcoal/5 rounded-[2rem] p-7 flex flex-col justify-between group transition-all"
                         >
-                          Book Now
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleNavigate('contact')}
-                          className="bg-charcoal/5 text-charcoal/60 px-6 py-3 rounded-xl text-xs font-bold hover:bg-charcoal/10 transition-all cursor-pointer"
-                        >
-                          Inquire
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="bg-primary/10 p-3 rounded-xl text-primary">
+                                <Icon className="w-5 h-5" />
+                              </div>
+                              <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+                                service.category === 'it' ? 'bg-blue-50 text-blue-600' :
+                                service.category === 'branding' ? 'bg-purple-50 text-purple-600' :
+                                'bg-amber-50 text-amber-600'
+                              }`}>
+                                {service.category === 'it' ? 'IT' : service.category === 'branding' ? 'Branding' : 'Marketing'}
+                              </span>
+                            </div>
+                            <h3 className="font-display text-lg font-bold text-charcoal mb-2">{service.name}</h3>
+                            <p className="font-sans text-xs text-charcoal/40 leading-relaxed mb-4 line-clamp-2">{service.description}</p>
+                            <ul className="space-y-1.5 mb-6">
+                              {service.features.slice(0, 3).map((f, i) => (
+                                <li key={i} className="flex items-center text-[11px] text-charcoal/50">
+                                  <CheckCircle className="w-3 h-3 text-primary mr-2 shrink-0" />
+                                  <span>{f}</span>
+                                </li>
+                              ))}
+                              {service.features.length > 3 && (
+                                <li className="text-[11px] text-charcoal/30 ml-5">+{service.features.length - 3} more</li>
+                              )}
+                            </ul>
+                          </div>
+                          <div className="flex items-center justify-between pt-4 border-t border-charcoal/5">
+                            <div>
+                              <span className="font-display text-2xl font-extrabold text-charcoal">${service.price}</span>
+                            </div>
+                            {catalogStripeKey ? (
+                              <button
+                                onClick={() => setCatalogModalService(service)}
+                                className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer"
+                              >
+                                Book Now
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleNavigate('contact')}
+                                className="bg-charcoal/5 text-charcoal/60 px-6 py-3 rounded-xl text-xs font-bold hover:bg-charcoal/10 transition-all cursor-pointer"
+                              >
+                                Inquire
+                              </button>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.section>
 
