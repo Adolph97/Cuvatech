@@ -266,15 +266,15 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'm1',
     name: 'Achilike Victor',
     role: 'Founder & Infrastructure Lead',
-    bio: 'Believes in clean hardware wires, beautiful paper weights, and server instances that write quiet diaries instead of chaotic telemetry. Crafted over 200 cloud configurations.',
+    bio: 'Belives in building solutions that are cost-effective, resilient, practical, and impactful helping organizations do more with less while still achieving high-quality results.',
     image: AchilikeVictor,
   },
-  
+
   {
     id: 'm2',
     name: 'Obinna Ihekona',
     role: 'Development & Design Lead',
-    bio: 'A full-stack artisan who hand-codes every line of CSS and JavaScript. He has a background in fine arts and software engineering, blending aesthetics with functionality in every project.',
+    bio: 'A full-stack developer and solutions architect with more than half a decade in the Tech space. He is a seasoned professional that has built and delivered products and solutions for both small and mid scale enterprises with scalable operations. He is literally a 10x developer.',
     image: ObinnaIhekona
   }
 ];
