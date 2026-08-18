@@ -231,7 +231,7 @@ function LandingPage() {
             >
               <motion.button
                 id="hero-primary-cta"
-                onClick={() => handleNavigate('contact')}
+                onClick={() => setIsConsultOpen(true)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="w-full sm:w-auto bg-primary text-white px-8 py-4 text-base sm:text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 cursor-pointer transition-all flex items-center justify-center space-x-2"
