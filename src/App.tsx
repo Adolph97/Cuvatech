@@ -649,10 +649,8 @@ function LandingPage() {
                     <CheckCircle className="w-10 h-10" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-display text-2xl font-bold text-charcoal">Session Reserved!</h4>
-                    <p className="font-sans text-sm text-charcoal/50 leading-relaxed">
-                      Thank you. We have blocked space in our schedule. We will reach out shortly.
-                    </p>
+                    <h4 className="font-display text-2xl font-bold text-charcoal">Request Submitted!</h4>
+                    <p className="font-sans text-sm text-charcoal/50 leading-relaxed">Thank you for reaching out. We have received your request. A Cuva Tech team member will contact you within 24 hours to review your request.</p>
                   </div>
                 </div>
               ) : (
