@@ -50,6 +50,7 @@ function LandingPage() {
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [globalName, setGlobalName] = useState('');
   const [globalEmail, setGlobalEmail] = useState('');
+  const [globalPhone, setGlobalPhone] = useState('');
   const [globalSent, setGlobalSent] = useState(false);
 
   // Custom interactive tab for branding
@@ -202,6 +203,7 @@ function LandingPage() {
       type: 'Consultation',
       customerName: globalName,
       customerEmail: globalEmail,
+      customerPhone: globalPhone,
       details: { interest: 'General Agency Inquiry' }
     });
 
@@ -211,6 +213,7 @@ function LandingPage() {
       setIsConsultOpen(false);
       setGlobalName('');
       setGlobalEmail('');
+      setGlobalPhone('');
     }, 2200);
   };
 
@@ -682,13 +685,25 @@ function LandingPage() {
                   </div>
 
                   <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Phone number</label>
+                    <input
+                id="global-input-phone"
+                type="phone"
+                required
+                value={globalPhone}
+                onChange={(e) => setGlobalPhone(e.target.value)}
+                placeholder="+1 555 555 5555"
+                className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                />
+              </div>
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
                     <div className="relative">
                       <select className="w-full bg-bg border-none px-5 py-4 pr-12 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer">
-                        <option>IT Cloud Systems & Migrations</option>
-                        <option>Fine Stationery & Booklets print</option>
-                        <option>Handdrawn Logo Design Guidelines</option>
-                        <option>CPA Marketing & SEO growth checks</option>
+                        <option>IT Support</option>
+                        <option>Digital Marketing and SEO</option>
+                        <option>Design/Graphics</option>
+                        <option>Printed Items</option>
                       </select>
                       <ChevronDown className="w-4 h-4 text-charcoal/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
