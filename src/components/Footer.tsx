@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useSiteInfo } from '../SiteInfoStore';
 import { useContent } from '../ContentStore';
+import { useOrders } from '../OrderStore';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -28,6 +29,7 @@ export default function Footer({ onNavigate }: FooterProps) {
   const [newsletterSubbed, setNewsletterSubbed] = useState(false);
   const { siteInfo } = useSiteInfo();
   const { content } = useContent();
+  const { addOrder } = useOrders();
   const footer = content.footer || {};
 
   const xUrl = siteInfo.socials.x || 'https://x.com/cuva.tech';
@@ -38,10 +40,22 @@ export default function Footer({ onNavigate }: FooterProps) {
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
+
+    addOrder({
+      type: 'Contact',
+      customerName: 'Newsletter Subscriber',
+      customerEmail: newsletterEmail.trim(),
+      details: {
+        enquiryType: 'Newsletter Subscription',
+        source: 'Footer Dispatch',
+        subscribedAt: new Date().toISOString()
+      }
+    });
+
     setNewsletterSubbed(true);
     setTimeout(() => {
       setNewsletterEmail('');
-    }, 1500);
+    }, 2000);
   };
 
   const scrollToTop = () => {
