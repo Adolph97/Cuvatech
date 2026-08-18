@@ -10,6 +10,7 @@ import Testimonials from './components/Testimonials';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 import ServiceCheckoutModal from './components/ServiceCheckoutModal';
+import ConsultationModal from './components/ConsultationModal';
 import { IT_SERVICES, DEFAULT_IT_PRICES } from './data';
 import { ITIllustration, PrintIllustration, MarketingIllustration, MasterHeroIllustration, ScribbleUnderline, HanddrawnArrow, ScribbleStar, ScribbleCircle } from './components/NotionIllustrations';
 
@@ -48,10 +49,6 @@ function LandingPage() {
   const hp = content.homepage || {};
   const [activeSection, setActiveSection] = useState('hero');
   const [isConsultOpen, setIsConsultOpen] = useState(false);
-  const [globalName, setGlobalName] = useState('');
-  const [globalEmail, setGlobalEmail] = useState('');
-  const [globalPhone, setGlobalPhone] = useState('');
-  const [globalSent, setGlobalSent] = useState(false);
 
   // Custom interactive tab for branding
   const [brandingSubTab, setBrandingSubTab] = useState<'logo' | 'print' | null>(null);
@@ -193,29 +190,6 @@ function LandingPage() {
   }, [catalogPrices]);
 
   const filteredCatalog = catalogFilter === 'all' ? catalogItems : catalogItems.filter(s => s.category === catalogFilter);
-
-  const handleGlobalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!globalName.trim() || !globalEmail.trim()) return;
-
-    // Log to Admin Store
-    addOrder({
-      type: 'Consultation',
-      customerName: globalName,
-      customerEmail: globalEmail,
-      customerPhone: globalPhone,
-      details: { interest: 'General Agency Inquiry' }
-    });
-
-    setGlobalSent(true);
-    setTimeout(() => {
-      setGlobalSent(false);
-      setIsConsultOpen(false);
-      setGlobalName('');
-      setGlobalEmail('');
-      setGlobalPhone('');
-    }, 2200);
-  };
 
   return (
     <div className="bg-bg text-charcoal min-h-screen font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
@@ -618,112 +592,10 @@ function LandingPage() {
       <Footer onNavigate={handleNavigate} />
 
       {/* GLOBAL CONSULTATION BOOKING MODAL */}
-      <AnimatePresence>
-        {isConsultOpen && (
-          <div id="global-modal-overlay" className="fixed inset-0 z-50 bg-charcoal/20 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div
-              id="global-modal-content"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl shadow-charcoal/20 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="bg-primary/5 p-8 pb-6 flex items-start justify-between">
-                <div>
-                  <span className="font-sans font-bold text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Cuva Docket</span>
-                  <h3 className="font-display text-3xl font-extrabold text-charcoal leading-tight">Schedule <br />Consultation</h3>
-                </div>
-                <button
-                  id="close-global-modal"
-                  onClick={() => setIsConsultOpen(false)}
-                  className="w-10 h-10 rounded-full bg-white border border-charcoal/5 flex items-center justify-center hover:bg-bg transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5 text-charcoal/40" />
-                </button>
-              </div>
-
-              {globalSent ? (
-                <div id="global-success-state" className="p-12 text-center space-y-6">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full text-primary animate-bounce">
-                    <CheckCircle className="w-10 h-10" />
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-display text-2xl font-bold text-charcoal">Request Submitted!</h4>
-                    <p className="font-sans text-sm text-charcoal/50 leading-relaxed">Thank you for reaching out. We have received your request. A Cuva Tech team member will contact you within 24 hours to review your request.</p>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleGlobalSubmit} className="p-8 pt-2 space-y-5 font-sans">
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Your Name</label>
-                    <input
-                      id="global-input-name"
-                      type="text"
-                      required
-                      value={globalName}
-                      onChange={(e) => setGlobalName(e.target.value)}
-                      placeholder="Efe Cuva"
-                      className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Email Address</label>
-                    <input
-                      id="global-input-email"
-                      type="email"
-                      required
-                      value={globalEmail}
-                      onChange={(e) => setGlobalEmail(e.target.value)}
-                      placeholder="partner@efe_agency.co"
-                      className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Phone number</label>
-                    <input
-                id="global-input-phone"
-                type="phone"
-                required
-                value={globalPhone}
-                onChange={(e) => setGlobalPhone(e.target.value)}
-                placeholder="+1 555 555 5555"
-                className="w-full bg-bg border-none px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                />
-              </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-charcoal/30 uppercase tracking-widest ml-1">Interest</label>
-                    <div className="relative">
-                      <select className="w-full bg-bg border-none px-5 py-4 pr-12 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer">
-                        <option>IT Support</option>
-                        <option>Digital Marketing and SEO</option>
-                        <option>Design/Graphics</option>
-                        <option>Printed Items</option>
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-charcoal/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  <button
-                    id="global-submit-consult"
-                    type="submit"
-                    className="bg-primary text-white w-full py-5 text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-center mt-4"
-                  >
-                    Send Request
-                  </button>
-
-                  <p className="text-[10px] text-charcoal/30 text-center px-4">
-                    By submitting, you agree to our data handling protocols. We strictly never sell your information.
-                  </p>
-                </form>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <ConsultationModal
+        isOpen={isConsultOpen}
+        onClose={() => setIsConsultOpen(false)}
+      />
 
     </div>
   );
@@ -885,6 +757,10 @@ function PageWrapper({ children, activeSection }: { children: React.ReactNode; a
       </div>
       <Testimonials />
       <Footer onNavigate={handleNavigate} />
+      <ConsultationModal
+        isOpen={isConsultOpen}
+        onClose={() => setIsConsultOpen(false)}
+      />
     </div>
   );
 }
