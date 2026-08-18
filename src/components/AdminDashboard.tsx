@@ -40,7 +40,9 @@ import {
   Tag,
   Box,
   Layers,
-  UploadCloud
+  UploadCloud,
+  Phone,
+  PhoneCall
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getProductWeightPerUnitKg, getProductMinOrderWeightKg } from '../printingWeight';
@@ -878,10 +880,14 @@ export default function AdminDashboard() {
   const selectedOrder = orders.find(o => o.id === selectedOrderId);
 
   const filteredOrders = orders.filter(o => {
+    const phone = o.customerPhone || o.details?.phone || '';
     const matchSearch =
       o.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.type.toLowerCase().includes(searchTerm.toLowerCase());
+      o.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(phone).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (o.details?.interest && String(o.details.interest).toLowerCase().includes(searchTerm.toLowerCase()));
     const matchStatus = statusFilter === 'All' || o.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -1228,7 +1234,7 @@ export default function AdminDashboard() {
         <header className="flex items-center justify-between mb-12">
           <div>
             <h1 className="font-display text-3xl font-extrabold">
-              {activeTab === 'Overview' && 'Active Docket Overview'}
+              {activeTab === 'Overview' && 'Active ticket Overview'}
               {activeTab === 'Customers' && 'Registered Customers'}
               {activeTab === 'Analytics' && 'System Analytics'}
               {activeTab === 'Notifications' && 'System Notification Logs'}
@@ -1342,7 +1348,20 @@ export default function AdminDashboard() {
                             </span>
                           </div>
                           <span className="font-bold text-sm text-charcoal block truncate">{order.customerName}</span>
-                          <span className="text-[10px] text-charcoal/30 font-medium">{order.type} • {new Date(order.createdAt).toLocaleDateString()}</span>
+                          <div className="flex items-center space-x-2 text-[10px] text-charcoal/40 font-medium">
+                            <span>{order.type}</span>
+                            <span>•</span>
+                            <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                            {(order.customerPhone || order.details?.phone) && (
+                              <>
+                                <span>•</span>
+                                <span className="text-primary font-bold flex items-center space-x-1">
+                                  <Phone className="w-2.5 h-2.5 inline" />
+                                  <span>{order.customerPhone || order.details?.phone}</span>
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1388,8 +1407,19 @@ export default function AdminDashboard() {
 
                     <div className="pb-4 border-b border-charcoal/5">
                       <h3 className="font-display text-2xl font-bold">{selectedOrder.customerName}</h3>
-                      <p className="text-sm text-charcoal/40 font-medium mt-1">{selectedOrder.customerEmail}</p>
-                      <p className="text-[10px] text-charcoal/20 font-bold uppercase tracking-widest mt-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm">
+                        <a href={`mailto:${selectedOrder.customerEmail}`} className="text-charcoal/60 font-medium hover:text-primary transition-colors flex items-center space-x-1">
+                          <Mail className="w-3.5 h-3.5 text-charcoal/40" />
+                          <span>{selectedOrder.customerEmail}</span>
+                        </a>
+                        {(selectedOrder.customerPhone || selectedOrder.details?.phone) && (
+                          <a href={`tel:${selectedOrder.customerPhone || selectedOrder.details?.phone}`} className="text-primary font-bold hover:underline flex items-center space-x-1">
+                            <Phone className="w-3.5 h-3.5" />
+                            <span>{selectedOrder.customerPhone || selectedOrder.details?.phone}</span>
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-charcoal/30 font-bold uppercase tracking-widest mt-2">
                         {selectedOrder.type} • {new Date(selectedOrder.createdAt).toLocaleString()}
                       </p>
                     </div>
@@ -1604,6 +1634,16 @@ export default function AdminDashboard() {
                           <Mail className="w-4 h-4" />
                           <span>Email Client</span>
                         </a>
+
+                        {(selectedOrder.customerPhone || selectedOrder.details?.phone) && (
+                          <a
+                            href={`tel:${selectedOrder.customerPhone || selectedOrder.details?.phone}`}
+                            className="w-full bg-primary/10 border border-primary/20 text-primary py-4 rounded-2xl font-bold text-sm hover:bg-primary/20 transition-all flex items-center justify-center space-x-3 cursor-pointer"
+                          >
+                            <PhoneCall className="w-4 h-4" />
+                            <span>Call Client ({selectedOrder.customerPhone || selectedOrder.details?.phone})</span>
+                          </a>
+                        )}
 
                         {/* Delete */}
                         <button

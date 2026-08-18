@@ -611,7 +611,7 @@ if ($path === 'orders') {
         
         // --- SEND NOTIFICATION EMAIL TO info@cuvatech.com ---
         $to = "info@cuvatech.com";
-        $subject = "New Cuva Tech Docket: " . $newOrder['type'] . " Order (" . $newOrder['id'] . ")";
+        $subject = "New Cuva Tech ticket: " . $newOrder['type'] . " Order (" . $newOrder['id'] . ")";
         
         // Strip image base64 raw string from the email body to keep the email clean and prevent spam blocks
         $cleanDetails = $newOrder['details'];

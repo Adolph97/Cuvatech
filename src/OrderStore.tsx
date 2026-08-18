@@ -5,6 +5,7 @@ export interface Order {
   type: 'IT' | 'Print' | 'Marketing' | 'Branding' | 'Consultation' | 'Contact';
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   status: 'Pending' | 'Reviewing' | 'Provisioned' | 'Completed';
   details: any;
   createdAt: string;
@@ -13,7 +14,7 @@ export interface Order {
 
 interface OrderContextType {
   orders: Order[];
-  addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'notifications'>) => void;
+  addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'notifications'>) => Promise<Order | undefined>;
   updateOrderStatus: (id: string, status: Order['status']) => void;
   addNotification: (id: string, message: string) => void;
   deleteOrder: (id: string) => void;
@@ -47,6 +48,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const newOrder = await res.json();
         setOrders(prev => [newOrder, ...prev]);
+        return newOrder;
       }
     } catch (err) {
       console.error("Error adding order:", err);
